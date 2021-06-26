@@ -26,5 +26,5 @@ jobs:
           path: opencv_extra
       - uses: julia-actions/julia-runtest@v1
         env:
-          OPENCV_TEST_DATA_PATH: ${{ github.workspace }}/opencv_extra/opencv_extra/testdata
+          OPENCV_TEST_DATA_PATH: ${{ github.workspace }}/opencv_extra/testdata
 
