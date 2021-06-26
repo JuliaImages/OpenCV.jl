@@ -6,3 +6,6 @@ version = "4.5.2"
 [deps]
 CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
 OpenCV_jll = "33b9d88c-85f9-5d73-bd91-4e2b95a9aa0b"
+
+[compat]
+julia = "^1.6.0"
