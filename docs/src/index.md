@@ -1,6 +1,8 @@
-# OpenCV.jl
+```@meta
+CurrentModule = OpenCV
+```
 
-![OpenCV](https://raw.githubusercontent.com/JuliaOpenCV/OpenCV.jl/main/docs/src/assets/logo.png)
+# OpenCV.jl
 
 **OpenCV.jl** is a Julia package that provides an interface to the popular computer vision library OpenCV. It allows Julia users to leverage the extensive functionalities and algorithms offered by OpenCV for various computer vision tasks, such as image and video processing, object detection, feature extraction, and more.
 
@@ -62,3 +64,7 @@ OpenCV.jl is licensed under the [MIT License](https://github.com/JuliaImages/Ope
 ## Acknowledgments
 
 OpenCV.jl is built upon the excellent work of the OpenCV community. We are grateful for their continuous efforts in advancing the field of computer vision. @archit120 has been instrumental in the development of this package during GSOC 2021 and GSOC 2020.
+
+```@autodocs
+Modules = [OpenCV]
+```
