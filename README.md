@@ -28,6 +28,7 @@ using OpenCV
 
 Once imported, you can call OpenCV functions and use its data structures. Here's a simple example that loads an image and applies a Gaussian blur:
 
+List of wrapped methods is available here: [wrapped methods](https://github.com/opencv/opencv_contrib/blob/4.x/modules/julia/gen/funclist.csv)
 ```julia
 using ImageCore, OpenCV, TestImages, MosaicViews
 
