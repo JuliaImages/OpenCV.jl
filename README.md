@@ -53,6 +53,10 @@ For more information on the available functions and usage examples, please refer
 
 OpenCV.jl welcomes contributions from the community. If you encounter any issues, have suggestions for improvements, or would like to contribute code, please check the [GitHub repository](https://github.com/JuliaImages/OpenCV.jl).
 
+OpenCV.jl currently just directly provides OpenCV_jll without a higher level interface written here. It provides an avenue for further developement 
+using OpenCV bindings. For contribution, there are two very important components that must be maintained i.e. YggDrasil build_tarballs.jl which build OpenCV_jll 
+which is available [here](https://github.com/JuliaPackaging/Yggdrasil/tree/master/O/OpenCV) and the Julia Bindings of OpenCV which are available [here](https://github.com/opencv/opencv_contrib/tree/4.x/modules/julia). To build the Julia Bindings, this [blog post ](https://docs.opencv.org/4.x/d8/da4/tutorial_julia.html)will be of help. Also, @archit120 's [blog posts](https://archit.me/blog/) might be of interest.
+
 ## License
 
 OpenCV.jl is licensed under the [MIT License](https://github.com/JuliaImages/OpenCV.jl/blob/main/LICENSE). Please refer to the license file for more information.
