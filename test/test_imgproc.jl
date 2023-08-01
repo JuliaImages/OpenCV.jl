@@ -22,7 +22,3 @@ ve_gray = OpenCV.cvtColor(ve, OpenCV.COLOR_RGB2GRAY)
 
 # Shape check
 @test size(ve_gray)[1] == 1 && size(img_gray)[1] == 1
-
-
-
-print("imgproc test passed\n")
