@@ -114,5 +114,3 @@ end
     @test checkbounds(Bool, A, [CartesianIndex((5, 5))], 3) == false
     @test checkbounds(Bool, A, [CartesianIndex((5, 4))], 4) == false
 end
-
-println("OpenCV.Mat tests passed")
