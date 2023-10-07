@@ -1,5 +1,5 @@
 # OpenCV.jl
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](juliaimages.org/OpenCV.jl/dev//)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliaimages.org/OpenCV.jl/dev/)
 
 **OpenCV.jl** is a Julia package that provides an interface to the popular computer vision library OpenCV. It allows Julia users to leverage the extensive functionalities and algorithms offered by OpenCV for various computer vision tasks, such as image and video processing, object detection, feature extraction, and more.
 
