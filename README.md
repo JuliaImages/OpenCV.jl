@@ -1,6 +1,7 @@
 # OpenCV.jl
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliaimages.org/OpenCV.jl/dev/)
 
+[![Run tests](https://github.com/JuliaImages/OpenCV.jl/actions/workflows/UnitTest.yml/badge.svg)](https://github.com/JuliaImages/OpenCV.jl/actions/workflows/UnitTest.yml)
 [![codecov](https://codecov.io/gh/JuliaImages/OpenCV.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaImages/OpenCV.jl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/JuliaImages/OpenCV.jl/blob/master/LICENSE)
 [![OpenCV Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/OpenCV)](https://pkgs.genieframework.com?packages=OpenCV)
