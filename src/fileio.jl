@@ -34,13 +34,13 @@ end
 
 function save(s::Stream{T}, image::InputArray) where {T<:_IMAGE_DATA_FORMATS}
     ext = _get_format_extension(T)
-    enc_img = imencode(ext, image)
-    write(stream(s), enc_img)
+    enc_img = imencode(ext, image)[2]
+    Base.write(stream(s), enc_img)
 end
 
 function save(s::Stream{T}, image::InputArray, params::Vector{Int32}) where {T<:_IMAGE_DATA_FORMATS}
     ext = _get_format_extension(T)
-    enc_img = imencode(ext, image, params)
-    write(stream(s), enc_img)
+    enc_img = imencode(ext, image, params)[2]
+    Base.write(stream(s), enc_img)
 end
 
