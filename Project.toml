@@ -10,4 +10,5 @@ OpenCV_jll = "33b9d88c-85f9-5d73-bd91-4e2b95a9aa0b"
 
 [compat]
 CxxWrap = "0.11, 0.12, 0.13"
+FileIO = "1.16"
 julia = "^1.6.0"
