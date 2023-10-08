@@ -1,5 +1,10 @@
-const _IMAGE_FORMATS = (:PNG, :JPEG)
-const _IMAGE_DATA_FORMATS = Union{(DataFormat{f} for f in _IMAGE_FORMATS)...}
+const _IMAGE_DATA_FORMATS = Union{
+    format"BMP",
+    format"JP2",
+    format"JPEG",
+    format"PNG",
+    format"TIFF",
+}
 
 function _get_format_extension(fmt)
     FileIO.info(fmt)[2]
