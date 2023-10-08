@@ -6,6 +6,7 @@ function _get_format_extension(fmt)
 end
 
 ## Load Images
+
 function load(f::File{T}) where {T<:_IMAGE_DATA_FORMATS}
     data = imread(f.filename)
     return data
