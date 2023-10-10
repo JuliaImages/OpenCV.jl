@@ -7,6 +7,10 @@ DocMeta.setdocmeta!(OpenCV, :DocTestSetup, :(using OpenCV); recursive=true)
 makedocs(;
     modules=[OpenCV],
     sitename="OpenCV.jl",
+    pages = [
+        "OpenCV.jl" => "index.md"
+        "Getting started with Images" => "Getting started with Images.md"
+    ]
 )
 
 deploydocs(;
