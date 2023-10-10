@@ -22,7 +22,13 @@ function load(f::File{T}, flags::Int) where {T<:_IMAGE_DATA_FORMATS}
     return data
 end
 
-function load(s::Stream{T}, flags::Int=IMREAD_UNCHANGED) where {T<:_IMAGE_DATA_FORMATS}
+function load(s::Stream{T}) where {T<:_IMAGE_DATA_FORMATS}
+    data = read(stream(s))
+    img = imdecode(reshape(data, 1, 1, :))
+    return img
+end
+
+function load(s::Stream{T}, flags::Int) where {T<:_IMAGE_DATA_FORMATS}
     data = read(stream(s))
     img = imdecode(reshape(data, 1, 1, :), flags)
     return img
