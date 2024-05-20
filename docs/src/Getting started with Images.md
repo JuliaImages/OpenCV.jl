@@ -97,7 +97,7 @@ Preview from Pluto.jl
 
 ![qt preview](assets/qt.png)
 
-`Pluto.jl` To-do
+`Plots.jl` To-do
 
 `Makie.jl` To-do
 
