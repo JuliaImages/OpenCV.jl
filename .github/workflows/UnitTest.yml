@@ -39,6 +39,8 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           files: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   multithreads:
     name: Julia (threads) 1 - ubuntu-latest - x64 - ${{ github.event_name }}
     runs-on: ubuntu-latest
