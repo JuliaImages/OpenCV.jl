@@ -1,6 +1,7 @@
 using Artifacts
 using LazyArtifacts
 using OpenCV
+using FileIO
 using Test
 
 if "OPENCV_TEST_DATA_PATH" in keys(ENV)
@@ -16,4 +17,5 @@ end
     include("test_imgproc.jl")
     include("test_objdetect.jl")
     include("test_dnn.jl")
+    include("test_fileio.jl")
 end
