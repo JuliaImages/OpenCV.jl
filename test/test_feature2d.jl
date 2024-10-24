@@ -17,5 +17,5 @@ for kp in kps
         end
     end
 
-    @test_skip closest_match < 10 # TODO This test fails intermittently
+    @test closest_match < 10 # TODO This test fails intermittently
 end
