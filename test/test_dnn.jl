@@ -18,7 +18,7 @@ size0 = 300
 
 # cv.dnn.setPreferableTarget(net, cv.dnn.DNN_TARGET_CPU)
 cv.dnn.setInputMean(net, (104, 177, 123))
-cv.dnn.setInputScale(net, 1.)
+cv.dnn.setInputScale(net, (1.,))
 cv.dnn.setInputSize(net, size0, size0)
 
 

@@ -1,7 +1,7 @@
 [opencv_extra]
-git-tree-sha1 = "6d7d3f9fcc70a7a13e6617cea255f143df9957db"
+git-tree-sha1 = "41248814be0db6d9ae939420e33d320fe5c859b8"
 lazy = true
 
     [[opencv_extra.download]]
-    sha256 = "f1aff8497dbb84088b505c7dbda66480ac94ff2cae1b1db7f30c49781035b427"
-    url = "https://github.com/opencv/opencv_extra/archive/refs/tags/4.5.3.tar.gz"
+    sha256 = "21867d1f2469bac6f11f81ba292789bd61cdc46e18205f67803dfe28b7803609"
+    url = "https://github.com/opencv/opencv_extra/archive/refs/tags/4.10.0.tar.gz"
