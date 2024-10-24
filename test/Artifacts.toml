@@ -1,5 +1,5 @@
 [opencv_extra]
-git-tree-sha1 = "6d7d3f9fcc70a7a13e6617cea255f143df9957db"
+git-tree-sha1 = "41248814be0db6d9ae939420e33d320fe5c859b8"
 lazy = true
 
     [[opencv_extra.download]]
