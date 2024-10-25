@@ -4,7 +4,7 @@
 [![Run tests](https://github.com/JuliaImages/OpenCV.jl/actions/workflows/UnitTest.yml/badge.svg)](https://github.com/JuliaImages/OpenCV.jl/actions/workflows/UnitTest.yml)
 [![codecov](https://codecov.io/gh/JuliaImages/OpenCV.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaImages/OpenCV.jl)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/JuliaImages/OpenCV.jl/blob/master/LICENSE)
-[![OpenCV Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/OpenCV)](https://pkgs.genieframework.com?packages=OpenCV)
+
 
 **OpenCV.jl** is a Julia package that provides an interface to the popular computer vision library OpenCV. It allows Julia users to leverage the extensive functionalities and algorithms offered by OpenCV for various computer vision tasks, such as image and video processing, object detection, feature extraction, and more.
 
@@ -36,7 +36,7 @@ Once imported, you can call OpenCV functions and use its data structures. Here's
 
 List of wrapped methods is available here: [wrapped methods](https://github.com/opencv/opencv_contrib/blob/4.x/modules/julia/gen/funclist.csv)
 ```julia
-using ImageCore, OpenCV, TestImages, MosaicViews
+using ImageCore, OpenCV, TestImages, MosaicViews, ImageView
 
 img_orig = testimage("Mandrill")
 
@@ -48,7 +48,7 @@ img_blur = OpenCV.blur(img_gray, OpenCV.Size(Int32(9), Int32(9)))
 
 img_back =  colorview(Gray, float.(img_blur)./255)[1,:,:]
 
-mosaic(img_orig, img_back; nrow=1)
+imshow(mosaic(img_orig, img_back; nrow=1))
 ```
 
 #### Output:
