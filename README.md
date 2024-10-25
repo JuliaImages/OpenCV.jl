@@ -36,7 +36,7 @@ Once imported, you can call OpenCV functions and use its data structures. Here's
 
 List of wrapped methods is available here: [wrapped methods](https://github.com/opencv/opencv_contrib/blob/4.x/modules/julia/gen/funclist.csv)
 ```julia
-using ImageCore, OpenCV, TestImages, MosaicViews
+using ImageCore, OpenCV, TestImages, MosaicViews, ImageView
 
 img_orig = testimage("Mandrill")
 
@@ -48,7 +48,7 @@ img_blur = OpenCV.blur(img_gray, OpenCV.Size(Int32(9), Int32(9)))
 
 img_back =  colorview(Gray, float.(img_blur)./255)[1,:,:]
 
-mosaic(img_orig, img_back; nrow=1)
+imshow(mosaic(img_orig, img_back; nrow=1))
 ```
 
 #### Output:
