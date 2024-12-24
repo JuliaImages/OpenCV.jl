@@ -60,6 +60,7 @@ end
 
         corners, n_corners = parse_corners_file(data_file)
         detected_corners = _detect_corners(img_file, n_corners)
+        detected_corners = _detect_corners(img_file, n_corners)
 
         ϵ = calc_error(corners, detected_corners)
 
