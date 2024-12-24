@@ -48,23 +48,26 @@ function calc_error(ps1, ps2)
     sqrt(s/length(ps1))
 end
 
+function test_one(img_file, data_file)
+    corners, n_corners = parse_corners_file(data_file)
+    detected_corners = _detect_corners(img_file, n_corners)
+    calc_error(corners, detected_corners)
+end
+
 @testset "detecting corners" begin
 
     path = joinpath(test_dir, "cameracalibration")
     list = get_list(joinpath(path, "chessboard_list.dat"))
+
+    k, v = first(list)
+    test_one(joinpath(path, k), joinpath(path, v)) # why do we need this?
 
     @testset "in $k" for (k, v) in list
 
         img_file = joinpath(path, k)
         data_file = joinpath(path, v)
 
-        corners, n_corners = parse_corners_file(data_file)
-        detected_corners = _detect_corners(img_file, n_corners)
-        detected_corners = _detect_corners(img_file, n_corners)
-
-        ϵ = calc_error(corners, detected_corners)
-
-        @test ϵ < 1
+        @test test_one(img_file, data_file) < 1
 
     end
 end
