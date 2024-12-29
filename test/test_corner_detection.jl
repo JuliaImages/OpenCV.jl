@@ -1,11 +1,13 @@
-function _detect_corners(file, n_corners)
+const Point = Tuple{Float32, Float32} # just for conviniencve 
+
+function detect_corners(file, n_corners)
     img = load(file)
     gry = img[1:1, :, :]
     cv_n_corners = OpenCV.Size{Int32}(n_corners...)
     _cv_corners = OpenCV.Mat(Array{Float32}(undef, 2, 1, prod(n_corners)))
     ret, cv_corners = OpenCV.findChessboardCorners(gry, cv_n_corners, _cv_corners, 0)
     @assert ret "Failed to detect any corners!"
-    corners = reshape(vec.(eachslice(cv_corners, dims = 3)), n_corners)
+    corners = reshape(Point.(eachslice(cv_corners, dims = 3)), n_corners)
     return corners
 end
 
@@ -16,16 +18,10 @@ function parse_corners_file(file)
         readuntil(o, "cols:")
         cols = parse(Int, readuntil(o, "\n"))
         readuntil(o, "[")
-        corners = [Float32[] for i in 1:cols, j in 1:rows]
-        for i in 1:cols*rows, j in 1:2
-            if i == cols*rows && j == 2
-                break
-            end
-            push!(corners[i], parse(Float32, readuntil(o, ",")))
-        end
-        push!(corners[cols*rows], parse(Float32, readuntil(o, "]")))
-
-        return reverse(permutedims(corners, (2, 1)); dims = 1), (rows, cols)
+        txt = readuntil(o, "]")
+        num = parse.(Float32, split(txt, ','))
+        corners = reverse(permutedims(Point.(eachslice(reshape(num, 2, cols, rows), dims=(2,3)))); dims = 1)
+        return corners, (rows, cols)
     end
 end
 
@@ -48,9 +44,9 @@ function calc_error(ps1, ps2)
     sqrt(s/length(ps1))
 end
 
-function test_one(img_file, data_file)
+function calc_error(img_file::AbstractString, data_file::AbstractString)
     corners, n_corners = parse_corners_file(data_file)
-    detected_corners = _detect_corners(img_file, n_corners)
+    detected_corners = detect_corners(img_file, n_corners)
     calc_error(corners, detected_corners)
 end
 
@@ -60,14 +56,14 @@ end
     list = get_list(joinpath(path, "chessboard_list.dat"))
 
     k, v = first(list)
-    test_one(joinpath(path, k), joinpath(path, v)) # why do we need this?
+    calc_error(joinpath(path, k), joinpath(path, v)) # why do we need this?
 
     @testset "in $k" for (k, v) in list
 
         img_file = joinpath(path, k)
         data_file = joinpath(path, v)
 
-        @test test_one(img_file, data_file) < 1
+        @test calc_error(img_file, data_file) < 1
 
     end
 end
