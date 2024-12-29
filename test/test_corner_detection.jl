@@ -31,7 +31,7 @@ end
 
 function get_list(file)
     doc = read(file, LazyNode)
-    str = filter(≠('\"'), simple_value(doc[end][end]))
+    str = filter(≠('"'), simple_value(doc[end][end]))
     list = Dict{String, String}()
     for line in split(str, '\n')
         img_file, data_file = split(line)
