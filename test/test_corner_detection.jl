@@ -52,9 +52,6 @@ end
     path = joinpath(test_dir, "cameracalibration")
     list = get_list(joinpath(path, "chessboard_list.dat"))
 
-    k, v = first(list)
-    calc_error(joinpath(path, k), joinpath(path, v)) # why do we need this?
-
     @testset "in $k" for (k, v) in list
 
         img_file = joinpath(path, k)
