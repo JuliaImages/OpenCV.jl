@@ -1,10 +1,10 @@
 const Point = Tuple{Float32, Float32} # just for conviniencve 
 
-function detect_corners(file, n_corners)
-    img = load(file)
+function detect_corners(img_file, n_corners)
+    img = load(img_file)
     gry = img[1:1, :, :]
-    ret, cv_corners = OpenCV.findChessboardCorners(gry, OpenCV.Size{Int32}(n_corners...))
-    corners = reshape(Point.(eachslice(cv_corners, dims = 3)), n_corners)
+    corners = Matrix{Tuple{Float32,Float32}}(undef, n_corners)
+    ret, _ = OpenCV.findChessboardCorners(gry, OpenCV.Size{Int32}(n_corners...), OpenCV.Mat(reshape(reinterpret(Float32, corners), 2, 1, prod(n_corners))), 0)
     return corners
 end
 
