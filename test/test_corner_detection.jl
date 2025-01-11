@@ -11,13 +11,13 @@ end
 function parse_corners_file(file)
     open(file, "r") do o
         readuntil(o, "rows:")
-        rows = parse(Int, readuntil(o, "\n"))
+        rows = parse(Int, readline(o))
         readuntil(o, "cols:")
-        cols = parse(Int, readuntil(o, "\n"))
-        readuntil(o, "[")
-        txt = readuntil(o, "]")
+        cols = parse(Int, readline(o))
+        readuntil(o, '[')
+        txt = readuntil(o, ']')
         num = parse.(Float32, split(txt, ','))
-        corners = reverse(permutedims(Point.(eachslice(reshape(num, 2, cols, rows), dims=(2,3)))); dims = 1)
+        corners = reverse(permutedims(Tuple{Float32, Float32}.(eachslice(reshape(num, 2, cols, rows), dims=(2,3)))); dims = 1)
         return corners, (rows, cols)
     end
 end
