@@ -1,7 +1,7 @@
 name = "OpenCV"
 uuid = "f878e3a2-a245-4720-8660-60795d644f2a"
 authors = ["Archit Rungta <architrungta120@gmail.com>"]
-version = "4.6.1"
+version = "4.6.2"
 
 [deps]
 CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
@@ -9,6 +9,7 @@ FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 OpenCV_jll = "33b9d88c-85f9-5d73-bd91-4e2b95a9aa0b"
 
 [compat]
-FileIO = "1.16"
-CxxWrap = "0.16"
+CxxWrap = "0.16, 0.17"
+FileIO = "1.16, 1.17"
+OpenCV_jll = "4.10.0"
 julia = "1.10"
