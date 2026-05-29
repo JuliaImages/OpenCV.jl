@@ -19,7 +19,7 @@ jobs:
       matrix:
         version:
           - '1.10'
-          - '1'
+          - '1.11'
         os:
           - ubuntu-latest
           - windows-latest
@@ -28,7 +28,7 @@ jobs:
         include:
           - os: macOS-latest
             arch: aarch64
-            version: 1
+            version: '1.11'
 
     steps:
       - uses: actions/checkout@v6
@@ -46,13 +46,13 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   multithreads:
-    name: Julia (threads) 1 - ubuntu-latest - x64 - ${{ github.event_name }}
+    name: Julia (threads) 1.11 - ubuntu-latest - x64 - ${{ github.event_name }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: julia-actions/setup-julia@v3
         with:
-          version: '1'
+          version: '1.11'
           arch: 'x64'
       - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-buildpkg@v1

@@ -8,6 +8,9 @@
 
 **OpenCV.jl** is a Julia package that provides an interface to the popular computer vision library OpenCV. It allows Julia users to leverage the extensive functionalities and algorithms offered by OpenCV for various computer vision tasks, such as image and video processing, object detection, feature extraction, and more.
 
+> [!WARNING]
+> **OpenCV.jl currently only works on Julia 1.10 and 1.11.** The underlying `OpenCV_jll 4.10.0+0` binary links against `CxxWrap` 0.16 / `libcxxwrap_julia_jll` 0.13, neither of which supports Julia 1.12+. Support for newer Julia versions is blocked on [OpenCV_jll 4.12.0+0](https://github.com/JuliaPackaging/Yggdrasil/pull/12551) being published.
+
 ## Features
 
 - Comprehensive OpenCV bindings: OpenCV.jl provides comprehensive bindings to the OpenCV library, enabling Julia users to access a wide range of computer vision algorithms and functionalities.
@@ -62,11 +65,11 @@ OpenCV.jl welcomes contributions from the community. If you encounter any issues
 
 OpenCV.jl currently just directly provides OpenCV_jll without a higher level interface written here. It provides an avenue for further development 
 using OpenCV bindings. For contribution, there are two very important components that must be maintained i.e. YggDrasil build_tarballs.jl which build OpenCV_jll 
-which is available [here](https://github.com/JuliaPackaging/Yggdrasil/tree/master/O/OpenCV) and the Julia Bindings of OpenCV which are available [here](https://github.com/opencv/opencv_contrib/tree/4.x/modules/julia). To build the Julia Bindings, this [blog post ](https://docs.opencv.org/4.x/d8/da4/tutorial_julia.html)will be of help. Also, @archit120 's [blog posts](https://archit.me/blog/) might be of interest.
+which is available [here](https://github.com/JuliaPackaging/Yggdrasil/tree/master/O/OpenCV) and the Julia Bindings of OpenCV which are available [here](https://github.com/opencv/opencv_contrib/tree/4.x/modules/julia). To build the Julia Bindings, this [blog post](https://docs.opencv.org/4.x/d8/da4/tutorial_julia.html) will be of help. Also, @archit120 's [blog posts](https://archit.me/blog) might be of interest.
 
 ## License
 
-OpenCV.jl is licensed under the [MIT License](https://github.com/JuliaImages/OpenCV.jl/blob/main/LICENSE). Please refer to the license file for more information.
+OpenCV.jl is licensed under the [MIT License](https://github.com/JuliaImages/OpenCV.jl/blob/master/LICENSE). Please refer to the license file for more information.
 
 ## Acknowledgments
 
