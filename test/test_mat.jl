@@ -114,3 +114,25 @@ end
     @test checkbounds(Bool, A, [CartesianIndex((5, 5))], 3) == false
     @test checkbounds(Bool, A, [CartesianIndex((5, 4))], 4) == false
 end
+
+@testset "issue #5: split output is usable downstream" begin
+    # Regression test for https://github.com/JuliaImages/OpenCV.jl/issues/5
+    # The original report (CxxWrap 0.10 era) saw split return Mats whose
+    # backing CxxMat was a CxxMatDereferenced that no cpp_to_julia method
+    # matched, raising MethodError. Modern CxxWrap makes
+    # CxxMatDereferenced <: CxxMat so the existing method matches; lock
+    # that in here.
+    img = OpenCV.Mat(rand(UInt8, 3, 8, 8))
+    ym = OpenCV.cvtColor(img, OpenCV.COLOR_BGR2LAB)
+    channels = OpenCV.split(ym)
+    @test channels isa AbstractVector
+    @test length(channels) == 3
+    for c in channels
+        @test size(c) == (1, 8, 8)
+        @test c isa OpenCV.Mat
+        # Touch the data: this exercises the unsafe_wrap path that used
+        # to crash when the backing CxxMat was dereferenced incorrectly.
+        @test sum(Int, c) >= 0
+        @test c[1, 1, 1] isa UInt8
+    end
+end
