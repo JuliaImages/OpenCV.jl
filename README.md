@@ -8,8 +8,8 @@
 
 **OpenCV.jl** is a Julia package that provides an interface to the popular computer vision library OpenCV. It allows Julia users to leverage the extensive functionalities and algorithms offered by OpenCV for various computer vision tasks, such as image and video processing, object detection, feature extraction, and more.
 
-> [!WARNING]
-> **OpenCV.jl currently only works on Julia 1.10 and 1.11.** The underlying `OpenCV_jll 4.10.0+0` binary links against `CxxWrap` 0.16 / `libcxxwrap_julia_jll` 0.13, neither of which supports Julia 1.12+. Support for newer Julia versions is blocked on [OpenCV_jll 4.12.0+0](https://github.com/JuliaPackaging/Yggdrasil/pull/12551) being published.
+> [!NOTE]
+> **OpenCV.jl 4.7 requires `OpenCV_jll 4.13.0+0` or newer**, which is built against `CxxWrap` 0.17 / `libcxxwrap_julia_jll` 0.14 and supports Julia 1.10–1.14. Earlier `OpenCV_jll` versions are no longer compatible.
 
 ## Features
 
