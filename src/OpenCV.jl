@@ -7,6 +7,7 @@ using FileIO: DataFormat, File, Stream, stream
 include(joinpath(OpenCV_jll.artifact_dir, "OpenCV", "src", "OpenCV.jl"))
 
 include("patches_video.jl")
+include("patches.jl")
 include("fileio.jl")
 include("show.jl")
 
