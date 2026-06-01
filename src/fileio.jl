@@ -56,3 +56,12 @@ function save(s::Stream{T}, image::InputArray, params::Vector{Int32}) where {T<:
     Base.write(stream(s), enc_img)
 end
 
+## Issue #58: the auto-generated `imdecode(buf::InputArray, flags::Int64)`
+## requires the encoded byte buffer to already be a 3D `InputArray`, but the
+## natural form returned by `imencode`, file reads, or network responses is a
+## `Vector{UInt8}`. Reshape transparently. Mirror `imread`'s default flag for
+## the no-flag form.
+imdecode(buf::AbstractVector{UInt8}, flags::Integer) =
+    imdecode(reshape(buf, 1, 1, :), Int64(flags))
+imdecode(buf::AbstractVector{UInt8}) =
+    imdecode(buf, Int64(cv_IMREAD_COLOR_BGR))

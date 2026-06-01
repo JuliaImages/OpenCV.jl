@@ -61,3 +61,13 @@ end
         @test img1 == img2
     end
 end
+
+@testset "issue #58: imdecode(Vector{UInt8})" begin
+    img = rand(UInt8, 3, 64, 48)
+    _, buf = OpenCV.imencode(".png", img)
+    @test buf isa Vector{UInt8}
+    decoded = OpenCV.imdecode(buf, -1)
+    @test size(decoded) == size(img)
+    @test decoded == img
+    @test size(OpenCV.imdecode(buf)) == size(img)
+end
