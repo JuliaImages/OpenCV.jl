@@ -22,3 +22,16 @@ ve_gray = OpenCV.cvtColor(ve, OpenCV.COLOR_RGB2GRAY)
 
 # Shape check
 @test size(ve_gray)[1] == 1 && size(img_gray)[1] == 1
+
+@testset "issue #18: drawing functions accept Vector{Array{Int32,3}}" begin
+    # Without the covariant overloads in src/patches_drawing.jl, callers had
+    # to construct `OpenCV.InputArray[…]` element-typed vectors. Confirm that
+    # a natural `Vector{Array{Int32,3}}` dispatches.
+    canvas = OpenCV.Mat(zeros(UInt8, 3, 64, 64))
+    pts_array = Int32.(reshape([10 5; 20 30; 50 20; 30 10]', 2, 1, 4))
+    pts = [pts_array]
+    @test pts isa Vector{Array{Int32, 3}}
+    @test_nowarn OpenCV.polylines(canvas, pts, false, (0, 255, 255); thickness=1)
+    @test_nowarn OpenCV.fillPoly(canvas, pts, (255, 0, 0))
+    @test_nowarn OpenCV.drawContours(canvas, pts, -1, (0, 255, 0))
+end
