@@ -22,4 +22,5 @@ end
     include("test_fileio.jl")
     include("test_corner_detection.jl")
     include("test_calibration.jl")
+    include("test_video.jl")
 end
