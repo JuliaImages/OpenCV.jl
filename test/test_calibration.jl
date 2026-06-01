@@ -55,3 +55,38 @@ end
 
 end
 
+@testset "issue #60: concrete Vector{Array{T,3}} dispatch" begin
+    # Without the covariant overloads in src/patches.jl, callers had to use
+    # `OpenCV.InputArray[…]` element-typed vectors. Confirm that natural
+    # `Vector{Array{Float32,3}}` inputs now dispatch.
+    objpts = [Float32.(reshape(stack(Tuple.(CartesianIndices((0:5, 0:4, 0:0)))), 3, 1, :)) for _ in 1:2]
+    imgpts = [rand(Float32, 2, 1, length(first(objpts)) ÷ 3) for _ in 1:2]
+    @test objpts isa Vector{Array{Float32, 3}}
+    rvecs = [zeros(Float64, 1, 1, 3) for _ in 1:2]
+    tvecs = [zeros(Float64, 1, 1, 3) for _ in 1:2]
+    @test rvecs isa Vector{Array{Float64, 3}}
+    @test_nowarn applicable(OpenCV.calibrateCamera, objpts, imgpts,
+                            OpenCV.Size{Int32}(640, 480),
+                            OpenCV.Mat(zeros(Float64, 1, 3, 3)),
+                            OpenCV.Mat(zeros(Float64, 1, 1, 5)),
+                            rvecs, tvecs, 0,
+                            OpenCV.TermCriteria(3, 30, 0.001))
+    @test hasmethod(OpenCV.calibrateCamera,
+                    Tuple{Vector{Array{Float32,3}}, Vector{Array{Float32,3}},
+                          OpenCV.Size{Int32}, OpenCV.Mat{Float64}, OpenCV.Mat{Float64},
+                          Vector{Array{Float64,3}}, Vector{Array{Float64,3}},
+                          Int, OpenCV.TermCriteria})
+    @test hasmethod(OpenCV.calibrateCameraExtended,
+                    Tuple{Vector{Array{Float32,3}}, Vector{Array{Float32,3}},
+                          OpenCV.Size{Int32}, OpenCV.Mat{Float64}, OpenCV.Mat{Float64},
+                          Vector{Array{Float64,3}}, Vector{Array{Float64,3}}})
+    @test hasmethod(OpenCV.calibrateCameraRO,
+                    Tuple{Vector{Array{Float32,3}}, Vector{Array{Float32,3}},
+                          OpenCV.Size{Int32}, Int, OpenCV.Mat{Float64}, OpenCV.Mat{Float64},
+                          Vector{Array{Float64,3}}, Vector{Array{Float64,3}}})
+    @test hasmethod(OpenCV.calibrateCameraROExtended,
+                    Tuple{Vector{Array{Float32,3}}, Vector{Array{Float32,3}},
+                          OpenCV.Size{Int32}, Int, OpenCV.Mat{Float64}, OpenCV.Mat{Float64},
+                          Vector{Array{Float64,3}}, Vector{Array{Float64,3}}})
+end
+
