@@ -5,16 +5,16 @@ using OpenCV_jll
 include("typestructs.jl")
 include("Vec.jl")
 const dtypes = Union{UInt8, Int8, UInt16, Int16, Int32, Float32, Float64}
-size_t = UInt64
+
+# `size_t` is referenced verbatim by the generated wrappers (e.g.
+# `maxIters::size_t` in `estimateAffine2D`). `Csize_t` resolves to the
+# platform's pointer-width unsigned, matching C `size_t`.
+const size_t = Csize_t
 
 using CxxWrap
 @wrapmodule(OpenCV_jll.get_libopencv_julia_path, :cv_wrap)
 function __init__()
     @initcxx
-
-    if jlopencv_core_get_sizet()==4
-        size_t = UInt32
-    end
 end
 const Scalar = Union{Tuple{}, Tuple{Number}, Tuple{Number, Number}, Tuple{Number, Number, Number}, NTuple{4, Number}}
 

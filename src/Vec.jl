@@ -3,17 +3,15 @@
 struct Vec{T, N} <: AbstractArray{T,1}
     cpp_object
     data::AbstractArray{T, 1}
-    cpp_allocated::Bool
-    @inline function Vec{T, N}(obj) where {T, N}
 
-        new{T, N}(obj, Base.unsafe_wrap(Array{T, 1}, Ptr{T}(obj.cpp_object), N), true)
+    @inline function Vec{T, N}(obj) where {T, N}
+        new{T, N}(obj, Base.unsafe_wrap(Array{T, 1}, Ptr{T}(obj.cpp_object), N))
     end
 
-    @inline function Vec{T, N}(data_raw::AbstractArray{T, 1}) where {T, N}
-        if size(data_raw, 1) != N
-            throw("Array is improper Size for Vec declared")
-        end
-        new{T, N}(nothing, data_raw, false)
+    @inline function Vec{T, N}(data::AbstractArray{T, 1}) where {T, N}
+        size(data, 1) == N ||
+            throw(DimensionMismatch("Vec{$T, $N} expects a length-$N array, got length $(size(data, 1))"))
+        new{T, N}(nothing, data)
     end
 end
 
