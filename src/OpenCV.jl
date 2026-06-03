@@ -14,9 +14,6 @@ import Base.size
 include("cv_cxx.jl")
 include("generated/cv_wrap.jl")
 
-include("patches_video.jl")
-include("patches.jl")
-include("patches_drawing.jl")
 include("fileio.jl")
 include("show.jl")
 
