@@ -1,0 +1,6 @@
+# Generator scratch output (regenerate.jl works in a temp dir, but guard against
+# anyone running gen_all.py in place).
+autogen_cpp/
+autogen_jl/
+__pycache__/
+*.pyc

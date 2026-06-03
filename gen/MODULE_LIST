@@ -1,0 +1,19 @@
+# OpenCV modules passed to gen_all.py (the opencv_-prefixed OPENCV_MODULES_BUILD).
+# Must match the BUILD_LIST in Yggdrasil's O/OpenCV/build_tarballs.jl and the
+# HAVE_OPENCV_* entries in gen_python_config.json. Changing this set changes which
+# headers are parsed and which preprocessor definitions exist, so refresh
+# gen_python_config.json whenever this list changes.
+opencv_core
+opencv_flann
+opencv_imgproc
+opencv_dnn
+opencv_features2d
+opencv_imgcodecs
+opencv_videoio
+opencv_calib3d
+opencv_highgui
+opencv_objdetect
+opencv_stitching
+opencv_video
+opencv_gapi
+opencv_julia

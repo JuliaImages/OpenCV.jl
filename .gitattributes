@@ -1,0 +1,6 @@
+# Machine-generated wrappers (produced by gen/regenerate.jl). Collapsed in diffs
+# and excluded from language stats; review them as generated output, not by hand.
+src/generated/** linguist-generated=true
+
+# Vendored Julia-specific binding generator (see gen/PROVENANCE.md).
+gen/** linguist-vendored=true
