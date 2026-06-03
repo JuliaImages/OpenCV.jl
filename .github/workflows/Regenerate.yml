@@ -1,0 +1,40 @@
+name: Regenerate
+# Guards reproducibility of the vendored Julia binding generator (see gen/): the
+# committed wrappers in src/generated/ must be exactly what gen/regenerate.jl
+# produces from the pinned OpenCV release. Generation parses headers only, so this
+# needs no OpenCV build — just git + python3. If this fails, run
+# `julia gen/regenerate.jl` locally and commit the result.
+on:
+  push:
+    branches:
+      - master
+    tags: '*'
+  pull_request:
+    paths:
+      - 'gen/**'
+      - 'src/generated/**'
+      - '.github/workflows/Regenerate.yml'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+jobs:
+  regenerate:
+    name: Wrappers are reproducible
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: '1.12'
+          arch: 'x64'
+      - name: Regenerate wrappers from the pinned OpenCV release
+        run: julia --startup-file=no gen/regenerate.jl
+      - name: Fail if src/generated/ is out of date
+        run: |
+          if ! git diff --exit-code -- src/generated/; then
+            echo "::error::src/generated/ is stale. Run 'julia gen/regenerate.jl' and commit the result."
+            exit 1
+          fi

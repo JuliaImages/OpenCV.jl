@@ -1,0 +1,7 @@
+# Pinned OpenCV sources used to (re)generate the wrappers in ../src/generated/.
+# Keep these in lockstep with O/OpenCV/build_tarballs.jl in Yggdrasil: the JLL's
+# compiled libopencv_julia and these committed .jl wrappers must come from the
+# same OpenCV tag, or @wrapmodule will fail on mismatched symbols.
+version = 4.13.0
+opencv_commit = fe38fc608f6acb8b68953438a62305d8318f4fcd
+opencv_contrib_commit = d99ad2a188210cc35067c2e60076eed7c2442bc3
