@@ -48,6 +48,10 @@ function julia_to_cpp(var::Bool)
     return CxxBool(var)
 end
 
+# VideoWriter_fourcc is the one generated wrapper that takes Char arguments;
+# its C++ binding expects Cchar (Int8). See issue #31.
+julia_to_cpp(c::Char) = Cchar(c)
+
 
 include("generated/cv_cxx_wrap.jl")
 
