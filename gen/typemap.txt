@@ -6,6 +6,11 @@ RotatedRect:RotatedRect
 Point2f:Point{Float32}
 Rect:Rect{Int32}
 vector<KeyPoint>:Array{KeyPoint, 1}
+vector<DMatch>:Array{DMatch, 1}
+vector<vector<DMatch>>:Array{Array{DMatch, 1}, 1}
+vector<vector<KeyPoint>>:Array{Array{KeyPoint, 1}, 1}
+vector<char>:Array{Int8, 1}
+vector<vector<char>>:Array{Array{Int8, 1}, 1}
 double:Float64
 Point*:NONCONVERT2
 vector<Point>:Array{Point{Int32}, 1}
@@ -46,6 +51,7 @@ float:Float64
 Ptr<float>:Ptr{Float32}
 vector<Vec6f>:Array{Vec{Float32, 6}, 1}
 Ptr<FeatureDetector>:Ptr{Feature2D}
+Ptr<Feature2D>:Ptr{Feature2D}
 Point2d:Point{Float64}
 SolvePnPMethod:SolvePnPMethod
 CirclesGridFinderParameters:CirclesGridFinderParameters
