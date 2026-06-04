@@ -1,21 +1,26 @@
 #Adapted from IndirectArray
 
-struct Vec{T, N} <: AbstractArray{T,1}
-    cpp_object
-    data::AbstractArray{T, 1}
+struct Vec{T, N, C, D <: AbstractArray{T, 1}} <: AbstractArray{T, 1}
+    cpp_object::C
+    data::D
 
-    @inline function Vec{T, N}(obj) where {T, N}
-        new{T, N}(obj, Base.unsafe_wrap(Array{T, 1}, Ptr{T}(obj.cpp_object), N))
-    end
-
-    @inline function Vec{T, N}(data::AbstractArray{T, 1}) where {T, N}
-        size(data, 1) == N ||
-            throw(DimensionMismatch("Vec{$T, $N} expects a length-$N array, got length $(size(data, 1))"))
-        new{T, N}(nothing, data)
+    @inline function Vec{T, N, C, D}(cpp_object::C, data::D) where {T, N, C, D <: AbstractArray{T, 1}}
+        new{T, N, C, D}(cpp_object, data)
     end
 end
 
-function Base.deepcopy_internal(x::Vec{T,N}, y::IdDict) where {T, N}
+@inline function Vec{T, N}(obj) where {T, N}
+    data = Base.unsafe_wrap(Array{T, 1}, Ptr{T}(obj.cpp_object), N)
+    Vec{T, N, typeof(obj), typeof(data)}(obj, data)
+end
+
+@inline function Vec{T, N}(data::AbstractArray{T, 1}) where {T, N}
+    size(data, 1) == N ||
+        throw(DimensionMismatch("Vec{$T, $N} expects a length-$N array, got length $(size(data, 1))"))
+    Vec{T, N, Nothing, typeof(data)}(nothing, data)
+end
+
+function Base.deepcopy_internal(x::Vec, y::IdDict)
     if haskey(y, x)
         return y[x]
     end
@@ -26,23 +31,21 @@ end
 
 Base.size(A::Vec) = Base.size(A.data)
 Base.axes(A::Vec) = Base.axes(A.data)
-Base.IndexStyle(::Type{Vec{T,N}}) where {T, N} = IndexLinear()
+Base.IndexStyle(::Type{<:Vec}) = IndexLinear()
 
-Base.strides(A::Vec{T,N}) where {T, N} = (1)
-function Base.copy(A::Vec{T,N}) where {T, N}
-    return Vec{T, N}(copy(A.data))
-end
+Base.strides(::Vec) = (1,)
+Base.copy(A::Vec{T, N}) where {T, N} = Vec{T, N}(copy(A.data))
 Base.pointer(A::Vec) = Base.pointer(A.data)
 
-Base.unsafe_convert(::Type{Ptr{T}}, A::Vec{S, N}) where {T, S, N} = Base.unsafe_convert(Ptr{T}, A.data)
+Base.unsafe_convert(::Type{Ptr{T}}, A::Vec) where {T} = Base.unsafe_convert(Ptr{T}, A.data)
 
-@inline function Base.getindex(A::Vec{T,N}, I::Int) where {T, N}
+@inline function Base.getindex(A::Vec, I::Int)
     @boundscheck checkbounds(A.data, I)
-    return A.data[I]
+    @inbounds A.data[I]
 end
 
 @inline function Base.setindex!(A::Vec, x, I::Int)
     @boundscheck checkbounds(A.data, I)
-    A.data[I] = x
+    @inbounds A.data[I] = x
     return A
 end
