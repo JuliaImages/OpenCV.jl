@@ -40,8 +40,24 @@ function cpp_to_julia(mat::CxxMat)
     #TODO: Implement views when steps do not result in continous memory
     arr = Base.unsafe_wrap(Array{dtype, 3}, Ptr{dtype}(rets[1].cpp_object), (rets[3], rets[4], rets[5]))
 
+    # Off-heap pressure hint (#10).
+    _gc_external_pressure!(rets[3] * rets[4] * rets[5] * sizeof(dtype))
+
     #Preserve Mat so that array allocated by C++ isn't deallocated
     return Mat{dtype}(mat, arr)
+end
+
+# Off-heap byte counter for cv::Mat buffers; flush via incremental GC (#10).
+const _gc_external_bytes = Threads.Atomic{Int64}(0)
+const _gc_external_threshold = Ref{Int64}(256 * 1024 * 1024)
+
+function _gc_external_pressure!(nbytes::Integer)
+    total = Threads.atomic_add!(_gc_external_bytes, Int64(nbytes)) + Int64(nbytes)
+    if total >= _gc_external_threshold[]
+        Threads.atomic_sub!(_gc_external_bytes, total)
+        GC.gc(false)
+    end
+    return nothing
 end
 
 function julia_to_cpp(img::InputArray)
@@ -100,7 +116,9 @@ end
 function cpp_to_julia(var::CxxWrap.StdVector{T}) where {T <: CxxMat}
     ret = Array{Mat, 1}()
     for x in var
-        push!(ret, cpp_to_julia(x))
+        m = cpp_to_julia(x)
+        # Preserve parent StdVector: iterated CxxMat refs alias it (#57).
+        push!(ret, Mat{eltype(m)}((var, m.mat), m.data))
     end
     return ret
 end

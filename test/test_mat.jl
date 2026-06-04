@@ -136,3 +136,43 @@ end
         @test c[1, 1, 1] isa UInt8
     end
 end
+
+@testset "issue #57: split output survives GC" begin
+    # Regression test for https://github.com/JuliaImages/OpenCV.jl/issues/57
+    function make_channels()
+        img = OpenCV.Mat(rand(UInt8, 3, 512, 512))
+        return OpenCV.split(img)
+    end
+    channels = make_channels()
+    GC.gc(); GC.gc()
+    @test length(channels) == 3
+    for c in channels
+        @test size(c) == (1, 512, 512)
+        s = 0
+        for k in axes(c, 3), j in axes(c, 2)
+            s += c[1, j, k]
+        end
+        @test s >= 0
+    end
+    GC.gc(); GC.gc()
+    @test channels[1][1, 1, 1] isa UInt8
+    @test channels[end][1, end, end] isa UInt8
+end
+
+@testset "issue #10: external memory pressure triggers GC" begin
+    # Regression test for https://github.com/JuliaImages/OpenCV.jl/issues/10
+    old_threshold = OpenCV._gc_external_threshold[]
+    OpenCV._gc_external_threshold[] = 8 * 1024 * 1024
+    OpenCV._gc_external_bytes[] = 0
+    try
+        src = OpenCV.Mat(rand(UInt8, 3, 1024, 1024))
+        GC.gc(); GC.gc()
+        pauses_before = Base.gc_num().pause
+        for _ in 1:50
+            _ = OpenCV.cvtColor(src, OpenCV.COLOR_BGR2GRAY)
+        end
+        @test Base.gc_num().pause > pauses_before
+    finally
+        OpenCV._gc_external_threshold[] = old_threshold
+    end
+end
