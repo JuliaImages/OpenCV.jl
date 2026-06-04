@@ -158,3 +158,21 @@ end
     @test channels[1][1, 1, 1] isa UInt8
     @test channels[end][1, end, end] isa UInt8
 end
+
+@testset "issue #10: external memory pressure triggers GC" begin
+    # Regression test for https://github.com/JuliaImages/OpenCV.jl/issues/10
+    old_threshold = OpenCV._gc_external_threshold[]
+    OpenCV._gc_external_threshold[] = 8 * 1024 * 1024
+    OpenCV._gc_external_bytes[] = 0
+    try
+        src = OpenCV.Mat(rand(UInt8, 3, 1024, 1024))
+        GC.gc(); GC.gc()
+        pauses_before = Base.gc_num().pause
+        for _ in 1:50
+            _ = OpenCV.cvtColor(src, OpenCV.COLOR_BGR2GRAY)
+        end
+        @test Base.gc_num().pause > pauses_before
+    finally
+        OpenCV._gc_external_threshold[] = old_threshold
+    end
+end
