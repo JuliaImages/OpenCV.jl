@@ -136,3 +136,25 @@ end
         @test c[1, 1, 1] isa UInt8
     end
 end
+
+@testset "issue #57: split output survives GC" begin
+    # Regression test for https://github.com/JuliaImages/OpenCV.jl/issues/57
+    function make_channels()
+        img = OpenCV.Mat(rand(UInt8, 3, 512, 512))
+        return OpenCV.split(img)
+    end
+    channels = make_channels()
+    GC.gc(); GC.gc()
+    @test length(channels) == 3
+    for c in channels
+        @test size(c) == (1, 512, 512)
+        s = 0
+        for k in axes(c, 3), j in axes(c, 2)
+            s += c[1, j, k]
+        end
+        @test s >= 0
+    end
+    GC.gc(); GC.gc()
+    @test channels[1][1, 1, 1] isa UInt8
+    @test channels[end][1, end, end] isa UInt8
+end

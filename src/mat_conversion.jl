@@ -100,7 +100,9 @@ end
 function cpp_to_julia(var::CxxWrap.StdVector{T}) where {T <: CxxMat}
     ret = Array{Mat, 1}()
     for x in var
-        push!(ret, cpp_to_julia(x))
+        m = cpp_to_julia(x)
+        # Preserve parent StdVector: iterated CxxMat refs alias it (#57).
+        push!(ret, Mat{eltype(m)}((var, m.mat), m.data))
     end
     return ret
 end
