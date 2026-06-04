@@ -34,6 +34,8 @@ for module in sys.argv[3:]:
         hdr_list.append(mod_path+"/highgui/include/opencv2/highgui.hpp")
     elif module =='opencv_calib3d':
         hdr_list.append(mod_path+"/calib3d/include/opencv2/calib3d.hpp")
+    elif module =='opencv_features2d':
+        hdr_list.append(mod_path+"/features2d/include/opencv2/features2d.hpp")
 
 if not os.path.exists('autogen_cpp'):
     os.makedirs('autogen_cpp')
