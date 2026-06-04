@@ -97,6 +97,20 @@
 
    const ColormapTypes = Int64 
 
+   const ORB_ScoreType = Int64 
+
+   const FastFeatureDetector_DetectorType = Int64 
+
+   const AgastFeatureDetector_DetectorType = Int64 
+
+   const KAZE_DiffusivityType = Int64 
+
+   const AKAZE_DescriptorType = Int64 
+
+   const DescriptorMatcher_MatcherType = Int64 
+
+   const DrawMatchesFlags = Int64 
+
    const ImreadModes = Int64 
 
    const ImwriteFlags = Int64 
@@ -579,6 +593,817 @@ function Base.getproperty(m::cv_Ptr{LineSegmentDetector}, s::Symbol)
     return Base.getfield(m, s)
 end
 function Base.setproperty!(m::cv_Ptr{LineSegmentDetector}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+function Base.getproperty(m::cv_Ptr{Feature2D}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{Feature2D}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function detect(cobj::cv_Ptr{T}, image::InputArray, mask::InputArray) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_detect(julia_to_cpp(cobj),julia_to_cpp(image),julia_to_cpp(mask)))
+end
+detect(cobj::cv_Ptr{T}, image::InputArray; mask::InputArray = (CxxMat())) where {T <: Feature2D} = detect(cobj, image, mask)
+
+function detect(cobj::cv_Ptr{T}, images::Array{InputArray, 1}, masks::Array{InputArray, 1}) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_detect(julia_to_cpp(cobj),julia_to_cpp(images),julia_to_cpp(masks)))
+end
+detect(cobj::cv_Ptr{T}, images::Array{InputArray, 1}; masks::Array{InputArray, 1} = ()) where {T <: Feature2D} = detect(cobj, images, masks)
+
+function compute(cobj::cv_Ptr{T}, image::InputArray, keypoints::Array{KeyPoint, 1}, descriptors::InputArray) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_compute(julia_to_cpp(cobj),julia_to_cpp(image),julia_to_cpp(keypoints),julia_to_cpp(descriptors)))
+end
+compute(cobj::cv_Ptr{T}, image::InputArray, keypoints::Array{KeyPoint, 1}; descriptors::InputArray = (CxxMat())) where {T <: Feature2D} = compute(cobj, image, keypoints, descriptors)
+
+function compute(cobj::cv_Ptr{T}, images::Array{InputArray, 1}, keypoints::Array{Array{KeyPoint, 1}, 1}, descriptors::Array{InputArray, 1}) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_compute(julia_to_cpp(cobj),julia_to_cpp(images),julia_to_cpp(keypoints),julia_to_cpp(descriptors)))
+end
+compute(cobj::cv_Ptr{T}, images::Array{InputArray, 1}, keypoints::Array{Array{KeyPoint, 1}, 1}; descriptors::Array{InputArray, 1} = (Array{InputArray, 1}())) where {T <: Feature2D} = compute(cobj, images, keypoints, descriptors)
+
+function detectAndCompute(cobj::cv_Ptr{T}, image::InputArray, mask::InputArray, descriptors::InputArray, useProvidedKeypoints::Bool) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_detectAndCompute(julia_to_cpp(cobj),julia_to_cpp(image),julia_to_cpp(mask),julia_to_cpp(descriptors),julia_to_cpp(useProvidedKeypoints)))
+end
+detectAndCompute(cobj::cv_Ptr{T}, image::InputArray, mask::InputArray; descriptors::InputArray = (CxxMat()), useProvidedKeypoints::Bool = (false)) where {T <: Feature2D} = detectAndCompute(cobj, image, mask, descriptors, useProvidedKeypoints)
+
+function descriptorSize(cobj::cv_Ptr{T}) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_descriptorSize(julia_to_cpp(cobj)))
+end
+
+function descriptorType(cobj::cv_Ptr{T}) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_descriptorType(julia_to_cpp(cobj)))
+end
+
+function defaultNorm(cobj::cv_Ptr{T}) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_defaultNorm(julia_to_cpp(cobj)))
+end
+
+function write(cobj::cv_Ptr{T}, fileName::String) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_write(julia_to_cpp(cobj),julia_to_cpp(fileName)))
+end
+
+function write(cobj::cv_Ptr{T}, fs::FileStorage, name::String) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_write(julia_to_cpp(cobj),julia_to_cpp(fs),julia_to_cpp(name)))
+end
+
+function read(cobj::cv_Ptr{T}, fileName::String) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_read(julia_to_cpp(cobj),julia_to_cpp(fileName)))
+end
+
+function read(cobj::cv_Ptr{T}, arg1::FileNode) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_read(julia_to_cpp(cobj),julia_to_cpp(arg1)))
+end
+
+function empty(cobj::cv_Ptr{T}) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_empty(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: Feature2D}
+	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_getDefaultName(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{AffineFeature}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{AffineFeature}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function setViewParams(cobj::cv_Ptr{T}, tilts::Array{Float32, 1}, rolls::Array{Float32, 1}) where {T <: AffineFeature}
+	return cpp_to_julia(jlopencv_cv_cv_AffineFeature_cv_AffineFeature_setViewParams(julia_to_cpp(cobj),julia_to_cpp(tilts),julia_to_cpp(rolls)))
+end
+
+function getViewParams(cobj::cv_Ptr{T}, tilts::Array{Float32, 1}, rolls::Array{Float32, 1}) where {T <: AffineFeature}
+	return cpp_to_julia(jlopencv_cv_cv_AffineFeature_cv_AffineFeature_getViewParams(julia_to_cpp(cobj),julia_to_cpp(tilts),julia_to_cpp(rolls)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: AffineFeature}
+	return cpp_to_julia(jlopencv_cv_cv_AffineFeature_cv_AffineFeature_getDefaultName(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{SIFT}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{SIFT}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_getDefaultName(julia_to_cpp(cobj)))
+end
+
+function setNFeatures(cobj::cv_Ptr{T}, maxFeatures::Int64) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_setNFeatures(julia_to_cpp(cobj),julia_to_cpp(maxFeatures)))
+end
+
+function getNFeatures(cobj::cv_Ptr{T}) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_getNFeatures(julia_to_cpp(cobj)))
+end
+
+function setNOctaveLayers(cobj::cv_Ptr{T}, nOctaveLayers::Int64) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_setNOctaveLayers(julia_to_cpp(cobj),julia_to_cpp(nOctaveLayers)))
+end
+
+function getNOctaveLayers(cobj::cv_Ptr{T}) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_getNOctaveLayers(julia_to_cpp(cobj)))
+end
+
+function setContrastThreshold(cobj::cv_Ptr{T}, contrastThreshold::Float64) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_setContrastThreshold(julia_to_cpp(cobj),julia_to_cpp(contrastThreshold)))
+end
+
+function getContrastThreshold(cobj::cv_Ptr{T}) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_getContrastThreshold(julia_to_cpp(cobj)))
+end
+
+function setEdgeThreshold(cobj::cv_Ptr{T}, edgeThreshold::Float64) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_setEdgeThreshold(julia_to_cpp(cobj),julia_to_cpp(edgeThreshold)))
+end
+
+function getEdgeThreshold(cobj::cv_Ptr{T}) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_getEdgeThreshold(julia_to_cpp(cobj)))
+end
+
+function setSigma(cobj::cv_Ptr{T}, sigma::Float64) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_setSigma(julia_to_cpp(cobj),julia_to_cpp(sigma)))
+end
+
+function getSigma(cobj::cv_Ptr{T}) where {T <: SIFT}
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_cv_SIFT_getSigma(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{BRISK}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{BRISK}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: BRISK}
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_cv_BRISK_getDefaultName(julia_to_cpp(cobj)))
+end
+
+function setThreshold(cobj::cv_Ptr{T}, threshold::Int64) where {T <: BRISK}
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_cv_BRISK_setThreshold(julia_to_cpp(cobj),julia_to_cpp(threshold)))
+end
+
+function getThreshold(cobj::cv_Ptr{T}) where {T <: BRISK}
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_cv_BRISK_getThreshold(julia_to_cpp(cobj)))
+end
+
+function setOctaves(cobj::cv_Ptr{T}, octaves::Int64) where {T <: BRISK}
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_cv_BRISK_setOctaves(julia_to_cpp(cobj),julia_to_cpp(octaves)))
+end
+
+function getOctaves(cobj::cv_Ptr{T}) where {T <: BRISK}
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_cv_BRISK_getOctaves(julia_to_cpp(cobj)))
+end
+
+function setPatternScale(cobj::cv_Ptr{T}, patternScale::Float64) where {T <: BRISK}
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_cv_BRISK_setPatternScale(julia_to_cpp(cobj),julia_to_cpp(patternScale)))
+end
+
+function getPatternScale(cobj::cv_Ptr{T}) where {T <: BRISK}
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_cv_BRISK_getPatternScale(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{ORB}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{ORB}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function setMaxFeatures(cobj::cv_Ptr{T}, maxFeatures::Int64) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setMaxFeatures(julia_to_cpp(cobj),julia_to_cpp(maxFeatures)))
+end
+
+function getMaxFeatures(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getMaxFeatures(julia_to_cpp(cobj)))
+end
+
+function setScaleFactor(cobj::cv_Ptr{T}, scaleFactor::Float64) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setScaleFactor(julia_to_cpp(cobj),julia_to_cpp(scaleFactor)))
+end
+
+function getScaleFactor(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getScaleFactor(julia_to_cpp(cobj)))
+end
+
+function setNLevels(cobj::cv_Ptr{T}, nlevels::Int64) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setNLevels(julia_to_cpp(cobj),julia_to_cpp(nlevels)))
+end
+
+function getNLevels(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getNLevels(julia_to_cpp(cobj)))
+end
+
+function setEdgeThreshold(cobj::cv_Ptr{T}, edgeThreshold::Int64) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setEdgeThreshold(julia_to_cpp(cobj),julia_to_cpp(edgeThreshold)))
+end
+
+function getEdgeThreshold(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getEdgeThreshold(julia_to_cpp(cobj)))
+end
+
+function setFirstLevel(cobj::cv_Ptr{T}, firstLevel::Int64) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setFirstLevel(julia_to_cpp(cobj),julia_to_cpp(firstLevel)))
+end
+
+function getFirstLevel(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getFirstLevel(julia_to_cpp(cobj)))
+end
+
+function setWTA_K(cobj::cv_Ptr{T}, wta_k::Int64) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setWTA_K(julia_to_cpp(cobj),julia_to_cpp(wta_k)))
+end
+
+function getWTA_K(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getWTA_K(julia_to_cpp(cobj)))
+end
+
+function setScoreType(cobj::cv_Ptr{T}, scoreType::ORB_ScoreType) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setScoreType(julia_to_cpp(cobj),julia_to_cpp(scoreType)))
+end
+
+function getScoreType(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getScoreType(julia_to_cpp(cobj)))
+end
+
+function setPatchSize(cobj::cv_Ptr{T}, patchSize::Int64) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setPatchSize(julia_to_cpp(cobj),julia_to_cpp(patchSize)))
+end
+
+function getPatchSize(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getPatchSize(julia_to_cpp(cobj)))
+end
+
+function setFastThreshold(cobj::cv_Ptr{T}, fastThreshold::Int64) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_setFastThreshold(julia_to_cpp(cobj),julia_to_cpp(fastThreshold)))
+end
+
+function getFastThreshold(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getFastThreshold(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: ORB}
+	return cpp_to_julia(jlopencv_cv_cv_ORB_cv_ORB_getDefaultName(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{MSER}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{MSER}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function detectRegions(cobj::cv_Ptr{T}, image::InputArray) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_detectRegions(julia_to_cpp(cobj),julia_to_cpp(image)))
+end
+
+function setDelta(cobj::cv_Ptr{T}, delta::Int64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setDelta(julia_to_cpp(cobj),julia_to_cpp(delta)))
+end
+
+function getDelta(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getDelta(julia_to_cpp(cobj)))
+end
+
+function setMinArea(cobj::cv_Ptr{T}, minArea::Int64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setMinArea(julia_to_cpp(cobj),julia_to_cpp(minArea)))
+end
+
+function getMinArea(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getMinArea(julia_to_cpp(cobj)))
+end
+
+function setMaxArea(cobj::cv_Ptr{T}, maxArea::Int64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setMaxArea(julia_to_cpp(cobj),julia_to_cpp(maxArea)))
+end
+
+function getMaxArea(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getMaxArea(julia_to_cpp(cobj)))
+end
+
+function setMaxVariation(cobj::cv_Ptr{T}, maxVariation::Float64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setMaxVariation(julia_to_cpp(cobj),julia_to_cpp(maxVariation)))
+end
+
+function getMaxVariation(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getMaxVariation(julia_to_cpp(cobj)))
+end
+
+function setMinDiversity(cobj::cv_Ptr{T}, minDiversity::Float64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setMinDiversity(julia_to_cpp(cobj),julia_to_cpp(minDiversity)))
+end
+
+function getMinDiversity(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getMinDiversity(julia_to_cpp(cobj)))
+end
+
+function setMaxEvolution(cobj::cv_Ptr{T}, maxEvolution::Int64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setMaxEvolution(julia_to_cpp(cobj),julia_to_cpp(maxEvolution)))
+end
+
+function getMaxEvolution(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getMaxEvolution(julia_to_cpp(cobj)))
+end
+
+function setAreaThreshold(cobj::cv_Ptr{T}, areaThreshold::Float64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setAreaThreshold(julia_to_cpp(cobj),julia_to_cpp(areaThreshold)))
+end
+
+function getAreaThreshold(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getAreaThreshold(julia_to_cpp(cobj)))
+end
+
+function setMinMargin(cobj::cv_Ptr{T}, min_margin::Float64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setMinMargin(julia_to_cpp(cobj),julia_to_cpp(min_margin)))
+end
+
+function getMinMargin(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getMinMargin(julia_to_cpp(cobj)))
+end
+
+function setEdgeBlurSize(cobj::cv_Ptr{T}, edge_blur_size::Int64) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setEdgeBlurSize(julia_to_cpp(cobj),julia_to_cpp(edge_blur_size)))
+end
+
+function getEdgeBlurSize(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getEdgeBlurSize(julia_to_cpp(cobj)))
+end
+
+function setPass2Only(cobj::cv_Ptr{T}, f::Bool) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_setPass2Only(julia_to_cpp(cobj),julia_to_cpp(f)))
+end
+
+function getPass2Only(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getPass2Only(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: MSER}
+	return cpp_to_julia(jlopencv_cv_cv_MSER_cv_MSER_getDefaultName(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{FastFeatureDetector}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{FastFeatureDetector}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function setThreshold(cobj::cv_Ptr{T}, threshold::Int64) where {T <: FastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_FastFeatureDetector_cv_FastFeatureDetector_setThreshold(julia_to_cpp(cobj),julia_to_cpp(threshold)))
+end
+
+function getThreshold(cobj::cv_Ptr{T}) where {T <: FastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_FastFeatureDetector_cv_FastFeatureDetector_getThreshold(julia_to_cpp(cobj)))
+end
+
+function setNonmaxSuppression(cobj::cv_Ptr{T}, f::Bool) where {T <: FastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_FastFeatureDetector_cv_FastFeatureDetector_setNonmaxSuppression(julia_to_cpp(cobj),julia_to_cpp(f)))
+end
+
+function getNonmaxSuppression(cobj::cv_Ptr{T}) where {T <: FastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_FastFeatureDetector_cv_FastFeatureDetector_getNonmaxSuppression(julia_to_cpp(cobj)))
+end
+
+function setType(cobj::cv_Ptr{T}, type::FastFeatureDetector_DetectorType) where {T <: FastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_FastFeatureDetector_cv_FastFeatureDetector_setType(julia_to_cpp(cobj),julia_to_cpp(type)))
+end
+
+function getType(cobj::cv_Ptr{T}) where {T <: FastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_FastFeatureDetector_cv_FastFeatureDetector_getType(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: FastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_FastFeatureDetector_cv_FastFeatureDetector_getDefaultName(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{AgastFeatureDetector}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{AgastFeatureDetector}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function setThreshold(cobj::cv_Ptr{T}, threshold::Int64) where {T <: AgastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_AgastFeatureDetector_cv_AgastFeatureDetector_setThreshold(julia_to_cpp(cobj),julia_to_cpp(threshold)))
+end
+
+function getThreshold(cobj::cv_Ptr{T}) where {T <: AgastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_AgastFeatureDetector_cv_AgastFeatureDetector_getThreshold(julia_to_cpp(cobj)))
+end
+
+function setNonmaxSuppression(cobj::cv_Ptr{T}, f::Bool) where {T <: AgastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_AgastFeatureDetector_cv_AgastFeatureDetector_setNonmaxSuppression(julia_to_cpp(cobj),julia_to_cpp(f)))
+end
+
+function getNonmaxSuppression(cobj::cv_Ptr{T}) where {T <: AgastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_AgastFeatureDetector_cv_AgastFeatureDetector_getNonmaxSuppression(julia_to_cpp(cobj)))
+end
+
+function setType(cobj::cv_Ptr{T}, type::AgastFeatureDetector_DetectorType) where {T <: AgastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_AgastFeatureDetector_cv_AgastFeatureDetector_setType(julia_to_cpp(cobj),julia_to_cpp(type)))
+end
+
+function getType(cobj::cv_Ptr{T}) where {T <: AgastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_AgastFeatureDetector_cv_AgastFeatureDetector_getType(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: AgastFeatureDetector}
+	return cpp_to_julia(jlopencv_cv_cv_AgastFeatureDetector_cv_AgastFeatureDetector_getDefaultName(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{GFTTDetector}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{GFTTDetector}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function setMaxFeatures(cobj::cv_Ptr{T}, maxFeatures::Int64) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_setMaxFeatures(julia_to_cpp(cobj),julia_to_cpp(maxFeatures)))
+end
+
+function getMaxFeatures(cobj::cv_Ptr{T}) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_getMaxFeatures(julia_to_cpp(cobj)))
+end
+
+function setQualityLevel(cobj::cv_Ptr{T}, qlevel::Float64) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_setQualityLevel(julia_to_cpp(cobj),julia_to_cpp(qlevel)))
+end
+
+function getQualityLevel(cobj::cv_Ptr{T}) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_getQualityLevel(julia_to_cpp(cobj)))
+end
+
+function setMinDistance(cobj::cv_Ptr{T}, minDistance::Float64) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_setMinDistance(julia_to_cpp(cobj),julia_to_cpp(minDistance)))
+end
+
+function getMinDistance(cobj::cv_Ptr{T}) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_getMinDistance(julia_to_cpp(cobj)))
+end
+
+function setBlockSize(cobj::cv_Ptr{T}, blockSize::Int64) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_setBlockSize(julia_to_cpp(cobj),julia_to_cpp(blockSize)))
+end
+
+function getBlockSize(cobj::cv_Ptr{T}) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_getBlockSize(julia_to_cpp(cobj)))
+end
+
+function setGradientSize(cobj::cv_Ptr{T}, gradientSize_::Int64) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_setGradientSize(julia_to_cpp(cobj),julia_to_cpp(gradientSize_)))
+end
+
+function getGradientSize(cobj::cv_Ptr{T}) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_getGradientSize(julia_to_cpp(cobj)))
+end
+
+function setHarrisDetector(cobj::cv_Ptr{T}, val::Bool) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_setHarrisDetector(julia_to_cpp(cobj),julia_to_cpp(val)))
+end
+
+function getHarrisDetector(cobj::cv_Ptr{T}) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_getHarrisDetector(julia_to_cpp(cobj)))
+end
+
+function setK(cobj::cv_Ptr{T}, k::Float64) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_setK(julia_to_cpp(cobj),julia_to_cpp(k)))
+end
+
+function getK(cobj::cv_Ptr{T}) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_getK(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: GFTTDetector}
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_cv_GFTTDetector_getDefaultName(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{SimpleBlobDetector}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{SimpleBlobDetector}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function setParams(cobj::cv_Ptr{T}, params::SimpleBlobDetector_Params) where {T <: SimpleBlobDetector}
+	return cpp_to_julia(jlopencv_cv_cv_SimpleBlobDetector_cv_SimpleBlobDetector_setParams(julia_to_cpp(cobj),julia_to_cpp(params)))
+end
+
+function getParams(cobj::cv_Ptr{T}) where {T <: SimpleBlobDetector}
+	return cpp_to_julia(jlopencv_cv_cv_SimpleBlobDetector_cv_SimpleBlobDetector_getParams(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: SimpleBlobDetector}
+	return cpp_to_julia(jlopencv_cv_cv_SimpleBlobDetector_cv_SimpleBlobDetector_getDefaultName(julia_to_cpp(cobj)))
+end
+
+function getBlobContours(cobj::cv_Ptr{T}) where {T <: SimpleBlobDetector}
+	return cpp_to_julia(jlopencv_cv_cv_SimpleBlobDetector_cv_SimpleBlobDetector_getBlobContours(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::SimpleBlobDetector_Params, s::Symbol)
+    if s==:thresholdStep
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_thresholdStep(m))
+    end
+    if s==:minThreshold
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_minThreshold(m))
+    end
+    if s==:maxThreshold
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_maxThreshold(m))
+    end
+    if s==:minRepeatability
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_minRepeatability(m))
+    end
+    if s==:minDistBetweenBlobs
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_minDistBetweenBlobs(m))
+    end
+    if s==:filterByColor
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_filterByColor(m))
+    end
+    if s==:blobColor
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_blobColor(m))
+    end
+    if s==:filterByArea
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_filterByArea(m))
+    end
+    if s==:minArea
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_minArea(m))
+    end
+    if s==:maxArea
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_maxArea(m))
+    end
+    if s==:filterByCircularity
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_filterByCircularity(m))
+    end
+    if s==:minCircularity
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_minCircularity(m))
+    end
+    if s==:maxCircularity
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_maxCircularity(m))
+    end
+    if s==:filterByInertia
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_filterByInertia(m))
+    end
+    if s==:minInertiaRatio
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_minInertiaRatio(m))
+    end
+    if s==:maxInertiaRatio
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_maxInertiaRatio(m))
+    end
+    if s==:filterByConvexity
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_filterByConvexity(m))
+    end
+    if s==:minConvexity
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_minConvexity(m))
+    end
+    if s==:maxConvexity
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_maxConvexity(m))
+    end
+    if s==:collectContours
+        return cpp_to_julia(jlopencv_SimpleBlobDetector_Params_get_collectContours(m))
+    end
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::SimpleBlobDetector_Params, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function Base.getproperty(m::cv_Ptr{KAZE}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{KAZE}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function setExtended(cobj::cv_Ptr{T}, extended::Bool) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_setExtended(julia_to_cpp(cobj),julia_to_cpp(extended)))
+end
+
+function getExtended(cobj::cv_Ptr{T}) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_getExtended(julia_to_cpp(cobj)))
+end
+
+function setUpright(cobj::cv_Ptr{T}, upright::Bool) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_setUpright(julia_to_cpp(cobj),julia_to_cpp(upright)))
+end
+
+function getUpright(cobj::cv_Ptr{T}) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_getUpright(julia_to_cpp(cobj)))
+end
+
+function setThreshold(cobj::cv_Ptr{T}, threshold::Float64) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_setThreshold(julia_to_cpp(cobj),julia_to_cpp(threshold)))
+end
+
+function getThreshold(cobj::cv_Ptr{T}) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_getThreshold(julia_to_cpp(cobj)))
+end
+
+function setNOctaves(cobj::cv_Ptr{T}, octaves::Int64) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_setNOctaves(julia_to_cpp(cobj),julia_to_cpp(octaves)))
+end
+
+function getNOctaves(cobj::cv_Ptr{T}) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_getNOctaves(julia_to_cpp(cobj)))
+end
+
+function setNOctaveLayers(cobj::cv_Ptr{T}, octaveLayers::Int64) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_setNOctaveLayers(julia_to_cpp(cobj),julia_to_cpp(octaveLayers)))
+end
+
+function getNOctaveLayers(cobj::cv_Ptr{T}) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_getNOctaveLayers(julia_to_cpp(cobj)))
+end
+
+function setDiffusivity(cobj::cv_Ptr{T}, diff::KAZE_DiffusivityType) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_setDiffusivity(julia_to_cpp(cobj),julia_to_cpp(diff)))
+end
+
+function getDiffusivity(cobj::cv_Ptr{T}) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_getDiffusivity(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: KAZE}
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_cv_KAZE_getDefaultName(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{AKAZE}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{AKAZE}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function setDescriptorType(cobj::cv_Ptr{T}, dtype::AKAZE_DescriptorType) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_setDescriptorType(julia_to_cpp(cobj),julia_to_cpp(dtype)))
+end
+
+function getDescriptorType(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getDescriptorType(julia_to_cpp(cobj)))
+end
+
+function setDescriptorSize(cobj::cv_Ptr{T}, dsize::Int64) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_setDescriptorSize(julia_to_cpp(cobj),julia_to_cpp(dsize)))
+end
+
+function getDescriptorSize(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getDescriptorSize(julia_to_cpp(cobj)))
+end
+
+function setDescriptorChannels(cobj::cv_Ptr{T}, dch::Int64) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_setDescriptorChannels(julia_to_cpp(cobj),julia_to_cpp(dch)))
+end
+
+function getDescriptorChannels(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getDescriptorChannels(julia_to_cpp(cobj)))
+end
+
+function setThreshold(cobj::cv_Ptr{T}, threshold::Float64) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_setThreshold(julia_to_cpp(cobj),julia_to_cpp(threshold)))
+end
+
+function getThreshold(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getThreshold(julia_to_cpp(cobj)))
+end
+
+function setNOctaves(cobj::cv_Ptr{T}, octaves::Int64) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_setNOctaves(julia_to_cpp(cobj),julia_to_cpp(octaves)))
+end
+
+function getNOctaves(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getNOctaves(julia_to_cpp(cobj)))
+end
+
+function setNOctaveLayers(cobj::cv_Ptr{T}, octaveLayers::Int64) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_setNOctaveLayers(julia_to_cpp(cobj),julia_to_cpp(octaveLayers)))
+end
+
+function getNOctaveLayers(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getNOctaveLayers(julia_to_cpp(cobj)))
+end
+
+function setDiffusivity(cobj::cv_Ptr{T}, diff::KAZE_DiffusivityType) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_setDiffusivity(julia_to_cpp(cobj),julia_to_cpp(diff)))
+end
+
+function getDiffusivity(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getDiffusivity(julia_to_cpp(cobj)))
+end
+
+function getDefaultName(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getDefaultName(julia_to_cpp(cobj)))
+end
+
+function setMaxPoints(cobj::cv_Ptr{T}, max_points::Int64) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_setMaxPoints(julia_to_cpp(cobj),julia_to_cpp(max_points)))
+end
+
+function getMaxPoints(cobj::cv_Ptr{T}) where {T <: AKAZE}
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_cv_AKAZE_getMaxPoints(julia_to_cpp(cobj)))
+end
+function Base.getproperty(m::cv_Ptr{DescriptorMatcher}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{DescriptorMatcher}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function add(cobj::cv_Ptr{T}, descriptors::Array{InputArray, 1}) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_add(julia_to_cpp(cobj),julia_to_cpp(descriptors)))
+end
+
+function getTrainDescriptors(cobj::cv_Ptr{T}) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_getTrainDescriptors(julia_to_cpp(cobj)))
+end
+
+function clear(cobj::cv_Ptr{T}) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_clear(julia_to_cpp(cobj)))
+end
+
+function empty(cobj::cv_Ptr{T}) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_empty(julia_to_cpp(cobj)))
+end
+
+function isMaskSupported(cobj::cv_Ptr{T}) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_isMaskSupported(julia_to_cpp(cobj)))
+end
+
+function train(cobj::cv_Ptr{T}) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_train(julia_to_cpp(cobj)))
+end
+
+function match(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, mask::InputArray) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_match(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(trainDescriptors),julia_to_cpp(mask)))
+end
+match(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray; mask::InputArray = (CxxMat())) where {T <: DescriptorMatcher} = match(cobj, queryDescriptors, trainDescriptors, mask)
+
+function match(cobj::cv_Ptr{T}, queryDescriptors::InputArray, masks::Array{InputArray, 1}) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_match(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(masks)))
+end
+match(cobj::cv_Ptr{T}, queryDescriptors::InputArray; masks::Array{InputArray, 1} = ()) where {T <: DescriptorMatcher} = match(cobj, queryDescriptors, masks)
+
+function knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, k::Int64, mask::InputArray, compactResult::Bool) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_knnMatch(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(trainDescriptors),julia_to_cpp(k),julia_to_cpp(mask),julia_to_cpp(compactResult)))
+end
+knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, k::Int64; mask::InputArray = (CxxMat()), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = knnMatch(cobj, queryDescriptors, trainDescriptors, k, mask, compactResult)
+
+function knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, k::Int64, masks::Array{InputArray, 1}, compactResult::Bool) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_knnMatch(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(k),julia_to_cpp(masks),julia_to_cpp(compactResult)))
+end
+knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, k::Int64; masks::Array{InputArray, 1} = (), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = knnMatch(cobj, queryDescriptors, k, masks, compactResult)
+
+function radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, maxDistance::Float64, mask::InputArray, compactResult::Bool) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_radiusMatch(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(trainDescriptors),julia_to_cpp(maxDistance),julia_to_cpp(mask),julia_to_cpp(compactResult)))
+end
+radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, maxDistance::Float64; mask::InputArray = (CxxMat()), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = radiusMatch(cobj, queryDescriptors, trainDescriptors, maxDistance, mask, compactResult)
+
+function radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, maxDistance::Float64, masks::Array{InputArray, 1}, compactResult::Bool) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_radiusMatch(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(maxDistance),julia_to_cpp(masks),julia_to_cpp(compactResult)))
+end
+radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, maxDistance::Float64; masks::Array{InputArray, 1} = (), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = radiusMatch(cobj, queryDescriptors, maxDistance, masks, compactResult)
+
+function write(cobj::cv_Ptr{T}, fileName::String) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_write(julia_to_cpp(cobj),julia_to_cpp(fileName)))
+end
+
+function write(cobj::cv_Ptr{T}, fs::FileStorage, name::String) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_write(julia_to_cpp(cobj),julia_to_cpp(fs),julia_to_cpp(name)))
+end
+
+function read(cobj::cv_Ptr{T}, fileName::String) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_read(julia_to_cpp(cobj),julia_to_cpp(fileName)))
+end
+
+function read(cobj::cv_Ptr{T}, arg1::FileNode) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_read(julia_to_cpp(cobj),julia_to_cpp(arg1)))
+end
+
+function clone(cobj::cv_Ptr{T}, emptyTrainData::Bool) where {T <: DescriptorMatcher}
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_clone(julia_to_cpp(cobj),julia_to_cpp(emptyTrainData)))
+end
+clone(cobj::cv_Ptr{T}; emptyTrainData::Bool = (false)) where {T <: DescriptorMatcher} = clone(cobj, emptyTrainData)
+function Base.getproperty(m::cv_Ptr{BFMatcher}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{BFMatcher}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+function Base.getproperty(m::cv_Ptr{FlannBasedMatcher}, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::cv_Ptr{FlannBasedMatcher}, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+function Base.getproperty(m::BOWTrainer, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::BOWTrainer, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+function Base.getproperty(m::BOWKMeansTrainer, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::BOWKMeansTrainer, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+function Base.getproperty(m::BOWImgDescriptorExtractor, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::BOWImgDescriptorExtractor, s::Symbol, v)
     return Base.setfield!(m, s, v)
 end
 function Base.getproperty(m::Animation, s::Symbol)
@@ -2153,6 +2978,108 @@ function getFontScaleFromHeight(fontFace::Int64, pixelHeight::Int64, thickness::
 	return cpp_to_julia(jlopencv_cv_cv_getFontScaleFromHeight(julia_to_cpp(fontFace),julia_to_cpp(pixelHeight),julia_to_cpp(thickness)))
 end
 getFontScaleFromHeight(fontFace::Int64, pixelHeight::Int64; thickness::Int64 = Int64(1)) = getFontScaleFromHeight(fontFace, pixelHeight, thickness)
+
+function AffineFeature_create(backend::Ptr{Feature2D}, maxTilt::Int64, minTilt::Int64, tiltStep::Float64, rotateStepBase::Float64)
+	return cpp_to_julia(jlopencv_cv_cv_AffineFeature_create(julia_to_cpp(backend),julia_to_cpp(maxTilt),julia_to_cpp(minTilt),julia_to_cpp(tiltStep),julia_to_cpp(rotateStepBase)))
+end
+AffineFeature_create(backend::Ptr{Feature2D}; maxTilt::Int64 = Int64(), minTilt::Int64 = Int64(0), tiltStep::Float64 = Float64(), rotateStepBase::Float64 = Float64()) = AffineFeature_create(backend, maxTilt, minTilt, tiltStep, rotateStepBase)
+
+function SIFT_create(nfeatures::Int64, nOctaveLayers::Int64, contrastThreshold::Float64, edgeThreshold::Float64, sigma::Float64, enable_precise_upscale::Bool)
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_create(julia_to_cpp(nfeatures),julia_to_cpp(nOctaveLayers),julia_to_cpp(contrastThreshold),julia_to_cpp(edgeThreshold),julia_to_cpp(sigma),julia_to_cpp(enable_precise_upscale)))
+end
+SIFT_create(; nfeatures::Int64 = Int64(0), nOctaveLayers::Int64 = Int64(3), contrastThreshold::Float64 = Float64(0.04), edgeThreshold::Float64 = Float64(), sigma::Float64 = Float64(), enable_precise_upscale::Bool = (false)) = SIFT_create(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma, enable_precise_upscale)
+
+function SIFT_create(nfeatures::Int64, nOctaveLayers::Int64, contrastThreshold::Float64, edgeThreshold::Float64, sigma::Float64, descriptorType::Int64, enable_precise_upscale::Bool)
+	return cpp_to_julia(jlopencv_cv_cv_SIFT_create(julia_to_cpp(nfeatures),julia_to_cpp(nOctaveLayers),julia_to_cpp(contrastThreshold),julia_to_cpp(edgeThreshold),julia_to_cpp(sigma),julia_to_cpp(descriptorType),julia_to_cpp(enable_precise_upscale)))
+end
+SIFT_create(nfeatures::Int64, nOctaveLayers::Int64, contrastThreshold::Float64, edgeThreshold::Float64, sigma::Float64, descriptorType::Int64; enable_precise_upscale::Bool = (false)) = SIFT_create(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma, descriptorType, enable_precise_upscale)
+
+function BRISK_create(thresh::Int64, octaves::Int64, patternScale::Float64)
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_create(julia_to_cpp(thresh),julia_to_cpp(octaves),julia_to_cpp(patternScale)))
+end
+BRISK_create(; thresh::Int64 = Int64(), octaves::Int64 = Int64(3), patternScale::Float64 = Float64()) = BRISK_create(thresh, octaves, patternScale)
+
+function BRISK_create(radiusList::Array{Float32, 1}, numberList::Array{Int32, 1}, dMax::Float64, dMin::Float64, indexChange::Array{Int32, 1})
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_create(julia_to_cpp(radiusList),julia_to_cpp(numberList),julia_to_cpp(dMax),julia_to_cpp(dMin),julia_to_cpp(indexChange)))
+end
+BRISK_create(radiusList::Array{Float32, 1}, numberList::Array{Int32, 1}; dMax::Float64 = Float64(), dMin::Float64 = Float64(), indexChange::Array{Int32, 1} = (cpp_to_julia(stdggvectoriintkOP()))) = BRISK_create(radiusList, numberList, dMax, dMin, indexChange)
+
+function BRISK_create(thresh::Int64, octaves::Int64, radiusList::Array{Float32, 1}, numberList::Array{Int32, 1}, dMax::Float64, dMin::Float64, indexChange::Array{Int32, 1})
+	return cpp_to_julia(jlopencv_cv_cv_BRISK_create(julia_to_cpp(thresh),julia_to_cpp(octaves),julia_to_cpp(radiusList),julia_to_cpp(numberList),julia_to_cpp(dMax),julia_to_cpp(dMin),julia_to_cpp(indexChange)))
+end
+BRISK_create(thresh::Int64, octaves::Int64, radiusList::Array{Float32, 1}, numberList::Array{Int32, 1}; dMax::Float64 = Float64(), dMin::Float64 = Float64(), indexChange::Array{Int32, 1} = (cpp_to_julia(stdggvectoriintkOP()))) = BRISK_create(thresh, octaves, radiusList, numberList, dMax, dMin, indexChange)
+
+function ORB_create(nfeatures::Int64, scaleFactor::Float64, nlevels::Int64, edgeThreshold::Int64, firstLevel::Int64, WTA_K::Int64, scoreType::ORB_ScoreType, patchSize::Int64, fastThreshold::Int64)
+	return cpp_to_julia(jlopencv_cv_cv_ORB_create(julia_to_cpp(nfeatures),julia_to_cpp(scaleFactor),julia_to_cpp(nlevels),julia_to_cpp(edgeThreshold),julia_to_cpp(firstLevel),julia_to_cpp(WTA_K),julia_to_cpp(scoreType),julia_to_cpp(patchSize),julia_to_cpp(fastThreshold)))
+end
+
+function MSER_create(delta::Int64, min_area::Int64, max_area::Int64, max_variation::Float64, min_diversity::Float64, max_evolution::Int64, area_threshold::Float64, min_margin::Float64, edge_blur_size::Int64)
+	return cpp_to_julia(jlopencv_cv_cv_MSER_create(julia_to_cpp(delta),julia_to_cpp(min_area),julia_to_cpp(max_area),julia_to_cpp(max_variation),julia_to_cpp(min_diversity),julia_to_cpp(max_evolution),julia_to_cpp(area_threshold),julia_to_cpp(min_margin),julia_to_cpp(edge_blur_size)))
+end
+MSER_create(; delta::Int64 = Int64(), min_area::Int64 = Int64(), max_area::Int64 = Int64(), max_variation::Float64 = Float64(), min_diversity::Float64 = Float64(), max_evolution::Int64 = Int64(), area_threshold::Float64 = Float64(), min_margin::Float64 = Float64(), edge_blur_size::Int64 = Int64()) = MSER_create(delta, min_area, max_area, max_variation, min_diversity, max_evolution, area_threshold, min_margin, edge_blur_size)
+
+function FastFeatureDetector_create(threshold::Int64, nonmaxSuppression::Bool, type::FastFeatureDetector_DetectorType)
+	return cpp_to_julia(jlopencv_cv_cv_FastFeatureDetector_create(julia_to_cpp(threshold),julia_to_cpp(nonmaxSuppression),julia_to_cpp(type)))
+end
+
+function AgastFeatureDetector_create(threshold::Int64, nonmaxSuppression::Bool, type::AgastFeatureDetector_DetectorType)
+	return cpp_to_julia(jlopencv_cv_cv_AgastFeatureDetector_create(julia_to_cpp(threshold),julia_to_cpp(nonmaxSuppression),julia_to_cpp(type)))
+end
+
+function GFTTDetector_create(maxCorners::Int64, qualityLevel::Float64, minDistance::Float64, blockSize::Int64, useHarrisDetector::Bool, k::Float64)
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_create(julia_to_cpp(maxCorners),julia_to_cpp(qualityLevel),julia_to_cpp(minDistance),julia_to_cpp(blockSize),julia_to_cpp(useHarrisDetector),julia_to_cpp(k)))
+end
+GFTTDetector_create(; maxCorners::Int64 = Int64(1000), qualityLevel::Float64 = Float64(), minDistance::Float64 = Float64(1), blockSize::Int64 = Int64(3), useHarrisDetector::Bool = (false), k::Float64 = Float64(0.04)) = GFTTDetector_create(maxCorners, qualityLevel, minDistance, blockSize, useHarrisDetector, k)
+
+function GFTTDetector_create(maxCorners::Int64, qualityLevel::Float64, minDistance::Float64, blockSize::Int64, gradientSize::Int64, useHarrisDetector::Bool, k::Float64)
+	return cpp_to_julia(jlopencv_cv_cv_GFTTDetector_create(julia_to_cpp(maxCorners),julia_to_cpp(qualityLevel),julia_to_cpp(minDistance),julia_to_cpp(blockSize),julia_to_cpp(gradientSize),julia_to_cpp(useHarrisDetector),julia_to_cpp(k)))
+end
+GFTTDetector_create(maxCorners::Int64, qualityLevel::Float64, minDistance::Float64, blockSize::Int64, gradientSize::Int64; useHarrisDetector::Bool = (false), k::Float64 = Float64(0.04)) = GFTTDetector_create(maxCorners, qualityLevel, minDistance, blockSize, gradientSize, useHarrisDetector, k)
+
+function SimpleBlobDetector_create(parameters::SimpleBlobDetector_Params)
+	return cpp_to_julia(jlopencv_cv_cv_SimpleBlobDetector_create(julia_to_cpp(parameters)))
+end
+
+function KAZE_create(extended::Bool, upright::Bool, threshold::Float64, nOctaves::Int64, nOctaveLayers::Int64, diffusivity::KAZE_DiffusivityType)
+	return cpp_to_julia(jlopencv_cv_cv_KAZE_create(julia_to_cpp(extended),julia_to_cpp(upright),julia_to_cpp(threshold),julia_to_cpp(nOctaves),julia_to_cpp(nOctaveLayers),julia_to_cpp(diffusivity)))
+end
+
+function AKAZE_create(descriptor_type::AKAZE_DescriptorType, descriptor_size::Int64, descriptor_channels::Int64, threshold::Float64, nOctaves::Int64, nOctaveLayers::Int64, diffusivity::KAZE_DiffusivityType, max_points::Int64)
+	return cpp_to_julia(jlopencv_cv_cv_AKAZE_create(julia_to_cpp(descriptor_type),julia_to_cpp(descriptor_size),julia_to_cpp(descriptor_channels),julia_to_cpp(threshold),julia_to_cpp(nOctaves),julia_to_cpp(nOctaveLayers),julia_to_cpp(diffusivity),julia_to_cpp(max_points)))
+end
+
+function DescriptorMatcher_create(descriptorMatcherType::String)
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_create(julia_to_cpp(descriptorMatcherType)))
+end
+
+function DescriptorMatcher_create(matcherType::DescriptorMatcher_MatcherType)
+	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_create(julia_to_cpp(matcherType)))
+end
+
+function BFMatcher_create(normType::Int64, crossCheck::Bool)
+	return cpp_to_julia(jlopencv_cv_cv_BFMatcher_create(julia_to_cpp(normType),julia_to_cpp(crossCheck)))
+end
+BFMatcher_create(; normType::Int64 = Int64(cv_NORM_L2), crossCheck::Bool = (false)) = BFMatcher_create(normType, crossCheck)
+
+function FlannBasedMatcher_create()
+	return cpp_to_julia(jlopencv_cv_cv_FlannBasedMatcher_create())
+end
+
+function drawKeypoints(image::InputArray, keypoints::Array{KeyPoint, 1}, outImage::InputArray, color::Scalar, flags::DrawMatchesFlags)
+	return cpp_to_julia(jlopencv_cv_cv_drawKeypoints(julia_to_cpp(image),julia_to_cpp(keypoints),julia_to_cpp(outImage),julia_to_cpp(color),julia_to_cpp(flags)))
+end
+
+function drawMatches(img1::InputArray, keypoints1::Array{KeyPoint, 1}, img2::InputArray, keypoints2::Array{KeyPoint, 1}, matches1to2::Array{DMatch, 1}, outImg::InputArray, matchColor::Scalar, singlePointColor::Scalar, matchesMask::Array{Int8, 1}, flags::DrawMatchesFlags)
+	return cpp_to_julia(jlopencv_cv_cv_drawMatches(julia_to_cpp(img1),julia_to_cpp(keypoints1),julia_to_cpp(img2),julia_to_cpp(keypoints2),julia_to_cpp(matches1to2),julia_to_cpp(outImg),julia_to_cpp(matchColor),julia_to_cpp(singlePointColor),julia_to_cpp(matchesMask),julia_to_cpp(flags)))
+end
+
+function drawMatches(img1::InputArray, keypoints1::Array{KeyPoint, 1}, img2::InputArray, keypoints2::Array{KeyPoint, 1}, matches1to2::Array{DMatch, 1}, outImg::InputArray, matchesThickness::Int64, matchColor::Scalar, singlePointColor::Scalar, matchesMask::Array{Int8, 1}, flags::DrawMatchesFlags)
+	return cpp_to_julia(jlopencv_cv_cv_drawMatches(julia_to_cpp(img1),julia_to_cpp(keypoints1),julia_to_cpp(img2),julia_to_cpp(keypoints2),julia_to_cpp(matches1to2),julia_to_cpp(outImg),julia_to_cpp(matchesThickness),julia_to_cpp(matchColor),julia_to_cpp(singlePointColor),julia_to_cpp(matchesMask),julia_to_cpp(flags)))
+end
+
+function drawMatchesKnn(img1::InputArray, keypoints1::Array{KeyPoint, 1}, img2::InputArray, keypoints2::Array{KeyPoint, 1}, matches1to2::Array{Array{DMatch, 1}, 1}, outImg::InputArray, matchColor::Scalar, singlePointColor::Scalar, matchesMask::Array{Array{Int8, 1}, 1}, flags::DrawMatchesFlags)
+	return cpp_to_julia(jlopencv_cv_cv_drawMatches(julia_to_cpp(img1),julia_to_cpp(keypoints1),julia_to_cpp(img2),julia_to_cpp(keypoints2),julia_to_cpp(matches1to2),julia_to_cpp(outImg),julia_to_cpp(matchColor),julia_to_cpp(singlePointColor),julia_to_cpp(matchesMask),julia_to_cpp(flags)))
+end
 
 function imread(filename::String, flags::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_imread(julia_to_cpp(filename),julia_to_cpp(flags)))
