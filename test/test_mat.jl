@@ -136,3 +136,32 @@ end
         @test c[1, 1, 1] isa UInt8
     end
 end
+
+@testset "issue #57: split output survives GC" begin
+    # Regression test for https://github.com/JuliaImages/OpenCV.jl/issues/57
+    # cv::split returns vector<Mat>; the Julia wrappers must keep the parent
+    # StdVector alive so the underlying data buffers aren't freed once GC
+    # collects intermediate references. Without the fix, reading channels[i]
+    # after a GC raises EXCEPTION_ACCESS_VIOLATION / segfault on large mats.
+    function make_channels()
+        img = OpenCV.Mat(rand(UInt8, 3, 512, 512))
+        return OpenCV.split(img)
+    end
+    channels = make_channels()
+    GC.gc(); GC.gc()
+    @test length(channels) == 3
+    for c in channels
+        @test size(c) == (1, 512, 512)
+        # Touch every element to ensure the buffer is still mapped.
+        s = 0
+        for k in axes(c, 3), j in axes(c, 2)
+            s += c[1, j, k]
+        end
+        @test s >= 0
+    end
+    # Second GC + read pass: catches the case where the first access path
+    # happened to keep things alive but later accesses crash.
+    GC.gc(); GC.gc()
+    @test channels[1][1, 1, 1] isa UInt8
+    @test channels[end][1, end, end] isa UInt8
+end

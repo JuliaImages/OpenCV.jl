@@ -100,7 +100,13 @@ end
 function cpp_to_julia(var::CxxWrap.StdVector{T}) where {T <: CxxMat}
     ret = Array{Mat, 1}()
     for x in var
-        push!(ret, cpp_to_julia(x))
+        m = cpp_to_julia(x)
+        # Iterating a StdVector yields elements whose lifetime is tied to
+        # the parent vector. Preserve `var` (which transitively keeps each
+        # cv::Mat and its data buffer alive) in the returned Mat so the
+        # underlying memory isn't freed while the Mat is still in use.
+        # See https://github.com/JuliaImages/OpenCV.jl/issues/57.
+        push!(ret, Mat{eltype(m)}((var, m.mat), m.data))
     end
     return ret
 end
