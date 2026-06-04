@@ -253,6 +253,18 @@ def gen(srcfiles, preprocessor_definitions):
     nsi = sorted(namespaces.items(), key =lambda x: x[0])
     added_methods = set()
 
+    # Pre-populate the `enums` list across all namespaces so the per-namespace
+    # `register_types` emission below can filter out enum typedefs. Without this,
+    # enum return/arg types (e.g. cv::ORB::ScoreType) leak into `mod.add_type<...>`
+    # in the generated C++ — but the Julia side declares them as `const X = Int64`
+    # (not a wrapped type), so loading the .so trips CxxWrap's
+    # "No appropriate factory for type ..." at @wrapmodule time.
+    for _, ns in nsi:
+        for e1, e2 in ns.enums.items():
+            enums.append(e2[0])
+            enums.append(e2[1])
+            enums.append(e2[0].replace("cv::", "").replace("::", '_'))
+
     for name, ns in nsi:
         cpp_code.write("using namespace %s;\n" % name.replace(".", "::"))
 
@@ -299,14 +311,9 @@ struct SuperType<%s>
 };
                                     """ % (cl.name.replace('.', '::'), cl.base.replace('.', '::')))
 
-        for e1,e2 in ns.enums.items():
-            # cpp_code.write('\n    mod.add_bits<{0}>("{1}", jlcxx::julia_type("CppEnum"));'.format(e2[0], e2[1]))
-            enums.append(e2[0])
-            enums.append(e2[1])
-            enums.append(e2[0].replace("cv::", "").replace("::", '_'))
-
-
         for tp in ns.register_types:
+            if tp in enums:
+                continue   # enum typedefs are passed as int64, not wrapped as types
             cpp_code.write('   mod.add_type<%s>("%s");\n' %(tp, normalize_class_name(tp)))
 
     # print(enums)
