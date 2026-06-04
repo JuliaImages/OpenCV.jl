@@ -115,7 +115,6 @@ execute_process(
                 )
 
 file(COPY ${CMAKE_CURRENT_BINARY_DIR}/gen/cpp_files/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp)
-file(COPY ${CMAKE_CURRENT_BINARY_DIR}/gen/jl_cxx_files/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_jl)
 
 ocv_glob_module_sources()
 ocv_module_include_directories()
