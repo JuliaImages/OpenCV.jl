@@ -261,9 +261,17 @@ def gen(srcfiles, preprocessor_definitions):
     # "No appropriate factory for type ..." at @wrapmodule time.
     for _, ns in nsi:
         for e1, e2 in ns.enums.items():
-            enums.append(e2[0])
+            # Push every form a type can appear in: hdr_parser normalizes arg
+            # types via `::` -> `_` and strips `cv::` (see hdr_parser.parse_arg,
+            # ~line 385), giving e.g. `ORB_ScoreType`. But parse_tree.py reads
+            # `decl[4]` (the *original* return type) into self.rettype, so a
+            # nested enum return reaches us as `ORB::ScoreType` (cv:: stripped,
+            # `::` preserved). Cover both shapes — plus the fully-qualified
+            # form — so `tp in enums` matches in every code path.
+            enums.append(e2[0])                                                 # cv::ORB::ScoreType
             enums.append(e2[1])
-            enums.append(e2[0].replace("cv::", "").replace("::", '_'))
+            enums.append(e2[0].replace("cv::", ""))                             # ORB::ScoreType
+            enums.append(e2[0].replace("cv::", "").replace("::", '_'))          # ORB_ScoreType
 
     for name, ns in nsi:
         cpp_code.write("using namespace %s;\n" % name.replace(".", "::"))
