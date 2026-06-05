@@ -4,27 +4,24 @@ CurrentModule = OpenCV
 
 # OpenCV.jl
 
-**OpenCV.jl** is a Julia package that provides an interface to the popular computer vision library OpenCV. It allows Julia users to leverage the extensive functionalities and algorithms offered by OpenCV for various computer vision tasks, such as image and video processing, object detection, feature extraction, and more.
-
-## Features
-
-- Comprehensive OpenCV bindings: OpenCV.jl provides comprehensive bindings to the OpenCV library, enabling Julia users to access a wide range of computer vision algorithms and functionalities.
-- Efficient and performant: The package is designed to leverage the speed and efficiency of both Julia and OpenCV, ensuring high-performance computer vision tasks.
-- Interoperability: The package supports interoperability between Julia arrays and OpenCV's data structures, facilitating data exchange and manipulation between the two.
+**OpenCV.jl** provides Julia bindings to [OpenCV](https://opencv.org), the popular
+computer-vision library — image and video processing, object detection, feature
+extraction, calibration, and much more — backed by the compiled library through
+`OpenCV_jll`.
 
 ## Installation
-
-You can install OpenCV.jl using Julia's package manager. Open a Julia REPL and run the following command:
 
 ```julia
 ] add OpenCV
 ```
 
-This will download and install the package and its dependencies.
+This installs the package and the precompiled OpenCV binaries; no system OpenCV is
+required.
 
 ## OpenCV version
 
-This release wraps **OpenCV 4.13.0**, pinned in `gen/OPENCV_VERSION` and provided at runtime by `OpenCV_jll` 4.13.x. Query the version and build configuration from Julia:
+This release wraps **OpenCV 4.13.0**, pinned in `gen/OPENCV_VERSION` and provided at
+runtime by `OpenCV_jll` 4.13.x. Query the version and build configuration from Julia:
 
 ```julia
 using OpenCV
@@ -32,23 +29,7 @@ OpenCV.getVersionString()     # "4.13.0"
 OpenCV.getBuildInformation()  # full build info string
 ```
 
-## Getting started
-
-If you are new to OpenCV, the upstream [OpenCV tutorials](https://docs.opencv.org/4.x/d9/df8/tutorial_root.html) are the best starting point. Function and argument names in OpenCV.jl mirror the C++/Python API, so most tutorials translate directly — the main Julia-specific pieces are the `Mat` and `Vec` types and the array/image interop documented here.
-
-## Versioning
-
-The package version tracks the wrapped OpenCV release (currently `4.13.x` for OpenCV 4.13.0). Within a given OpenCV major/minor line, breaking changes to the *Julia* API are signalled by bumping the package's minor version and called out in release notes — they do not require bumping the OpenCV major.
-
-## Usage
-
-To start using OpenCV.jl in your Julia code, you first need to import the package:
-
-```julia
-using OpenCV
-```
-
-Once imported, you can call OpenCV functions and use its data structures. Here's a simple example that loads an image and applies a Gaussian blur:
+## Quick start
 
 ```julia
 using ImageCore, OpenCV, TestImages, MosaicViews
@@ -69,20 +50,47 @@ mosaic(img_orig, img_back; nrow=1)
 #### Output:
 ![](https://i.imgur.com/YfjUJpn.png)
 
-For more information on the available functions and usage examples, please refer to the [documentation](https://juliaimages.org/OpenCV.jl/latest/).
+!!! note "One thing to know up front: image layout"
+
+    Images are [`Mat`](@ref)s, 3-D arrays that share memory with OpenCV and use the
+    axis order **`(channels, cols, rows)`** — so a grayscale `H×W` image has
+    `size == (1, W, H)`. This trips people up; see [Core concepts](@ref) for the full
+    story.
+
+## Manual
+
+- [Core concepts](@ref) — naming (`cv::` → `OpenCV.`), the `Mat` layout, dtypes,
+  scalars, and Julia-array interop.
+- [Reading and Writing of Images](@ref) — `imread`/`imwrite` and the FileIO
+  `load`/`save` interface, with flags and display.
+- [API reference](@ref) — the hand-written types and I/O helpers. The full list of
+  wrapped OpenCV functions lives in
+  [`gen/funclist.csv`](https://github.com/JuliaImages/OpenCV.jl/blob/master/gen/funclist.csv).
+
+If you are new to OpenCV, the upstream
+[OpenCV tutorials](https://docs.opencv.org/4.x/d9/df8/tutorial_root.html) are the best
+starting point. Function and argument names mirror the C++/Python API, so most
+tutorials translate directly — the Julia-specific pieces are the `Mat`/`Vec` types and
+the array/image interop, all covered in [Core concepts](@ref).
+
+## Versioning
+
+The package version tracks the wrapped OpenCV release (currently `4.13.x` for OpenCV
+4.13.0). Within a given OpenCV major/minor line, breaking changes to the *Julia* API
+are signalled by bumping the package's minor version and called out in release notes —
+they do not require bumping the OpenCV major.
 
 ## Contributing
 
-OpenCV.jl welcomes contributions from the community. If you encounter any issues, have suggestions for improvements, or would like to contribute code, please check the [GitHub repository](https://github.com/JuliaImages/OpenCV.jl).
+Issues and pull requests are welcome at the
+[GitHub repository](https://github.com/JuliaImages/OpenCV.jl).
 
 ## License
 
-OpenCV.jl is licensed under the [MIT License](https://github.com/JuliaImages/OpenCV.jl/blob/main/LICENSE). Please refer to the license file for more information.
+OpenCV.jl is licensed under the
+[MIT License](https://github.com/JuliaImages/OpenCV.jl/blob/master/LICENSE).
 
 ## Acknowledgments
 
-OpenCV.jl is built upon the excellent work of the OpenCV community. We are grateful for their continuous efforts in advancing the field of computer vision. @archit120 has been instrumental in the development of this package during GSOC 2021 and GSOC 2020.
-
-```@autodocs
-Modules = [OpenCV]
-```
+OpenCV.jl is built on the work of the OpenCV community. [@archit120](https://github.com/archit120)
+was instrumental in developing this package during GSoC 2020 and 2021.
