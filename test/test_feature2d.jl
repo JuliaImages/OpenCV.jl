@@ -1,10 +1,26 @@
 @testset "features2d" begin
     img_gray = OpenCV.imread(joinpath(test_dir, "shared", "pic1.png"), OpenCV.IMREAD_GRAYSCALE)
 
+    @testset "_copy_cxx_value(::KeyPoint) preserves fields" begin
+        kp = OpenCV.KeyPoint(1.0, 2.0, 3.0, 4.0, 5.0, Int64(6), Int64(7))
+        c = OpenCV._copy_cxx_value(kp)
+        @test c isa OpenCV.KeyPoint
+        @test c.pt.x == 1.0 && c.pt.y == 2.0
+        @test c.size == 3.0 && c.angle == 4.0 && c.response == 5.0
+        @test c.octave == 6 && c.class_id == 7
+    end
+
     @testset "ORB detect+compute+match" begin
         orb = OpenCV.ORB_create()
         kps = OpenCV.detect(orb, img_gray)
         @test length(kps) > 0
+        # Regression guard for the detect->compute use-after-free: force the C++
+        # std::vector<KeyPoint> behind `kps` to be freed before compute reads it.
+        # If keypoints were dangling views, compute would corrupt octave and trip
+        # ORB's `inv_scale_x > 0` assertion.
+        GC.gc(true)
+        @test eltype(kps) == OpenCV.KeyPoint
+        @test all(kp -> kp.octave isa Integer, kps)
         kps2, desc = OpenCV.compute(orb, img_gray, kps)
         @test length(kps2) == length(kps)
         # OpenCV.jl stores cv::Mat as (channels, cols, rows). The ORB descriptor
