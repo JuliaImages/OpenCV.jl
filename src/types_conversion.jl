@@ -1,3 +1,31 @@
+# The cpp_to_julia / julia_to_cpp contract.
+#
+# Every value crossing the C++ boundary in the generated wrappers passes through
+# one of these two functions: `cpp_to_julia` converts a value returned from C++
+# into its Julia form, `julia_to_cpp` converts a Julia argument into the form the
+# C++ glue expects. The generic identity methods below are the fallback (most
+# values, e.g. numbers, pass straight through); the specialised methods in this
+# file and in `mat_conversion.jl` convert by type. Both directions must be
+# defined before `generated/cv_cxx_wrap.jl` is included (see core.jl).
+
+cpp_to_julia(var) = var
+julia_to_cpp(var) = var
+
+function cpp_to_julia(var::Tuple)
+    ret_arr = Array{Any, 1}()
+    for it in var
+        push!(ret_arr, cpp_to_julia(it))
+    end
+    return tuple(ret_arr...)
+end
+
+cpp_to_julia(var::CxxBool) = Bool(var)
+julia_to_cpp(var::Bool) = CxxBool(var)
+
+# VideoWriter_fourcc is the one generated wrapper that takes Char arguments;
+# its C++ binding expects Cchar (Int8). See issue #31.
+julia_to_cpp(c::Char) = Cchar(c)
+
 function cpp_to_julia(var::CxxScalar{T}) where {T}
     var = Vec{T, 4}(var)
     return (var[1], var[2], var[3], var[4])
@@ -20,25 +48,12 @@ function julia_to_cpp(sc::Scalar)
     return CxxScalar{Float64}(Float64(sc[1]), Float64(sc[2]), Float64(sc[3]), Float64(sc[4]))
 end
 
-function julia_to_cpp(vec::Vec{T, N}) where {T, N}
-    return CxxVec{T, N}(Base.pointer(vec))
-end
-
-function julia_to_cpp(var::Array{T, 1}) where {T <: Scalar}
-    ret = CxxWrap.StdVector{CxxScalar}()
-    for x in var
-        push!(ret, julia_to_cpp(x))
-    end
-    return ret
-end
-
-function julia_to_cpp(var::Array{Vec{T, N}, 1}) where {T, N}
-    ret = CxxWrap.StdVector{CxxVec{T, N}}()
-    for x in var
-        push!(ret, julia_to_cpp(x))
-    end
-    return ret
-end
+# Note: there is no `julia_to_cpp` for a bare `Vec`, a `Vector{<:Scalar}`, or a
+# `Vector{Vec}`. CxxWrap registers no `CxxVec{T,N}(::Ptr)` or `StdVector{CxxScalar}`
+# constructor, and no wrapped OpenCV function takes those argument shapes — the
+# reverse direction (reading a `cv::Scalar`/`cv::Vec` *out* of C++) is handled by
+# the `cpp_to_julia(::CxxScalar)` / `cpp_to_julia(::CxxVec)` methods above, and a
+# single `cv::Scalar` argument by `julia_to_cpp(::Scalar)`.
 
 function julia_to_cpp(var::Array{T, 1}) where {T}
     if size(var, 1) == 0
