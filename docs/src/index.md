@@ -20,21 +20,27 @@ required.
 
 ## Versioning
 
-This release wraps **OpenCV 4.13.0**, pinned in `gen/OPENCV_VERSION` and provided at
-runtime by `OpenCV_jll` 4.13.x. Query the wrapped version from Julia (and
-`OpenCV.getBuildInformation()` for the full build-configuration string):
-
-```jldoctest
-julia> using OpenCV
-
-julia> OpenCV.getVersionString()
-"4.13.0"
+```@eval
+using Markdown, OpenCV
+v = OpenCV.getVersionString()
+Markdown.parse(
+    "This release wraps **OpenCV $v**, pinned in " *
+    "[`gen/OPENCV_VERSION`](https://github.com/JuliaImages/OpenCV.jl/blob/master/gen/OPENCV_VERSION) " *
+    "and provided at runtime by `OpenCV_jll`. Query it from Julia with " *
+    "`OpenCV.getVersionString()` (or `OpenCV.getBuildInformation()` for the full " *
+    "build configuration):"
+)
 ```
 
-The package version itself tracks the wrapped OpenCV release (currently the `4.13.x`
-line for OpenCV 4.13.0). Within a given OpenCV major/minor line, breaking changes to the
-*Julia* API are signalled by bumping the package's minor version and called out in
-release notes — they do not require bumping the OpenCV major.
+```@repl
+using OpenCV
+OpenCV.getVersionString()
+```
+
+The package version itself tracks the wrapped OpenCV release. Within a given OpenCV
+major/minor line, breaking changes to the *Julia* API are signalled by bumping the
+package's minor version and called out in release notes — they do not require bumping
+the OpenCV major.
 
 ## Quick start
 
