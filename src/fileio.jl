@@ -32,14 +32,17 @@ function load(f::File{T}, flags::Int64) where {T<:_IMAGE_DATA_FORMATS}
 end
 
 function load(s::Stream{T}) where {T<:_IMAGE_DATA_FORMATS}
-    data = read(stream(s))
-    img = imdecode(reshape(data, 1, 1, :))
+    # `Base.read`, not the generated cv::read wrappers that shadow `read` here.
+    # The byte buffer is decoded via the `imdecode(::AbstractVector{UInt8})`
+    # convenience method (issue #58).
+    data = Base.read(stream(s))
+    img = imdecode(data)
     return img
 end
 
 function load(s::Stream{T}, flags::Int64) where {T<:_IMAGE_DATA_FORMATS}
-    data = read(stream(s))
-    img = imdecode(reshape(data, 1, 1, :), flags)
+    data = Base.read(stream(s))
+    img = imdecode(data, flags)
     return img
 end
 

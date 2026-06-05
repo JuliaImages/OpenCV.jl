@@ -18,6 +18,8 @@ end
 
 cascade = OpenCV.CascadeClassifier(joinpath(test_dir, "cascadeandhog", "cascades", "haarcascade_frontalface_alt.xml"))
 
+@test !OpenCV.empty(cascade)   # a loaded classifier is non-empty
+
 img = OpenCV.imread(joinpath(test_dir, "cascadeandhog", "images", "mona-lisa.png"), OpenCV.IMREAD_GRAYSCALE)
 
 rect = detect(img, cascade)

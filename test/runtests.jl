@@ -14,6 +14,8 @@ else
 end
 
 @testset "OpenCV" begin
+    include("test_core_types.jl")
+    include("test_conversions.jl")
     include("test_mat.jl")
     include("test_feature2d.jl")
     include("test_descriptormatcher.jl")
