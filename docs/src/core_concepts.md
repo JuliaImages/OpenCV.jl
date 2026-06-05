@@ -50,10 +50,16 @@ Any `AbstractArray{T,3}` with `T` one of the supported element types is accepted
 wherever an image is expected (this Union is `OpenCV.InputArray`), so you can pass a
 plain Julia array directly and wrap one as a `Mat` with `OpenCV.Mat(A)`:
 
-```julia
-A = rand(UInt8, 3, 640, 480)     # (channels, cols, rows)
-img = OpenCV.Mat(A)              # zero-copy view; shares memory with A
-gray = OpenCV.cvtColor(A, OpenCV.COLOR_BGR2GRAY)   # plain arrays work too
+```jldoctest
+julia> using OpenCV
+
+julia> A = rand(UInt8, 3, 640, 480);          # (channels, cols, rows)
+
+julia> size(OpenCV.Mat(A))                    # zero-copy view; shares memory with A
+(3, 640, 480)
+
+julia> size(OpenCV.cvtColor(A, OpenCV.COLOR_BGR2GRAY))   # plain arrays work too
+(1, 640, 480)
 ```
 
 The supported element types are `UInt8`, `Int8`, `UInt16`, `Int16`, `Int32`,

@@ -18,16 +18,23 @@ extraction, calibration, and much more — backed by the compiled library throug
 This installs the package and the precompiled OpenCV binaries; no system OpenCV is
 required.
 
-## OpenCV version
+## Versioning
 
 This release wraps **OpenCV 4.13.0**, pinned in `gen/OPENCV_VERSION` and provided at
-runtime by `OpenCV_jll` 4.13.x. Query the version and build configuration from Julia:
+runtime by `OpenCV_jll` 4.13.x. Query the wrapped version from Julia (and
+`OpenCV.getBuildInformation()` for the full build-configuration string):
 
-```julia
-using OpenCV
-OpenCV.getVersionString()     # "4.13.0"
-OpenCV.getBuildInformation()  # full build info string
+```jldoctest
+julia> using OpenCV
+
+julia> OpenCV.getVersionString()
+"4.13.0"
 ```
+
+The package version itself tracks the wrapped OpenCV release (currently the `4.13.x`
+line for OpenCV 4.13.0). Within a given OpenCV major/minor line, breaking changes to the
+*Julia* API are signalled by bumping the package's minor version and called out in
+release notes — they do not require bumping the OpenCV major.
 
 ## Quick start
 
@@ -72,13 +79,6 @@ If you are new to OpenCV, the upstream
 starting point. Function and argument names mirror the C++/Python API, so most
 tutorials translate directly — the Julia-specific pieces are the `Mat`/`Vec` types and
 the array/image interop, all covered in [Core concepts](@ref).
-
-## Versioning
-
-The package version tracks the wrapped OpenCV release (currently `4.13.x` for OpenCV
-4.13.0). Within a given OpenCV major/minor line, breaking changes to the *Julia* API
-are signalled by bumping the package's minor version and called out in release notes —
-they do not require bumping the OpenCV major.
 
 ## Contributing
 
