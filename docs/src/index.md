@@ -22,6 +22,24 @@ You can install OpenCV.jl using Julia's package manager. Open a Julia REPL and r
 
 This will download and install the package and its dependencies.
 
+## OpenCV version
+
+This release wraps **OpenCV 4.13.0**, pinned in `gen/OPENCV_VERSION` and provided at runtime by `OpenCV_jll` 4.13.x. Query the version and build configuration from Julia:
+
+```julia
+using OpenCV
+OpenCV.getVersionString()     # "4.13.0"
+OpenCV.getBuildInformation()  # full build info string
+```
+
+## Getting started
+
+If you are new to OpenCV, the upstream [OpenCV tutorials](https://docs.opencv.org/4.x/d9/df8/tutorial_root.html) are the best starting point. Function and argument names in OpenCV.jl mirror the C++/Python API, so most tutorials translate directly — the main Julia-specific pieces are the `Mat` and `Vec` types and the array/image interop documented here.
+
+## Versioning
+
+The package version tracks the wrapped OpenCV release (currently `4.13.x` for OpenCV 4.13.0). Within a given OpenCV major/minor line, breaking changes to the *Julia* API are signalled by bumping the package's minor version and called out in release notes — they do not require bumping the OpenCV major.
+
 ## Usage
 
 To start using OpenCV.jl in your Julia code, you first need to import the package:
