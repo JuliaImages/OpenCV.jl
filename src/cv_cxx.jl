@@ -18,6 +18,7 @@ function __init__()
 end
 const Scalar = Union{Tuple{}, Tuple{Number}, Tuple{Number, Number}, Tuple{Number, Number, Number}, NTuple{4, Number}}
 
+include("errors.jl")
 include("Mat.jl")
 
 const InputArray = Union{AbstractArray{T, 3} where {T <: dtypes}, CxxMat}
@@ -55,4 +56,7 @@ julia_to_cpp(c::Char) = Cchar(c)
 
 include("generated/cv_cxx_wrap.jl")
 
-include("cv_manual_wrap.jl")
+# Hand-written overrides of the generated wrappers, grouped by concern.
+include("overrides/defaults.jl")     # default-argument convenience constructors
+include("overrides/covariance.jl")   # AbstractVector{<:InputArray} covariant overloads
+include("overrides/convenience.jl")  # GUI callbacks, CascadeClassifier, VideoWriter_fourcc

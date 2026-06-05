@@ -16,25 +16,40 @@ CV_MAT_DEPTH(flags) = ((flags) & CV_MAT_DEPTH_MASK)
 CV_MAKETYPE(depth,cn) = (CV_MAT_DEPTH(depth) + (((cn)-1) << CV_CN_SHIFT))
 CV_MAKE_TYPE = CV_MAKETYPE
 
+# Bijective map between Julia element types and OpenCV depth constants. The two
+# conversion directions below both look this up rather than repeating a 7-branch
+# `if`/`elseif` ladder; adding a supported dtype is a single entry here.
+const _CV_DEPTH = (
+    (UInt8,   CV_8U),
+    (Int8,    CV_8S),
+    (UInt16,  CV_16U),
+    (Int16,   CV_16S),
+    (Int32,   CV_32S),
+    (Float32, CV_32F),
+    (Float64, CV_64F),
+)
+
+# OpenCV depth constant for a Julia element type (throws on unsupported types).
+function _cv_depth(::Type{T}) where {T}
+    for (jt, depth) in _CV_DEPTH
+        jt === T && return depth
+    end
+    throw(OpenCVError("unsupported array element type $T for cv::Mat; expected one " *
+                      "of UInt8, Int8, UInt16, Int16, Int32, Float32, Float64"))
+end
+
+# Julia element type for an OpenCV type flag + channel count (throws on unknown flag).
+function _julia_eltype(cvtype, channels)
+    for (jt, depth) in _CV_DEPTH
+        cvtype == CV_MAKE_TYPE(depth, channels) && return jt
+    end
+    throw(OpenCVError("unsupported cv::Mat type returned from OpenCV " *
+                      "(type flag $cvtype, $channels channel(s))"))
+end
+
 function cpp_to_julia(mat::CxxMat)
     rets = jlopencv_core_Mat_mutable_data(mat)
-    if rets[2] == CV_MAKE_TYPE(CV_8U, rets[3])
-        dtype = UInt8
-    elseif rets[2]==CV_MAKE_TYPE(CV_8S, rets[3])
-        dtype = Int8
-    elseif rets[2]==CV_MAKE_TYPE(CV_16U, rets[3])
-        dtype = UInt16
-    elseif rets[2]==CV_MAKE_TYPE(CV_16S, rets[3])
-        dtype = Int16
-    elseif rets[2]==CV_MAKE_TYPE(CV_32S, rets[3])
-        dtype = Int32
-    elseif rets[2]==CV_MAKE_TYPE(CV_32F, rets[3])
-        dtype = Float32
-    elseif rets[2]==CV_MAKE_TYPE(CV_64F, rets[3])
-        dtype = Float64
-    else
-        error("Bad type returned from OpenCV")
-    end
+    dtype = _julia_eltype(rets[2], rets[3])
     steps = [rets[6]/sizeof(dtype), rets[7]/sizeof(dtype)]
     # println(steps[1]/rets[3], steps[2]/rets[3]/rets[4])
     #TODO: Implement views when steps do not result in continous memory
@@ -83,21 +98,8 @@ function julia_to_cpp(img::InputArray)
 
         push!(ndims_a, Int32(size(img)[3]))
         push!(ndims_a, Int32(size(img)[2]))
-        if eltype(img) == UInt8
-            return CxxMat(2, pointer(ndims_a), CV_MAKE_TYPE(CV_8U, size(img)[1]), Ptr{Nothing}(pointer(img)), pointer(steps_a))
-        elseif eltype(img) == UInt16
-            return CxxMat(2, pointer(ndims_a), CV_MAKE_TYPE(CV_16U, size(img)[1]), Ptr{Nothing}(pointer(img)), pointer(steps_a))
-        elseif eltype(img) == Int8
-            return CxxMat(2, pointer(ndims_a), CV_MAKE_TYPE(CV_8S, size(img)[1]), Ptr{Nothing}(pointer(img)), pointer(steps_a))
-        elseif eltype(img) == Int16
-            return CxxMat(2, pointer(ndims_a), CV_MAKE_TYPE(CV_16S, size(img)[1]), Ptr{Nothing}(pointer(img)), pointer(steps_a))
-        elseif eltype(img) == Int32
-            return CxxMat(2, pointer(ndims_a), CV_MAKE_TYPE(CV_32S, size(img)[1]), Ptr{Nothing}(pointer(img)), pointer(steps_a))
-        elseif eltype(img) == Float32
-            return CxxMat(2, pointer(ndims_a), CV_MAKE_TYPE(CV_32F, size(img)[1]), Ptr{Nothing}(pointer(img)), pointer(steps_a))
-        elseif eltype(img) == Float64
-            return CxxMat(2, pointer(ndims_a), CV_MAKE_TYPE(CV_64F, size(img)[1]), Ptr{Nothing}(pointer(img)), pointer(steps_a))
-        end
+        cvtype = CV_MAKE_TYPE(_cv_depth(eltype(img)), size(img)[1])
+        return CxxMat(2, pointer(ndims_a), cvtype, Ptr{Nothing}(pointer(img)), pointer(steps_a))
     else
         # Copy array, invalid config
         return julia_to_cpp(img[:, :, :])

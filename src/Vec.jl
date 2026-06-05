@@ -1,5 +1,13 @@
 #Adapted from IndirectArray
 
+"""
+    Vec{T,N,C,D} <: AbstractArray{T,1}
+
+A fixed-length, 1-dimensional `AbstractArray` view backing OpenCV's small fixed
+vectors (`cv::Vec{T,N}`) — for example the per-pixel channel tuple of a multi-channel
+`Mat`. `Vec{T,N}(data)` wraps a length-`N` array (throwing `DimensionMismatch`
+otherwise); `Vec{T,N}(cxxobj)` wraps a C++ object's storage in place.
+"""
 struct Vec{T, N, C, D <: AbstractArray{T, 1}} <: AbstractArray{T, 1}
     cpp_object::C
     data::D
