@@ -32,6 +32,14 @@ img = load(img_path)
 
 in both cases `img` has same data. Both methods accept same reading flags[^imreadflags].
 
+!!! note "Memory layout"
+
+    OpenCV.jl stores a `cv::Mat` as a Julia array with axes **`(channels, cols, rows)`**,
+    i.e. `size(img) == (nchannels, width, height)`. A grayscale `H×W` image is
+    `(1, W, H)` and a colour image is `(3, W, H)`. The same rule applies to result
+    matrices: an ORB descriptor matrix of `N` keypoints is `(1, descriptorSize, N)`,
+    so the keypoint axis is dimension 3. The bytes are shared with C++ without a copy.
+
 ```julia
 using OpenCV
 
