@@ -18,16 +18,29 @@ extraction, calibration, and much more — backed by the compiled library throug
 This installs the package and the precompiled OpenCV binaries; no system OpenCV is
 required.
 
-## OpenCV version
+## Versioning
 
-This release wraps **OpenCV 4.13.0**, pinned in `gen/OPENCV_VERSION` and provided at
-runtime by `OpenCV_jll` 4.13.x. Query the version and build configuration from Julia:
-
-```julia
-using OpenCV
-OpenCV.getVersionString()     # "4.13.0"
-OpenCV.getBuildInformation()  # full build info string
+```@eval
+using Markdown, OpenCV
+v = OpenCV.getVersionString()
+Markdown.parse(
+    "This release wraps **OpenCV $v**, pinned in " *
+    "[`gen/OPENCV_VERSION`](https://github.com/JuliaImages/OpenCV.jl/blob/master/gen/OPENCV_VERSION) " *
+    "and provided at runtime by `OpenCV_jll`. Query it from Julia with " *
+    "`OpenCV.getVersionString()` (or `OpenCV.getBuildInformation()` for the full " *
+    "build configuration):"
+)
 ```
+
+```@repl
+using OpenCV
+OpenCV.getVersionString()
+```
+
+The package version itself tracks the wrapped OpenCV release. Within a given OpenCV
+major/minor line, breaking changes to the *Julia* API are signalled by bumping the
+package's minor version and called out in release notes — they do not require bumping
+the OpenCV major.
 
 ## Quick start
 
@@ -63,22 +76,14 @@ mosaic(img_orig, img_back; nrow=1)
   scalars, and Julia-array interop.
 - [Reading and Writing of Images](@ref) — `imread`/`imwrite` and the FileIO
   `load`/`save` interface, with flags and display.
-- [API reference](@ref) — the hand-written types and I/O helpers. The full list of
-  wrapped OpenCV functions lives in
-  [`gen/funclist.csv`](https://github.com/JuliaImages/OpenCV.jl/blob/master/gen/funclist.csv).
+- [API reference](@ref) — the hand-written types and I/O helpers.
+- [Wrapped functions](@ref) — the complete generated list of wrapped OpenCV functions.
 
 If you are new to OpenCV, the upstream
 [OpenCV tutorials](https://docs.opencv.org/4.x/d9/df8/tutorial_root.html) are the best
 starting point. Function and argument names mirror the C++/Python API, so most
 tutorials translate directly — the Julia-specific pieces are the `Mat`/`Vec` types and
 the array/image interop, all covered in [Core concepts](@ref).
-
-## Versioning
-
-The package version tracks the wrapped OpenCV release (currently `4.13.x` for OpenCV
-4.13.0). Within a given OpenCV major/minor line, breaking changes to the *Julia* API
-are signalled by bumping the package's minor version and called out in release notes —
-they do not require bumping the OpenCV major.
 
 ## Contributing
 

@@ -15,9 +15,8 @@ The thousands of *wrapped* OpenCV functions (`imread`, `cvtColor`, `GaussianBlur
 `ORB_create`, …) keep their C++ names with the `cv::` namespace stripped and are
 reached through the `OpenCV.` prefix — e.g. `cv::cvtColor` is `OpenCV.cvtColor` and
 the flag `cv::IMREAD_GRAYSCALE` is `OpenCV.IMREAD_GRAYSCALE`. See
-[Core concepts](@ref) for the naming and data conventions, and the generated
-[`gen/funclist.csv`](https://github.com/JuliaImages/OpenCV.jl/blob/master/gen/funclist.csv)
-for the complete list of wrapped methods.
+[Core concepts](@ref) for the naming and data conventions, and
+[Wrapped functions](@ref) for the complete generated list.
 
 ## Image and array types
 
