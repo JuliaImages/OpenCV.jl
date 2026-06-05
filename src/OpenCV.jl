@@ -1,3 +1,14 @@
+"""
+OpenCV.jl wraps the OpenCV computer-vision library for Julia.
+
+Images and matrices are represented by [`Mat`](@ref), a 3-dimensional `AbstractArray`
+that shares memory with OpenCV's `cv::Mat`. **Mind the axis order:** a `cv::Mat` is
+exposed with axes `(channels, cols, rows)` — see [`Mat`](@ref) for details and the
+consequences for descriptor/result matrices.
+
+The bindings are generated from the OpenCV headers (see `gen/`); the full list of
+wrapped methods is in `gen/funclist.csv`.
+"""
 module OpenCV
 
 using OpenCV_jll

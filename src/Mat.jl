@@ -1,5 +1,44 @@
 #Adapted from IndirectArray
 
+"""
+    Mat{T,M,D} <: AbstractArray{T,3}
+
+The image/array type of OpenCV.jl: a 3-dimensional `AbstractArray` view that shares
+memory with an OpenCV `cv::Mat` (no copy).
+
+# Memory layout
+
+A `cv::Mat` is exposed to Julia with axes **`(channels, cols, rows)`** — that is,
+`size(m) == (nchannels, width, height)`. This is OpenCV's row-major
+`height × width × channels` buffer reinterpreted in Julia's column-major order, so the
+bytes are shared with C++ directly.
+
+Things to remember:
+
+- A grayscale `H×W` image has `size == (1, W, H)`.
+- A 3-channel `H×W` image has `size == (3, W, H)`.
+- Result matrices follow the same rule. For example, an ORB descriptor matrix of `N`
+  keypoints × `descriptorSize` bytes has `size == (1, descriptorSize, N)` — the
+  keypoint axis is dimension **3**, not 1.
+
+# Construction
+
+`Mat(data)` wraps an existing `AbstractArray{T,3}` without copying; most OpenCV
+functions return `Mat`s converted from C++.
+
+# Examples
+
+```jldoctest
+julia> using OpenCV
+
+julia> data = reshape(collect(UInt8, 1:24), 1, 4, 6);   # (channels, cols, rows)
+
+julia> m = OpenCV.Mat(data);
+
+julia> size(m)
+(1, 4, 6)
+```
+"""
 struct Mat{T <: dtypes, M, D <: AbstractArray{T, 3}} <: AbstractArray{T, 3}
     mat::M
     data::D
