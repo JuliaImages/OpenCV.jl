@@ -1,6 +1,6 @@
 # Coverage for the hand-written core types and dispatch helpers:
 # Mat / Vec (AbstractArray interface), the typestructs, OpenCVError, and the
-# scalar cpp<->julia identity/Tuple/Bool conversions in cv_cxx.jl.
+# scalar cpp<->julia identity/Tuple/Bool conversions in types_conversion.jl.
 
 @testset "Mat AbstractArray interface" begin
     data = reshape(collect(UInt8, 1:24), 2, 3, 4)
