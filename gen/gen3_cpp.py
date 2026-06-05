@@ -253,6 +253,26 @@ def gen(srcfiles, preprocessor_definitions):
     nsi = sorted(namespaces.items(), key =lambda x: x[0])
     added_methods = set()
 
+    # Pre-populate the `enums` list across all namespaces so the per-namespace
+    # `register_types` emission below can filter out enum typedefs. Without this,
+    # enum return/arg types (e.g. cv::ORB::ScoreType) leak into `mod.add_type<...>`
+    # in the generated C++ — but the Julia side declares them as `const X = Int64`
+    # (not a wrapped type), so loading the .so trips CxxWrap's
+    # "No appropriate factory for type ..." at @wrapmodule time.
+    for _, ns in nsi:
+        for e1, e2 in ns.enums.items():
+            # Push every form a type can appear in: hdr_parser normalizes arg
+            # types via `::` -> `_` and strips `cv::` (see hdr_parser.parse_arg,
+            # ~line 385), giving e.g. `ORB_ScoreType`. But parse_tree.py reads
+            # `decl[4]` (the *original* return type) into self.rettype, so a
+            # nested enum return reaches us as `ORB::ScoreType` (cv:: stripped,
+            # `::` preserved). Cover both shapes — plus the fully-qualified
+            # form — so `tp in enums` matches in every code path.
+            enums.append(e2[0])                                                 # cv::ORB::ScoreType
+            enums.append(e2[1])
+            enums.append(e2[0].replace("cv::", ""))                             # ORB::ScoreType
+            enums.append(e2[0].replace("cv::", "").replace("::", '_'))          # ORB_ScoreType
+
     for name, ns in nsi:
         cpp_code.write("using namespace %s;\n" % name.replace(".", "::"))
 
@@ -299,14 +319,9 @@ struct SuperType<%s>
 };
                                     """ % (cl.name.replace('.', '::'), cl.base.replace('.', '::')))
 
-        for e1,e2 in ns.enums.items():
-            # cpp_code.write('\n    mod.add_bits<{0}>("{1}", jlcxx::julia_type("CppEnum"));'.format(e2[0], e2[1]))
-            enums.append(e2[0])
-            enums.append(e2[1])
-            enums.append(e2[0].replace("cv::", "").replace("::", '_'))
-
-
         for tp in ns.register_types:
+            if tp in enums:
+                continue   # enum typedefs are passed as int64, not wrapped as types
             cpp_code.write('   mod.add_type<%s>("%s");\n' %(tp, normalize_class_name(tp)))
 
     # print(enums)

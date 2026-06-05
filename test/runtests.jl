@@ -16,6 +16,7 @@ end
 @testset "OpenCV" begin
     include("test_mat.jl")
     include("test_feature2d.jl")
+    include("test_descriptormatcher.jl")
     include("test_imgproc.jl")
     include("test_objdetect.jl")
     include("test_dnn.jl")

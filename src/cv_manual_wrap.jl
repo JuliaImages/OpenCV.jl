@@ -28,12 +28,6 @@ function CascadeClassifier(filename::String)
 end
 
 
-function detect(cobj::cv_Ptr{T}, image::InputArray, mask::InputArray) where {T <: Feature2D}
-	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_detect(julia_to_cpp(cobj),julia_to_cpp(image),julia_to_cpp(mask)))
-end
-detect(cobj::cv_Ptr{T}, image::InputArray; mask::InputArray = (CxxMat())) where {T <: Feature2D} = detect(cobj, image, mask)
-
-
 function detectMultiScale(cobj::CascadeClassifier, image::InputArray, scaleFactor::Float64, minNeighbors::Int32, flags::Int32, minSize::Size{Int32}, maxSize::Size{Int32})
 	return cpp_to_julia(jlopencv_cv_cv_CascadeClassifier_cv_CascadeClassifier_detectMultiScale(julia_to_cpp(cobj),julia_to_cpp(image),julia_to_cpp(scaleFactor),julia_to_cpp(minNeighbors),julia_to_cpp(flags),julia_to_cpp(minSize),julia_to_cpp(maxSize)))
 end
@@ -42,11 +36,6 @@ detectMultiScale(cobj::CascadeClassifier, image::InputArray; scaleFactor::Float6
 function empty(cobj::CascadeClassifier)
 	return cpp_to_julia(jlopencv_cv_cv_CascadeClassifier_cv_CascadeClassifier_empty(julia_to_cpp(cobj)))
 end
-
-function SimpleBlobDetector_create(parameters::SimpleBlobDetector_Params)
-	return cpp_to_julia(jlopencv_cv_cv_SimpleBlobDetector_create(julia_to_cpp(parameters)))
-end
-SimpleBlobDetector_create(; parameters::SimpleBlobDetector_Params = (SimpleBlobDetector_Params())) = SimpleBlobDetector_create(parameters)
 
 ## Convenience: mirror Python's `cv.VideoWriter_fourcc(*"h264")`. Issue #31.
 function VideoWriter_fourcc(s::AbstractString)
@@ -117,3 +106,24 @@ for f in (:calibrateCameraRO, :calibrateCameraROExtended)
            _as_input_vec(rvecs), _as_input_vec(tvecs), args...)
     end
 end
+
+# ORB_create convenience overload with defaults (OpenCV 4.13.0+)
+function ORB_create(;
+    nfeatures::Int64 = 500,
+    scaleFactor::Float64 = 1.2,
+    nlevels::Int64 = 8,
+    edgeThreshold::Int64 = 31,
+    firstLevel::Int64 = 0,
+    WTA_K::Int64 = 2,
+    scoreType::ORB_ScoreType = ORB_FAST_SCORE,
+    patchSize::Int64 = 31,
+    fastThreshold::Int64 = 20)
+    ORB_create(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize, fastThreshold)
+end
+
+# SimpleBlobDetector_create convenience overload with defaults (OpenCV 4.13.0+)
+function SimpleBlobDetector_create(;
+    parameters::SimpleBlobDetector_Params = SimpleBlobDetector_Params())
+    SimpleBlobDetector_create(parameters)
+end
+
