@@ -17,8 +17,7 @@ naming convention, reading/writing images, and the API reference.
 ] add OpenCV
 ```
 
-This installs the package and the precompiled OpenCV binaries (currently OpenCV 4.13.0);
-no system OpenCV is required.
+This installs the package and the precompiled OpenCV binaries; no system OpenCV is required.
 
 ## Developing locally
 
