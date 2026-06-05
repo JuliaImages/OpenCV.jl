@@ -70,9 +70,8 @@ mosaic(img_orig, img_back; nrow=1)
   scalars, and Julia-array interop.
 - [Reading and Writing of Images](@ref) — `imread`/`imwrite` and the FileIO
   `load`/`save` interface, with flags and display.
-- [API reference](@ref) — the hand-written types and I/O helpers. The full list of
-  wrapped OpenCV functions lives in
-  [`gen/funclist.csv`](https://github.com/JuliaImages/OpenCV.jl/blob/master/gen/funclist.csv).
+- [API reference](@ref) — the hand-written types and I/O helpers.
+- [Wrapped functions](@ref) — the complete generated list of wrapped OpenCV functions.
 
 If you are new to OpenCV, the upstream
 [OpenCV tutorials](https://docs.opencv.org/4.x/d9/df8/tutorial_root.html) are the best
