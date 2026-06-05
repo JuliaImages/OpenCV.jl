@@ -6,3 +6,10 @@ coverage:
     patch:
       default:
         informational: true
+
+# The CxxWrap bindings under src/generated/ are machine-generated from OpenCV
+# headers (see gen/, reproducibility enforced by Regenerate.yml), not
+# hand-maintained, so exclude them from coverage. Only the hand-written glue in
+# src/ is reported.
+ignore:
+  - "src/generated/**"

@@ -71,3 +71,42 @@ end
     @test decoded == img
     @test size(OpenCV.imdecode(buf)) == size(img)
 end
+
+@testset "FileIO Stream + flags/params" begin
+    img = OpenCV.Mat(rand(UInt8, 3, 64, 48))
+
+    # save(Stream)/load(Stream) lossless PNG round-trip.
+    io = IOBuffer()
+    OpenCV.save(Stream{format"PNG"}(io), img)
+    seekstart(io)
+    img2 = OpenCV.load(Stream{format"PNG"}(io))
+    @test size(img2) == size(img)
+    @test img2 == img
+
+    # save(Stream, image, params)
+    io2 = IOBuffer()
+    OpenCV.save(Stream{format"PNG"}(io2), img, Int32[OpenCV.IMWRITE_PNG_COMPRESSION, 1])
+    @test length(take!(io2)) > 8
+
+    # load(File, flags) and load(Stream, flags)
+    p = joinpath(test_dir, "shared", "pic1.png")
+    gray = OpenCV.load(File{format"PNG"}(p), Int64(OpenCV.IMREAD_GRAYSCALE))
+    @test size(gray, 1) == 1
+    io3 = IOBuffer(); OpenCV.save(Stream{format"PNG"}(io3), img); seekstart(io3)
+    gray2 = OpenCV.load(Stream{format"PNG"}(io3), Int64(OpenCV.IMREAD_GRAYSCALE))
+    @test size(gray2, 1) == 1
+
+    # save(File, image, params)
+    out = joinpath(tmpdir, "params.png")
+    OpenCV.save(File{format"PNG"}(out), img, Int32[OpenCV.IMWRITE_PNG_COMPRESSION, 3])
+    @test isfile(out)
+end
+
+@testset "show image/png" begin
+    img = OpenCV.Mat(rand(UInt8, 3, 32, 24))
+    io = IOBuffer()
+    show(io, MIME("image/png"), img)
+    bytes = take!(io)
+    @test length(bytes) > 8
+    @test bytes[1:8] == UInt8[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]  # PNG magic
+end
