@@ -106,3 +106,62 @@ for f in (:calibrateCameraRO, :calibrateCameraROExtended)
            _as_input_vec(rvecs), _as_input_vec(tvecs), args...)
     end
 end
+
+# ORB_create convenience overload with defaults (OpenCV 4.13.0+)
+function ORB_create(;
+    nfeatures::Int64 = 500,
+    scaleFactor::Float64 = 1.2,
+    nlevels::Int64 = 8,
+    edgeThreshold::Int64 = 31,
+    firstLevel::Int64 = 0,
+    WTA_K::Int64 = 2,
+    scoreType::ORB_ScoreType = ORB_FAST_SCORE,
+    patchSize::Int64 = 31,
+    fastThreshold::Int64 = 20)
+    ORB_create(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize, fastThreshold)
+end
+
+# SimpleBlobDetector_create convenience overload with defaults (OpenCV 4.13.0+)
+function SimpleBlobDetector_create(;
+    parameters::SimpleBlobDetector_Params = SimpleBlobDetector_Params())
+    SimpleBlobDetector_create(parameters)
+end
+
+# KeyPoint vector round-tripping (detect() -> compute()).
+#
+# `detect` returns a std::vector<cv::KeyPoint>. The generic StdVector conversion
+# (types_conversion.jl) would hand back Vector{KeyPointDereferenced} whose
+# elements are *views* into that C++ vector. Once detect's return value goes out
+# of scope it is freed, leaving those elements dangling — a use-after-free that
+# corrupts fields like `octave` and makes a later compute() trip OpenCV's
+# `inv_scale_x > 0` pyramid assertion. It is also the wrong container type:
+# the generated compute() wants Vector{KeyPoint}, and Julia Vectors are
+# invariant, so Dereferenced would not even dispatch.
+#
+# Fix: while the source vector is still alive, value-copy each KeyPoint into a
+# fresh, Julia-owned KeyPoint (CxxWrap exposes the fields via getproperty).
+function _copy_keypoint(kp)
+    return KeyPoint(Float64(kp.pt.x), Float64(kp.pt.y), Float64(kp.size),
+                    Float64(kp.angle), Float64(kp.response),
+                    Int64(kp.octave), Int64(kp.class_id))
+end
+
+function cpp_to_julia(var::CxxWrap.StdVector{KeyPoint})
+    ret = KeyPoint[]
+    for x in var
+        push!(ret, _copy_keypoint(x))
+    end
+    return ret
+end
+
+# Rebuild a std::vector<cv::KeyPoint> for the C++ glue. CxxWrap only registers
+# StdVector for the base type KeyPoint (not the Allocated/Dereferenced
+# subtypes), so pin the element type explicitly.
+function julia_to_cpp(var::Array{<:KeyPoint, 1})
+    ret = CxxWrap.StdVector{KeyPoint}()
+    for x in var
+        push!(ret, x)
+    end
+    return ret
+end
+
