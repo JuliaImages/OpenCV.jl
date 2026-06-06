@@ -56,9 +56,11 @@ end
 end
 
 @testset "issue #60: concrete Vector{Array{T,3}} dispatch" begin
-    # Without the covariant overloads in src/patches.jl, callers had to use
-    # `OpenCV.InputArray[…]` element-typed vectors. Confirm that natural
-    # `Vector{Array{Float32,3}}` inputs now dispatch.
+    # The generated wrappers annotate vector-of-array arguments as the covariant
+    # `AbstractVector{<:InputArray}`, so callers no longer need `OpenCV.InputArray[…]`
+    # element-typed vectors. Confirm that natural `Vector{Array{Float32,3}}` inputs
+    # dispatch. The …Extended / …RO variants expose their optional/output arrays as
+    # keyword arguments, so dispatch is checked on each one's leading positional set.
     objpts = [Float32.(reshape(stack(Tuple.(CartesianIndices((0:5, 0:4, 0:0)))), 3, 1, :)) for _ in 1:2]
     imgpts = [rand(Float32, 2, 1, length(first(objpts)) ÷ 3) for _ in 1:2]
     @test objpts isa Vector{Array{Float32, 3}}
@@ -78,15 +80,12 @@ end
                           Int, OpenCV.TermCriteria})
     @test hasmethod(OpenCV.calibrateCameraExtended,
                     Tuple{Vector{Array{Float32,3}}, Vector{Array{Float32,3}},
-                          OpenCV.Size{Int32}, OpenCV.Mat{Float64}, OpenCV.Mat{Float64},
-                          Vector{Array{Float64,3}}, Vector{Array{Float64,3}}})
+                          OpenCV.Size{Int32}, OpenCV.Mat{Float64}, OpenCV.Mat{Float64}})
     @test hasmethod(OpenCV.calibrateCameraRO,
                     Tuple{Vector{Array{Float32,3}}, Vector{Array{Float32,3}},
-                          OpenCV.Size{Int32}, Int, OpenCV.Mat{Float64}, OpenCV.Mat{Float64},
-                          Vector{Array{Float64,3}}, Vector{Array{Float64,3}}})
+                          OpenCV.Size{Int32}, Int, OpenCV.Mat{Float64}, OpenCV.Mat{Float64}})
     @test hasmethod(OpenCV.calibrateCameraROExtended,
                     Tuple{Vector{Array{Float32,3}}, Vector{Array{Float32,3}},
-                          OpenCV.Size{Int32}, Int, OpenCV.Mat{Float64}, OpenCV.Mat{Float64},
-                          Vector{Array{Float64,3}}, Vector{Array{Float64,3}}})
+                          OpenCV.Size{Int32}, Int, OpenCV.Mat{Float64}, OpenCV.Mat{Float64}})
 end
 

@@ -25,12 +25,33 @@ jl_cpp_defmap = {}
 julia_types = ["Int32", "Float32", "Float64", "Bool", "String", "Array", "Any"]
 cv_types = ["UMat","Size" ]
 
+# Relax invariant vector-of-array parameter types to their covariant form.
+# Julia's parametric types are invariant, so the concrete `Array{InputArray, 1}`
+# annotation rejects a natural `Vector{Array{Float32, 3}}` even though
+# `Array{Float32, 3} <: InputArray`. Emitting `AbstractVector{<:InputArray}` lets
+# such inputs dispatch; the body's `julia_to_cpp` (a generic `Array{T,1}` method)
+# performs the conversion unchanged. This replaces the hand-written covariant
+# overloads that used to live in src/overrides/covariance.jl (issues #18, #60).
+# Applied to the type *annotation* only; default-value lookups key off the
+# unrelaxed Julia type and are left untouched.
+covariant_param_types = {
+    "Array{InputArray, 1}": "AbstractVector{<:InputArray}",
+    "Array{Array{InputArray, 1}, 1}": "AbstractVector{<:AbstractVector{<:InputArray}}",
+}
+
+def covariant(jl_type):
+    return covariant_param_types.get(jl_type, jl_type)
+
 submodule_template = Template('')
 root_template = Template('')
 with open("binding_templates_jl/template_cv2_submodule_cxx.jl", "r") as f:
     submodule_template = Template(f.read())
 with open("binding_templates_jl/template_cv2_root.jl", "r") as f:
     root_template = Template(f.read())
+# Hand-authored Julia wrappers appended to the root cv module. Counterpart of the
+# "Manual Wrapping" section in binding_templates_cpp/cv_core.cpp; see that file.
+with open("binding_templates_jl/manual_cxx.jl", "r") as f:
+    manual_cxx_code = f.read()
 with open("typemap.txt", 'r') as f:
     tmp = f.readlines()
     for ln in tmp:
@@ -131,21 +152,21 @@ class FuncVariant(FuncVariant):
     def get_argument_full(self, classname='', isalgo = False):
         arglist = self.inlist + self.optlist
 
-        argnamelist = [arg.name+"::"+(handle_jl_arg(self.promote_type(arg.tp)) if handle_jl_arg(arg.tp) not in pass_by_val_types else handle_jl_arg(self.promote_type(arg.tp[:-1]))) for arg in arglist]
+        argnamelist = [arg.name+"::"+covariant(handle_jl_arg(self.promote_type(arg.tp)) if handle_jl_arg(arg.tp) not in pass_by_val_types else handle_jl_arg(self.promote_type(arg.tp[:-1]))) for arg in arglist]
         argstr = ", ".join(argnamelist)
         return argstr
 
     def get_argument_opt(self, ns=''):
         # [print(arg.default_value,":",handle_def_arg(arg.default_value, handle_jl_arg(arg.tp))) for arg in self.optlist]
         try:
-            str2 =  ", ".join(["%s::%s = %s(%s)" % (arg.name, handle_jl_arg(self.promote_type(arg.tp)), handle_jl_arg(self.promote_type(arg.tp)) if (arg.tp == 'int' or arg.tp=='float' or arg.tp=='double') else '', handle_def_arg(arg.default_value, handle_jl_arg(self.promote_type(arg.tp)), ns)) for arg in self.optlist])
+            str2 =  ", ".join(["%s::%s = %s(%s)" % (arg.name, covariant(handle_jl_arg(self.promote_type(arg.tp))), handle_jl_arg(self.promote_type(arg.tp)) if (arg.tp == 'int' or arg.tp=='float' or arg.tp=='double') else '', handle_def_arg(arg.default_value, handle_jl_arg(self.promote_type(arg.tp)), ns)) for arg in self.optlist])
             return str2
         except KeyError:
             return ''
 
     def get_argument_def(self, classname, isalgo):
         arglist = self.inlist
-        argnamelist = [arg.name+"::"+(handle_jl_arg(self.promote_type(arg.tp)) if handle_jl_arg(self.promote_type(arg.tp)) not in pass_by_val_types else handle_jl_arg(self.promote_type(arg.tp[:-1]))) for arg in arglist]
+        argnamelist = [arg.name+"::"+covariant(handle_jl_arg(self.promote_type(arg.tp)) if handle_jl_arg(self.promote_type(arg.tp)) not in pass_by_val_types else handle_jl_arg(self.promote_type(arg.tp[:-1]))) for arg in arglist]
         argstr = ", ".join(argnamelist)
         return argstr
 
@@ -255,7 +276,7 @@ def gen(srcfiles, preprocessor_definitions):
                 imports = imports + '\ninclude("%s_cxx_wrap.jl")'%namex.replace('::', '_')
         code = ''
         if name == 'cv':
-            code = root_template.substitute(modname = name, code = jl_code.getvalue(), submodule_imports = imports)
+            code = root_template.substitute(modname = name, code = jl_code.getvalue() + manual_cxx_code, submodule_imports = imports)
         else:
             code = submodule_template.substitute(code = jl_code.getvalue(), submodule_imports = imports)
 

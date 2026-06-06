@@ -10,8 +10,10 @@
 #   5. mat_conversion.jl, then types_conversion.jl — the cpp_to_julia /
 #      julia_to_cpp methods (see types_conversion.jl for the contract).
 #   6. generated/cv_cxx_wrap.jl — the generated wrappers, which call those
-#      conversion methods, so they must be defined first.
-#   7. overrides/ — hand-written overrides of the generated wrappers.
+#      conversion methods, so they must be defined first. This file ends with a
+#      hand-authored "Manual Wrapping" section (GUI callbacks, CascadeClassifier)
+#      emitted by the generator; see gen/binding_templates_jl/manual_cxx.jl.
+#   7. videoio.jl — hand-written conveniences layered on the generated wrappers.
 
 using OpenCV_jll
 
@@ -41,7 +43,5 @@ include("types_conversion.jl")
 
 include("generated/cv_cxx_wrap.jl")
 
-# Hand-written overrides of the generated wrappers, grouped by concern.
-include("overrides/defaults.jl")     # default-argument convenience constructors
-include("overrides/covariance.jl")   # AbstractVector{<:InputArray} covariant overloads
-include("overrides/convenience.jl")  # GUI callbacks, CascadeClassifier, VideoWriter_fourcc
+# Hand-written conveniences layered on top of the generated wrappers.
+include("videoio.jl")  # VideoWriter_fourcc string-tag form (issue #31)
