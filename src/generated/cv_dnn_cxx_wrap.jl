@@ -64,14 +64,14 @@ function dnn_forward(cobj::Net, outputName::String)
 end
 dnn_forward(cobj::Net; outputName::String = ("")) = dnn_forward(cobj, outputName)
 
-function dnn_forward(cobj::Net, outputBlobs::Array{InputArray, 1}, outputName::String)
+function dnn_forward(cobj::Net, outputBlobs::AbstractVector{<:InputArray}, outputName::String)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_forward(julia_to_cpp(cobj),julia_to_cpp(outputBlobs),julia_to_cpp(outputName)))
 end
 
-function dnn_forward(cobj::Net, outBlobNames::Array{String, 1}, outputBlobs::Array{InputArray, 1})
+function dnn_forward(cobj::Net, outBlobNames::Array{String, 1}, outputBlobs::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_forward(julia_to_cpp(cobj),julia_to_cpp(outBlobNames),julia_to_cpp(outputBlobs)))
 end
-dnn_forward(cobj::Net, outBlobNames::Array{String, 1}; outputBlobs::Array{InputArray, 1} = (Array{InputArray, 1}())) = dnn_forward(cobj, outBlobNames, outputBlobs)
+dnn_forward(cobj::Net, outBlobNames::Array{String, 1}; outputBlobs::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) = dnn_forward(cobj, outBlobNames, outputBlobs)
 
 function dnn_forwardAsync(cobj::Net, outputName::String)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_forwardAsync(julia_to_cpp(cobj),julia_to_cpp(outputName)))
@@ -214,10 +214,10 @@ function dnn_setInputParams(cobj::Model, scale::Float64, size::Size{Int32}, mean
 end
 dnn_setInputParams(cobj::Model; scale::Float64 = Float64(1.0), size::Size{Int32} = (cpp_to_julia(SizeOP())), mean::Scalar = (cpp_to_julia(ScalarOP())), swapRB::Bool = (false), crop::Bool = (false)) = dnn_setInputParams(cobj, scale, size, mean, swapRB, crop)
 
-function dnn_predict(cobj::Model, frame::InputArray, outs::Array{InputArray, 1})
+function dnn_predict(cobj::Model, frame::InputArray, outs::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Model_cv_dnn_Model_predict(julia_to_cpp(cobj),julia_to_cpp(frame),julia_to_cpp(outs)))
 end
-dnn_predict(cobj::Model, frame::InputArray; outs::Array{InputArray, 1} = (Array{InputArray, 1}())) = dnn_predict(cobj, frame, outs)
+dnn_predict(cobj::Model, frame::InputArray; outs::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) = dnn_predict(cobj, frame, outs)
 
 function dnn_setPreferableTarget(cobj::Model, targetId::dnn_Target)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Model_cv_dnn_Model_setPreferableTarget(julia_to_cpp(cobj),julia_to_cpp(targetId)))
@@ -419,15 +419,15 @@ function dnn_blobFromImage(image::InputArray, scalefactor::Float64, size::Size{I
 end
 dnn_blobFromImage(image::InputArray; scalefactor::Float64 = Float64(1.0), size::Size{Int32} = (cpp_to_julia(SizeOP())), mean::Scalar = (cpp_to_julia(ScalarOP())), swapRB::Bool = (false), crop::Bool = (false), ddepth::Int64 = Int64(CV_32F)) = dnn_blobFromImage(image, scalefactor, size, mean, swapRB, crop, ddepth)
 
-function dnn_blobFromImages(images::Array{InputArray, 1}, scalefactor::Float64, size::Size{Int32}, mean::Scalar, swapRB::Bool, crop::Bool, ddepth::Int64)
+function dnn_blobFromImages(images::AbstractVector{<:InputArray}, scalefactor::Float64, size::Size{Int32}, mean::Scalar, swapRB::Bool, crop::Bool, ddepth::Int64)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_blobFromImages(julia_to_cpp(images),julia_to_cpp(scalefactor),julia_to_cpp(size),julia_to_cpp(mean),julia_to_cpp(swapRB),julia_to_cpp(crop),julia_to_cpp(ddepth)))
 end
-dnn_blobFromImages(images::Array{InputArray, 1}; scalefactor::Float64 = Float64(1.0), size::Size{Int32} = (cpp_to_julia(SizeOP())), mean::Scalar = (cpp_to_julia(ScalarOP())), swapRB::Bool = (false), crop::Bool = (false), ddepth::Int64 = Int64(CV_32F)) = dnn_blobFromImages(images, scalefactor, size, mean, swapRB, crop, ddepth)
+dnn_blobFromImages(images::AbstractVector{<:InputArray}; scalefactor::Float64 = Float64(1.0), size::Size{Int32} = (cpp_to_julia(SizeOP())), mean::Scalar = (cpp_to_julia(ScalarOP())), swapRB::Bool = (false), crop::Bool = (false), ddepth::Int64 = Int64(CV_32F)) = dnn_blobFromImages(images, scalefactor, size, mean, swapRB, crop, ddepth)
 
-function dnn_imagesFromBlob(blob_::InputArray, images_::Array{InputArray, 1})
+function dnn_imagesFromBlob(blob_::InputArray, images_::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_imagesFromBlob(julia_to_cpp(blob_),julia_to_cpp(images_)))
 end
-dnn_imagesFromBlob(blob_::InputArray; images_::Array{InputArray, 1} = (Array{InputArray, 1}())) = dnn_imagesFromBlob(blob_, images_)
+dnn_imagesFromBlob(blob_::InputArray; images_::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) = dnn_imagesFromBlob(blob_, images_)
 
 function dnn_shrinkCaffeModel(src::String, dst::String, layersTypes::Array{String, 1})
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_shrinkCaffeModel(julia_to_cpp(src),julia_to_cpp(dst),julia_to_cpp(layersTypes)))

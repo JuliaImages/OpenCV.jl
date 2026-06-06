@@ -1,5 +1,18 @@
-# Hand-written convenience wrappers: GUI callbacks (which need closures GC-protected),
-# CascadeClassifier helpers, and the string form of VideoWriter_fourcc.
+
+#
+# Manual Wrapping BEGIN
+#
+# Hand-authored Julia wrappers for functions the header-driven generator cannot
+# emit. This section is the Julia counterpart of the "Manual Wrapping" block in
+# binding_templates_cpp/cv_core.cpp: the C++ side registers the compiled symbols
+# these call, and this side provides the Julia-facing API. It is appended
+# verbatim to the generated cv_cxx_wrap.jl by gen3_julia_cxx.py.
+#
+# Why these are manual:
+#   * the GUI callbacks need their Julia closures GC-protected for the lifetime
+#     of the C++ callback (CxxWrap.gcprotect), which the parser knows nothing of;
+#   * CascadeClassifier::detectMultiScale returns its result through an output
+#     `vector<Rect>` built inside the C++ lambda.
 
 function createButton(bar_name::String, on_change, userdata, type::Int32 = 0, initial_button_state::Bool = false)
     func =  (x)->on_change(x, userdata)
@@ -39,9 +52,6 @@ function empty(cobj::CascadeClassifier)
 	return cpp_to_julia(jlopencv_cv_cv_CascadeClassifier_cv_CascadeClassifier_empty(julia_to_cpp(cobj)))
 end
 
-## Convenience: mirror Python's `cv.VideoWriter_fourcc(*"h264")`. Issue #31.
-function VideoWriter_fourcc(s::AbstractString)
-    length(s) == 4 ||
-        throw(ArgumentError("VideoWriter_fourcc expects a 4-character codec tag, got $(repr(s))"))
-    VideoWriter_fourcc(s[1], s[2], s[3], s[4])
-end
+#
+# Manual Wrapping END
+#

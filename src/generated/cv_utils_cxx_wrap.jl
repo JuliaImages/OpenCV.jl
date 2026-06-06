@@ -31,7 +31,7 @@ function utils_dumpInputArray(argument::InputArray)
 	return cpp_to_julia(jlopencv_cv_utils_cv_utils_dumpInputArray(julia_to_cpp(argument)))
 end
 
-function utils_dumpInputArrayOfArrays(argument::Array{InputArray, 1})
+function utils_dumpInputArrayOfArrays(argument::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_utils_cv_utils_dumpInputArrayOfArrays(julia_to_cpp(argument)))
 end
 
@@ -39,7 +39,7 @@ function utils_dumpInputOutputArray(argument::InputArray)
 	return cpp_to_julia(jlopencv_cv_utils_cv_utils_dumpInputOutputArray(julia_to_cpp(argument)))
 end
 
-function utils_dumpInputOutputArrayOfArrays(argument::Array{InputArray, 1})
+function utils_dumpInputOutputArrayOfArrays(argument::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_utils_cv_utils_dumpInputOutputArrayOfArrays(julia_to_cpp(argument)))
 end
 

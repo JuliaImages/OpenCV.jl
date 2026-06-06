@@ -607,20 +607,20 @@ function detect(cobj::cv_Ptr{T}, image::InputArray, mask::InputArray) where {T <
 end
 detect(cobj::cv_Ptr{T}, image::InputArray; mask::InputArray = (CxxMat())) where {T <: Feature2D} = detect(cobj, image, mask)
 
-function detect(cobj::cv_Ptr{T}, images::Array{InputArray, 1}, masks::Array{InputArray, 1}) where {T <: Feature2D}
+function detect(cobj::cv_Ptr{T}, images::AbstractVector{<:InputArray}, masks::AbstractVector{<:InputArray}) where {T <: Feature2D}
 	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_detect(julia_to_cpp(cobj),julia_to_cpp(images),julia_to_cpp(masks)))
 end
-detect(cobj::cv_Ptr{T}, images::Array{InputArray, 1}; masks::Array{InputArray, 1} = ()) where {T <: Feature2D} = detect(cobj, images, masks)
+detect(cobj::cv_Ptr{T}, images::AbstractVector{<:InputArray}; masks::AbstractVector{<:InputArray} = ()) where {T <: Feature2D} = detect(cobj, images, masks)
 
 function compute(cobj::cv_Ptr{T}, image::InputArray, keypoints::Array{KeyPoint, 1}, descriptors::InputArray) where {T <: Feature2D}
 	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_compute(julia_to_cpp(cobj),julia_to_cpp(image),julia_to_cpp(keypoints),julia_to_cpp(descriptors)))
 end
 compute(cobj::cv_Ptr{T}, image::InputArray, keypoints::Array{KeyPoint, 1}; descriptors::InputArray = (CxxMat())) where {T <: Feature2D} = compute(cobj, image, keypoints, descriptors)
 
-function compute(cobj::cv_Ptr{T}, images::Array{InputArray, 1}, keypoints::Array{Array{KeyPoint, 1}, 1}, descriptors::Array{InputArray, 1}) where {T <: Feature2D}
+function compute(cobj::cv_Ptr{T}, images::AbstractVector{<:InputArray}, keypoints::Array{Array{KeyPoint, 1}, 1}, descriptors::AbstractVector{<:InputArray}) where {T <: Feature2D}
 	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_compute(julia_to_cpp(cobj),julia_to_cpp(images),julia_to_cpp(keypoints),julia_to_cpp(descriptors)))
 end
-compute(cobj::cv_Ptr{T}, images::Array{InputArray, 1}, keypoints::Array{Array{KeyPoint, 1}, 1}; descriptors::Array{InputArray, 1} = (Array{InputArray, 1}())) where {T <: Feature2D} = compute(cobj, images, keypoints, descriptors)
+compute(cobj::cv_Ptr{T}, images::AbstractVector{<:InputArray}, keypoints::Array{Array{KeyPoint, 1}, 1}; descriptors::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) where {T <: Feature2D} = compute(cobj, images, keypoints, descriptors)
 
 function detectAndCompute(cobj::cv_Ptr{T}, image::InputArray, mask::InputArray, descriptors::InputArray, useProvidedKeypoints::Bool) where {T <: Feature2D}
 	return cpp_to_julia(jlopencv_cv_cv_Feature2D_cv_Feature2D_detectAndCompute(julia_to_cpp(cobj),julia_to_cpp(image),julia_to_cpp(mask),julia_to_cpp(descriptors),julia_to_cpp(useProvidedKeypoints)))
@@ -1302,7 +1302,7 @@ function Base.setproperty!(m::cv_Ptr{DescriptorMatcher}, s::Symbol, v)
     return Base.setfield!(m, s, v)
 end
 
-function add(cobj::cv_Ptr{T}, descriptors::Array{InputArray, 1}) where {T <: DescriptorMatcher}
+function add(cobj::cv_Ptr{T}, descriptors::AbstractVector{<:InputArray}) where {T <: DescriptorMatcher}
 	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_add(julia_to_cpp(cobj),julia_to_cpp(descriptors)))
 end
 
@@ -1331,30 +1331,30 @@ function match(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::
 end
 match(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray; mask::InputArray = (CxxMat())) where {T <: DescriptorMatcher} = match(cobj, queryDescriptors, trainDescriptors, mask)
 
-function match(cobj::cv_Ptr{T}, queryDescriptors::InputArray, masks::Array{InputArray, 1}) where {T <: DescriptorMatcher}
+function match(cobj::cv_Ptr{T}, queryDescriptors::InputArray, masks::AbstractVector{<:InputArray}) where {T <: DescriptorMatcher}
 	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_match(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(masks)))
 end
-match(cobj::cv_Ptr{T}, queryDescriptors::InputArray; masks::Array{InputArray, 1} = ()) where {T <: DescriptorMatcher} = match(cobj, queryDescriptors, masks)
+match(cobj::cv_Ptr{T}, queryDescriptors::InputArray; masks::AbstractVector{<:InputArray} = ()) where {T <: DescriptorMatcher} = match(cobj, queryDescriptors, masks)
 
 function knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, k::Int64, mask::InputArray, compactResult::Bool) where {T <: DescriptorMatcher}
 	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_knnMatch(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(trainDescriptors),julia_to_cpp(k),julia_to_cpp(mask),julia_to_cpp(compactResult)))
 end
 knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, k::Int64; mask::InputArray = (CxxMat()), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = knnMatch(cobj, queryDescriptors, trainDescriptors, k, mask, compactResult)
 
-function knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, k::Int64, masks::Array{InputArray, 1}, compactResult::Bool) where {T <: DescriptorMatcher}
+function knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, k::Int64, masks::AbstractVector{<:InputArray}, compactResult::Bool) where {T <: DescriptorMatcher}
 	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_knnMatch(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(k),julia_to_cpp(masks),julia_to_cpp(compactResult)))
 end
-knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, k::Int64; masks::Array{InputArray, 1} = (), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = knnMatch(cobj, queryDescriptors, k, masks, compactResult)
+knnMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, k::Int64; masks::AbstractVector{<:InputArray} = (), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = knnMatch(cobj, queryDescriptors, k, masks, compactResult)
 
 function radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, maxDistance::Float64, mask::InputArray, compactResult::Bool) where {T <: DescriptorMatcher}
 	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_radiusMatch(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(trainDescriptors),julia_to_cpp(maxDistance),julia_to_cpp(mask),julia_to_cpp(compactResult)))
 end
 radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, trainDescriptors::InputArray, maxDistance::Float64; mask::InputArray = (CxxMat()), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = radiusMatch(cobj, queryDescriptors, trainDescriptors, maxDistance, mask, compactResult)
 
-function radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, maxDistance::Float64, masks::Array{InputArray, 1}, compactResult::Bool) where {T <: DescriptorMatcher}
+function radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, maxDistance::Float64, masks::AbstractVector{<:InputArray}, compactResult::Bool) where {T <: DescriptorMatcher}
 	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_radiusMatch(julia_to_cpp(cobj),julia_to_cpp(queryDescriptors),julia_to_cpp(maxDistance),julia_to_cpp(masks),julia_to_cpp(compactResult)))
 end
-radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, maxDistance::Float64; masks::Array{InputArray, 1} = (), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = radiusMatch(cobj, queryDescriptors, maxDistance, masks, compactResult)
+radiusMatch(cobj::cv_Ptr{T}, queryDescriptors::InputArray, maxDistance::Float64; masks::AbstractVector{<:InputArray} = (), compactResult::Bool = (false)) where {T <: DescriptorMatcher} = radiusMatch(cobj, queryDescriptors, maxDistance, masks, compactResult)
 
 function write(cobj::cv_Ptr{T}, fileName::String) where {T <: DescriptorMatcher}
 	return cpp_to_julia(jlopencv_cv_cv_DescriptorMatcher_cv_DescriptorMatcher_write(julia_to_cpp(cobj),julia_to_cpp(fileName)))
@@ -1986,17 +1986,17 @@ function reduce(src::InputArray, dim::Int64, rtype::Int64, dst::InputArray, dtyp
 end
 reduce(src::InputArray, dim::Int64, rtype::Int64; dst::InputArray = (CxxMat()), dtype::Int64 = Int64(-1)) = reduce(src, dim, rtype, dst, dtype)
 
-function merge(mv::Array{InputArray, 1}, dst::InputArray)
+function merge(mv::AbstractVector{<:InputArray}, dst::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_merge(julia_to_cpp(mv),julia_to_cpp(dst)))
 end
-merge(mv::Array{InputArray, 1}; dst::InputArray = (CxxMat())) = merge(mv, dst)
+merge(mv::AbstractVector{<:InputArray}; dst::InputArray = (CxxMat())) = merge(mv, dst)
 
-function split(m::InputArray, mv::Array{InputArray, 1})
+function split(m::InputArray, mv::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_cv_split(julia_to_cpp(m),julia_to_cpp(mv)))
 end
-split(m::InputArray; mv::Array{InputArray, 1} = (Array{InputArray, 1}())) = split(m, mv)
+split(m::InputArray; mv::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) = split(m, mv)
 
-function mixChannels(src::Array{InputArray, 1}, dst::Array{InputArray, 1}, fromTo::Array{Int32, 1})
+function mixChannels(src::AbstractVector{<:InputArray}, dst::AbstractVector{<:InputArray}, fromTo::Array{Int32, 1})
 	return cpp_to_julia(jlopencv_cv_cv_mixChannels(julia_to_cpp(src),julia_to_cpp(dst),julia_to_cpp(fromTo)))
 end
 
@@ -2024,15 +2024,15 @@ function repeat(src::InputArray, ny::Int64, nx::Int64, dst::InputArray)
 end
 repeat(src::InputArray, ny::Int64, nx::Int64; dst::InputArray = (CxxMat())) = repeat(src, ny, nx, dst)
 
-function hconcat(src::Array{InputArray, 1}, dst::InputArray)
+function hconcat(src::AbstractVector{<:InputArray}, dst::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_hconcat(julia_to_cpp(src),julia_to_cpp(dst)))
 end
-hconcat(src::Array{InputArray, 1}; dst::InputArray = (CxxMat())) = hconcat(src, dst)
+hconcat(src::AbstractVector{<:InputArray}; dst::InputArray = (CxxMat())) = hconcat(src, dst)
 
-function vconcat(src::Array{InputArray, 1}, dst::InputArray)
+function vconcat(src::AbstractVector{<:InputArray}, dst::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_vconcat(julia_to_cpp(src),julia_to_cpp(dst)))
 end
-vconcat(src::Array{InputArray, 1}; dst::InputArray = (CxxMat())) = vconcat(src, dst)
+vconcat(src::AbstractVector{<:InputArray}; dst::InputArray = (CxxMat())) = vconcat(src, dst)
 
 function bitwise_and(src1::InputArray, src2::InputArray, dst::InputArray, mask::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_bitwise_and(julia_to_cpp(src1),julia_to_cpp(src2),julia_to_cpp(dst),julia_to_cpp(mask)))
@@ -2681,15 +2681,15 @@ function pyrUp(src::InputArray, dst::InputArray, dstsize::Size{Int32}, borderTyp
 end
 pyrUp(src::InputArray; dst::InputArray = (CxxMat()), dstsize::Size{Int32} = (cpp_to_julia(SizeOP())), borderType::Int64 = Int64(cv_BORDER_DEFAULT)) = pyrUp(src, dst, dstsize, borderType)
 
-function calcHist(images::Array{InputArray, 1}, channels::Array{Int32, 1}, mask::InputArray, histSize::Array{Int32, 1}, ranges::Array{Float32, 1}, hist::InputArray, accumulate::Bool)
+function calcHist(images::AbstractVector{<:InputArray}, channels::Array{Int32, 1}, mask::InputArray, histSize::Array{Int32, 1}, ranges::Array{Float32, 1}, hist::InputArray, accumulate::Bool)
 	return cpp_to_julia(jlopencv_cv_cv_calcHist(julia_to_cpp(images),julia_to_cpp(channels),julia_to_cpp(mask),julia_to_cpp(histSize),julia_to_cpp(ranges),julia_to_cpp(hist),julia_to_cpp(accumulate)))
 end
-calcHist(images::Array{InputArray, 1}, channels::Array{Int32, 1}, mask::InputArray, histSize::Array{Int32, 1}, ranges::Array{Float32, 1}; hist::InputArray = (CxxMat()), accumulate::Bool = (false)) = calcHist(images, channels, mask, histSize, ranges, hist, accumulate)
+calcHist(images::AbstractVector{<:InputArray}, channels::Array{Int32, 1}, mask::InputArray, histSize::Array{Int32, 1}, ranges::Array{Float32, 1}; hist::InputArray = (CxxMat()), accumulate::Bool = (false)) = calcHist(images, channels, mask, histSize, ranges, hist, accumulate)
 
-function calcBackProject(images::Array{InputArray, 1}, channels::Array{Int32, 1}, hist::InputArray, ranges::Array{Float32, 1}, scale::Float64, dst::InputArray)
+function calcBackProject(images::AbstractVector{<:InputArray}, channels::Array{Int32, 1}, hist::InputArray, ranges::Array{Float32, 1}, scale::Float64, dst::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_calcBackProject(julia_to_cpp(images),julia_to_cpp(channels),julia_to_cpp(hist),julia_to_cpp(ranges),julia_to_cpp(scale),julia_to_cpp(dst)))
 end
-calcBackProject(images::Array{InputArray, 1}, channels::Array{Int32, 1}, hist::InputArray, ranges::Array{Float32, 1}, scale::Float64; dst::InputArray = (CxxMat())) = calcBackProject(images, channels, hist, ranges, scale, dst)
+calcBackProject(images::AbstractVector{<:InputArray}, channels::Array{Int32, 1}, hist::InputArray, ranges::Array{Float32, 1}, scale::Float64; dst::InputArray = (CxxMat())) = calcBackProject(images, channels, hist, ranges, scale, dst)
 
 function compareHist(H1::InputArray, H2::InputArray, method::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_compareHist(julia_to_cpp(H1),julia_to_cpp(H2),julia_to_cpp(method)))
@@ -2789,10 +2789,10 @@ function connectedComponentsWithStats(image::InputArray, labels::InputArray, sta
 end
 connectedComponentsWithStats(image::InputArray; labels::InputArray = (CxxMat()), stats::InputArray = (CxxMat()), centroids::InputArray = (CxxMat()), connectivity::Int64 = Int64(8), ltype::Int64 = Int64(CV_32S)) = connectedComponentsWithStats(image, labels, stats, centroids, connectivity, ltype)
 
-function findContours(image::InputArray, mode::Int64, method::Int64, contours::Array{InputArray, 1}, hierarchy::InputArray, offset::Point{Int32})
+function findContours(image::InputArray, mode::Int64, method::Int64, contours::AbstractVector{<:InputArray}, hierarchy::InputArray, offset::Point{Int32})
 	return cpp_to_julia(jlopencv_cv_cv_findContours(julia_to_cpp(image),julia_to_cpp(mode),julia_to_cpp(method),julia_to_cpp(contours),julia_to_cpp(hierarchy),julia_to_cpp(offset)))
 end
-findContours(image::InputArray, mode::Int64, method::Int64; contours::Array{InputArray, 1} = (Array{InputArray, 1}()), hierarchy::InputArray = (CxxMat()), offset::Point{Int32} = (cpp_to_julia(PointOP()))) = findContours(image, mode, method, contours, hierarchy, offset)
+findContours(image::InputArray, mode::Int64, method::Int64; contours::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), hierarchy::InputArray = (CxxMat()), offset::Point{Int32} = (cpp_to_julia(PointOP()))) = findContours(image, mode, method, contours, hierarchy, offset)
 
 function approxPolyDP(curve::InputArray, epsilon::Float64, closed::Bool, approxCurve::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_approxPolyDP(julia_to_cpp(curve),julia_to_cpp(epsilon),julia_to_cpp(closed),julia_to_cpp(approxCurve)))
@@ -2942,20 +2942,20 @@ function fillConvexPoly(img::InputArray, points::InputArray, color::Scalar, line
 end
 fillConvexPoly(img::InputArray, points::InputArray, color::Scalar; lineType::Int64 = Int64(cv_LINE_8), shift::Int64 = Int64(0)) = fillConvexPoly(img, points, color, lineType, shift)
 
-function fillPoly(img::InputArray, pts::Array{InputArray, 1}, color::Scalar, lineType::Int64, shift::Int64, offset::Point{Int32})
+function fillPoly(img::InputArray, pts::AbstractVector{<:InputArray}, color::Scalar, lineType::Int64, shift::Int64, offset::Point{Int32})
 	return cpp_to_julia(jlopencv_cv_cv_fillPoly(julia_to_cpp(img),julia_to_cpp(pts),julia_to_cpp(color),julia_to_cpp(lineType),julia_to_cpp(shift),julia_to_cpp(offset)))
 end
-fillPoly(img::InputArray, pts::Array{InputArray, 1}, color::Scalar; lineType::Int64 = Int64(cv_LINE_8), shift::Int64 = Int64(0), offset::Point{Int32} = (cpp_to_julia(PointOP()))) = fillPoly(img, pts, color, lineType, shift, offset)
+fillPoly(img::InputArray, pts::AbstractVector{<:InputArray}, color::Scalar; lineType::Int64 = Int64(cv_LINE_8), shift::Int64 = Int64(0), offset::Point{Int32} = (cpp_to_julia(PointOP()))) = fillPoly(img, pts, color, lineType, shift, offset)
 
-function polylines(img::InputArray, pts::Array{InputArray, 1}, isClosed::Bool, color::Scalar, thickness::Int64, lineType::Int64, shift::Int64)
+function polylines(img::InputArray, pts::AbstractVector{<:InputArray}, isClosed::Bool, color::Scalar, thickness::Int64, lineType::Int64, shift::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_polylines(julia_to_cpp(img),julia_to_cpp(pts),julia_to_cpp(isClosed),julia_to_cpp(color),julia_to_cpp(thickness),julia_to_cpp(lineType),julia_to_cpp(shift)))
 end
-polylines(img::InputArray, pts::Array{InputArray, 1}, isClosed::Bool, color::Scalar; thickness::Int64 = Int64(1), lineType::Int64 = Int64(cv_LINE_8), shift::Int64 = Int64(0)) = polylines(img, pts, isClosed, color, thickness, lineType, shift)
+polylines(img::InputArray, pts::AbstractVector{<:InputArray}, isClosed::Bool, color::Scalar; thickness::Int64 = Int64(1), lineType::Int64 = Int64(cv_LINE_8), shift::Int64 = Int64(0)) = polylines(img, pts, isClosed, color, thickness, lineType, shift)
 
-function drawContours(image::InputArray, contours::Array{InputArray, 1}, contourIdx::Int64, color::Scalar, thickness::Int64, lineType::Int64, hierarchy::InputArray, maxLevel::Int64, offset::Point{Int32})
+function drawContours(image::InputArray, contours::AbstractVector{<:InputArray}, contourIdx::Int64, color::Scalar, thickness::Int64, lineType::Int64, hierarchy::InputArray, maxLevel::Int64, offset::Point{Int32})
 	return cpp_to_julia(jlopencv_cv_cv_drawContours(julia_to_cpp(image),julia_to_cpp(contours),julia_to_cpp(contourIdx),julia_to_cpp(color),julia_to_cpp(thickness),julia_to_cpp(lineType),julia_to_cpp(hierarchy),julia_to_cpp(maxLevel),julia_to_cpp(offset)))
 end
-drawContours(image::InputArray, contours::Array{InputArray, 1}, contourIdx::Int64, color::Scalar; thickness::Int64 = Int64(1), lineType::Int64 = Int64(cv_LINE_8), hierarchy::InputArray = (CxxMat()), maxLevel::Int64 = Int64(typemax(Int32)), offset::Point{Int32} = (cpp_to_julia(PointOP()))) = drawContours(image, contours, contourIdx, color, thickness, lineType, hierarchy, maxLevel, offset)
+drawContours(image::InputArray, contours::AbstractVector{<:InputArray}, contourIdx::Int64, color::Scalar; thickness::Int64 = Int64(1), lineType::Int64 = Int64(cv_LINE_8), hierarchy::InputArray = (CxxMat()), maxLevel::Int64 = Int64(typemax(Int32)), offset::Point{Int32} = (cpp_to_julia(PointOP()))) = drawContours(image, contours, contourIdx, color, thickness, lineType, hierarchy, maxLevel, offset)
 
 function clipLine(imgRect::Rect{Int32}, pt1::Point{Int32}, pt2::Point{Int32})
 	return cpp_to_julia(jlopencv_cv_cv_clipLine(julia_to_cpp(imgRect),julia_to_cpp(pt1),julia_to_cpp(pt2)))
@@ -3012,6 +3012,7 @@ BRISK_create(thresh::Int64, octaves::Int64, radiusList::Array{Float32, 1}, numbe
 function ORB_create(nfeatures::Int64, scaleFactor::Float64, nlevels::Int64, edgeThreshold::Int64, firstLevel::Int64, WTA_K::Int64, scoreType::ORB_ScoreType, patchSize::Int64, fastThreshold::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_ORB_create(julia_to_cpp(nfeatures),julia_to_cpp(scaleFactor),julia_to_cpp(nlevels),julia_to_cpp(edgeThreshold),julia_to_cpp(firstLevel),julia_to_cpp(WTA_K),julia_to_cpp(scoreType),julia_to_cpp(patchSize),julia_to_cpp(fastThreshold)))
 end
+ORB_create(; nfeatures::Int64 = Int64(500), scaleFactor::Float64 = Float64(1.2), nlevels::Int64 = Int64(8), edgeThreshold::Int64 = Int64(31), firstLevel::Int64 = Int64(0), WTA_K::Int64 = Int64(2), scoreType::ORB_ScoreType = (ORB_HARRIS_SCORE), patchSize::Int64 = Int64(31), fastThreshold::Int64 = Int64(20)) = ORB_create(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize, fastThreshold)
 
 function MSER_create(delta::Int64, min_area::Int64, max_area::Int64, max_variation::Float64, min_diversity::Float64, max_evolution::Int64, area_threshold::Float64, min_margin::Float64, edge_blur_size::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_MSER_create(julia_to_cpp(delta),julia_to_cpp(min_area),julia_to_cpp(max_area),julia_to_cpp(max_variation),julia_to_cpp(min_diversity),julia_to_cpp(max_evolution),julia_to_cpp(area_threshold),julia_to_cpp(min_margin),julia_to_cpp(edge_blur_size)))
@@ -3039,6 +3040,7 @@ GFTTDetector_create(maxCorners::Int64, qualityLevel::Float64, minDistance::Float
 function SimpleBlobDetector_create(parameters::SimpleBlobDetector_Params)
 	return cpp_to_julia(jlopencv_cv_cv_SimpleBlobDetector_create(julia_to_cpp(parameters)))
 end
+SimpleBlobDetector_create(; parameters::SimpleBlobDetector_Params = (SimpleBlobDetector_Params())) = SimpleBlobDetector_create(parameters)
 
 function KAZE_create(extended::Bool, upright::Bool, threshold::Float64, nOctaves::Int64, nOctaveLayers::Int64, diffusivity::KAZE_DiffusivityType)
 	return cpp_to_julia(jlopencv_cv_cv_KAZE_create(julia_to_cpp(extended),julia_to_cpp(upright),julia_to_cpp(threshold),julia_to_cpp(nOctaves),julia_to_cpp(nOctaveLayers),julia_to_cpp(diffusivity)))
@@ -3090,15 +3092,15 @@ function imread(filename::String, dst::InputArray, flags::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_imread(julia_to_cpp(filename),julia_to_cpp(dst),julia_to_cpp(flags)))
 end
 
-function imreadmulti(filename::String, mats::Array{InputArray, 1}, flags::Int64)
+function imreadmulti(filename::String, mats::AbstractVector{<:InputArray}, flags::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_imreadmulti(julia_to_cpp(filename),julia_to_cpp(mats),julia_to_cpp(flags)))
 end
-imreadmulti(filename::String; mats::Array{InputArray, 1} = (Array{InputArray, 1}()), flags::Int64 = Int64(cv_IMREAD_ANYCOLOR)) = imreadmulti(filename, mats, flags)
+imreadmulti(filename::String; mats::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), flags::Int64 = Int64(cv_IMREAD_ANYCOLOR)) = imreadmulti(filename, mats, flags)
 
-function imreadmulti(filename::String, start::Int64, count::Int64, mats::Array{InputArray, 1}, flags::Int64)
+function imreadmulti(filename::String, start::Int64, count::Int64, mats::AbstractVector{<:InputArray}, flags::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_imreadmulti(julia_to_cpp(filename),julia_to_cpp(start),julia_to_cpp(count),julia_to_cpp(mats),julia_to_cpp(flags)))
 end
-imreadmulti(filename::String, start::Int64, count::Int64; mats::Array{InputArray, 1} = (Array{InputArray, 1}()), flags::Int64 = Int64(cv_IMREAD_ANYCOLOR)) = imreadmulti(filename, start, count, mats, flags)
+imreadmulti(filename::String, start::Int64, count::Int64; mats::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), flags::Int64 = Int64(cv_IMREAD_ANYCOLOR)) = imreadmulti(filename, start, count, mats, flags)
 
 function imwrite(filename::String, img::InputArray, params::Array{Int32, 1})
 	return cpp_to_julia(jlopencv_cv_cv_imwrite(julia_to_cpp(filename),julia_to_cpp(img),julia_to_cpp(params)))
@@ -3180,10 +3182,10 @@ function solvePnPRansac(objectPoints::InputArray, imagePoints::InputArray, camer
 	return cpp_to_julia(jlopencv_cv_cv_solvePnPRansac(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(rvec),julia_to_cpp(tvec),julia_to_cpp(inliers),julia_to_cpp(params)))
 end
 
-function solveP3P(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray, flags::Int64, rvecs::Array{InputArray, 1}, tvecs::Array{InputArray, 1})
+function solveP3P(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray, flags::Int64, rvecs::AbstractVector{<:InputArray}, tvecs::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_cv_solveP3P(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(flags),julia_to_cpp(rvecs),julia_to_cpp(tvecs)))
 end
-solveP3P(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray, flags::Int64; rvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), tvecs::Array{InputArray, 1} = (Array{InputArray, 1}())) = solveP3P(objectPoints, imagePoints, cameraMatrix, distCoeffs, flags, rvecs, tvecs)
+solveP3P(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray, flags::Int64; rvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), tvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) = solveP3P(objectPoints, imagePoints, cameraMatrix, distCoeffs, flags, rvecs, tvecs)
 
 function solvePnPRefineLM(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray, rvec::InputArray, tvec::InputArray, criteria::TermCriteria)
 	return cpp_to_julia(jlopencv_cv_cv_solvePnPRefineLM(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(rvec),julia_to_cpp(tvec),julia_to_cpp(criteria)))
@@ -3195,15 +3197,15 @@ function solvePnPRefineVVS(objectPoints::InputArray, imagePoints::InputArray, ca
 end
 solvePnPRefineVVS(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray, rvec::InputArray, tvec::InputArray; criteria::TermCriteria = (cpp_to_julia(TermCriteriaOTermCriteriaggEPSGRGTermCriteriaggCOUNTSGYWSGFLTREPSILONP())), VVSlambda::Float64 = Float64(1)) = solvePnPRefineVVS(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec, criteria, VVSlambda)
 
-function solvePnPGeneric(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::Array{InputArray, 1}, tvecs::Array{InputArray, 1}, useExtrinsicGuess::Bool, flags::SolvePnPMethod, rvec::InputArray, tvec::InputArray, reprojectionError::InputArray)
+function solvePnPGeneric(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::AbstractVector{<:InputArray}, tvecs::AbstractVector{<:InputArray}, useExtrinsicGuess::Bool, flags::SolvePnPMethod, rvec::InputArray, tvec::InputArray, reprojectionError::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_solvePnPGeneric(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(rvecs),julia_to_cpp(tvecs),julia_to_cpp(useExtrinsicGuess),julia_to_cpp(flags),julia_to_cpp(rvec),julia_to_cpp(tvec),julia_to_cpp(reprojectionError)))
 end
-solvePnPGeneric(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), tvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), useExtrinsicGuess::Bool = (false), flags::SolvePnPMethod = (cv_SOLVEPNP_ITERATIVE), rvec::InputArray = (CxxMat()), tvec::InputArray = (CxxMat()), reprojectionError::InputArray = (CxxMat())) = solvePnPGeneric(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvecs, tvecs, useExtrinsicGuess, flags, rvec, tvec, reprojectionError)
+solvePnPGeneric(objectPoints::InputArray, imagePoints::InputArray, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), tvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), useExtrinsicGuess::Bool = (false), flags::SolvePnPMethod = (cv_SOLVEPNP_ITERATIVE), rvec::InputArray = (CxxMat()), tvec::InputArray = (CxxMat()), reprojectionError::InputArray = (CxxMat())) = solvePnPGeneric(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvecs, tvecs, useExtrinsicGuess, flags, rvec, tvec, reprojectionError)
 
-function initCameraMatrix2D(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, aspectRatio::Float64)
+function initCameraMatrix2D(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, aspectRatio::Float64)
 	return cpp_to_julia(jlopencv_cv_cv_initCameraMatrix2D(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(imageSize),julia_to_cpp(aspectRatio)))
 end
-initCameraMatrix2D(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}; aspectRatio::Float64 = Float64(1.0)) = initCameraMatrix2D(objectPoints, imagePoints, imageSize, aspectRatio)
+initCameraMatrix2D(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}; aspectRatio::Float64 = Float64(1.0)) = initCameraMatrix2D(objectPoints, imagePoints, imageSize, aspectRatio)
 
 function findChessboardCorners(image::InputArray, patternSize::Size{Int32}, corners::InputArray, flags::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_findChessboardCorners(julia_to_cpp(image),julia_to_cpp(patternSize),julia_to_cpp(corners),julia_to_cpp(flags)))
@@ -3252,44 +3254,44 @@ function findCirclesGrid(image::InputArray, patternSize::Size{Int32}, centers::I
 end
 findCirclesGrid(image::InputArray, patternSize::Size{Int32}; centers::InputArray = (CxxMat()), flags::Int64 = Int64(cv_CALIB_CB_SYMMETRIC_GRID), blobDetector::Ptr{Feature2D} = (SimpleBlobDetectorggcreateOP)) = findCirclesGrid(image, patternSize, centers, flags, blobDetector)
 
-function calibrateCameraExtended(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::Array{InputArray, 1}, tvecs::Array{InputArray, 1}, stdDeviationsIntrinsics::InputArray, stdDeviationsExtrinsics::InputArray, perViewErrors::InputArray, flags::Int64, criteria::TermCriteria)
+function calibrateCameraExtended(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::AbstractVector{<:InputArray}, tvecs::AbstractVector{<:InputArray}, stdDeviationsIntrinsics::InputArray, stdDeviationsExtrinsics::InputArray, perViewErrors::InputArray, flags::Int64, criteria::TermCriteria)
 	return cpp_to_julia(jlopencv_cv_cv_calibrateCamera(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(imageSize),julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(rvecs),julia_to_cpp(tvecs),julia_to_cpp(stdDeviationsIntrinsics),julia_to_cpp(stdDeviationsExtrinsics),julia_to_cpp(perViewErrors),julia_to_cpp(flags),julia_to_cpp(criteria)))
 end
-calibrateCameraExtended(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), tvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), stdDeviationsIntrinsics::InputArray = (CxxMat()), stdDeviationsExtrinsics::InputArray = (CxxMat()), perViewErrors::InputArray = (CxxMat()), flags::Int64 = Int64(0), criteria::TermCriteria = (TermCriteriaOGTermCriteriaggCOUNTGRGTermCriteriaggEPSSGZWSGDBLREPSILONP)) = calibrateCameraExtended(objectPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, stdDeviationsIntrinsics, stdDeviationsExtrinsics, perViewErrors, flags, criteria)
+calibrateCameraExtended(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), tvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), stdDeviationsIntrinsics::InputArray = (CxxMat()), stdDeviationsExtrinsics::InputArray = (CxxMat()), perViewErrors::InputArray = (CxxMat()), flags::Int64 = Int64(0), criteria::TermCriteria = (TermCriteriaOGTermCriteriaggCOUNTGRGTermCriteriaggEPSSGZWSGDBLREPSILONP)) = calibrateCameraExtended(objectPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, stdDeviationsIntrinsics, stdDeviationsExtrinsics, perViewErrors, flags, criteria)
 
-function calibrateCamera(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::Array{InputArray, 1}, tvecs::Array{InputArray, 1}, flags::Int64, criteria::TermCriteria)
+function calibrateCamera(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::AbstractVector{<:InputArray}, tvecs::AbstractVector{<:InputArray}, flags::Int64, criteria::TermCriteria)
 	return cpp_to_julia(jlopencv_cv_cv_calibrateCamera(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(imageSize),julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(rvecs),julia_to_cpp(tvecs),julia_to_cpp(flags),julia_to_cpp(criteria)))
 end
-calibrateCamera(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), tvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), flags::Int64 = Int64(0), criteria::TermCriteria = (TermCriteriaOGTermCriteriaggCOUNTGRGTermCriteriaggEPSSGZWSGDBLREPSILONP)) = calibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, flags, criteria)
+calibrateCamera(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), tvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), flags::Int64 = Int64(0), criteria::TermCriteria = (TermCriteriaOGTermCriteriaggCOUNTGRGTermCriteriaggEPSSGZWSGDBLREPSILONP)) = calibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, flags, criteria)
 
-function calibrateCameraROExtended(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, iFixedPoint::Int64, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::Array{InputArray, 1}, tvecs::Array{InputArray, 1}, newObjPoints::InputArray, stdDeviationsIntrinsics::InputArray, stdDeviationsExtrinsics::InputArray, stdDeviationsObjPoints::InputArray, perViewErrors::InputArray, flags::Int64, criteria::TermCriteria)
+function calibrateCameraROExtended(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, iFixedPoint::Int64, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::AbstractVector{<:InputArray}, tvecs::AbstractVector{<:InputArray}, newObjPoints::InputArray, stdDeviationsIntrinsics::InputArray, stdDeviationsExtrinsics::InputArray, stdDeviationsObjPoints::InputArray, perViewErrors::InputArray, flags::Int64, criteria::TermCriteria)
 	return cpp_to_julia(jlopencv_cv_cv_calibrateCameraRO(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(imageSize),julia_to_cpp(iFixedPoint),julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(rvecs),julia_to_cpp(tvecs),julia_to_cpp(newObjPoints),julia_to_cpp(stdDeviationsIntrinsics),julia_to_cpp(stdDeviationsExtrinsics),julia_to_cpp(stdDeviationsObjPoints),julia_to_cpp(perViewErrors),julia_to_cpp(flags),julia_to_cpp(criteria)))
 end
-calibrateCameraROExtended(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, iFixedPoint::Int64, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), tvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), newObjPoints::InputArray = (CxxMat()), stdDeviationsIntrinsics::InputArray = (CxxMat()), stdDeviationsExtrinsics::InputArray = (CxxMat()), stdDeviationsObjPoints::InputArray = (CxxMat()), perViewErrors::InputArray = (CxxMat()), flags::Int64 = Int64(0), criteria::TermCriteria = (TermCriteriaOGTermCriteriaggCOUNTGRGTermCriteriaggEPSSGZWSGDBLREPSILONP)) = calibrateCameraROExtended(objectPoints, imagePoints, imageSize, iFixedPoint, cameraMatrix, distCoeffs, rvecs, tvecs, newObjPoints, stdDeviationsIntrinsics, stdDeviationsExtrinsics, stdDeviationsObjPoints, perViewErrors, flags, criteria)
+calibrateCameraROExtended(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, iFixedPoint::Int64, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), tvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), newObjPoints::InputArray = (CxxMat()), stdDeviationsIntrinsics::InputArray = (CxxMat()), stdDeviationsExtrinsics::InputArray = (CxxMat()), stdDeviationsObjPoints::InputArray = (CxxMat()), perViewErrors::InputArray = (CxxMat()), flags::Int64 = Int64(0), criteria::TermCriteria = (TermCriteriaOGTermCriteriaggCOUNTGRGTermCriteriaggEPSSGZWSGDBLREPSILONP)) = calibrateCameraROExtended(objectPoints, imagePoints, imageSize, iFixedPoint, cameraMatrix, distCoeffs, rvecs, tvecs, newObjPoints, stdDeviationsIntrinsics, stdDeviationsExtrinsics, stdDeviationsObjPoints, perViewErrors, flags, criteria)
 
-function calibrateCameraRO(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, iFixedPoint::Int64, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::Array{InputArray, 1}, tvecs::Array{InputArray, 1}, newObjPoints::InputArray, flags::Int64, criteria::TermCriteria)
+function calibrateCameraRO(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, iFixedPoint::Int64, cameraMatrix::InputArray, distCoeffs::InputArray, rvecs::AbstractVector{<:InputArray}, tvecs::AbstractVector{<:InputArray}, newObjPoints::InputArray, flags::Int64, criteria::TermCriteria)
 	return cpp_to_julia(jlopencv_cv_cv_calibrateCameraRO(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints),julia_to_cpp(imageSize),julia_to_cpp(iFixedPoint),julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(rvecs),julia_to_cpp(tvecs),julia_to_cpp(newObjPoints),julia_to_cpp(flags),julia_to_cpp(criteria)))
 end
-calibrateCameraRO(objectPoints::Array{InputArray, 1}, imagePoints::Array{InputArray, 1}, imageSize::Size{Int32}, iFixedPoint::Int64, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), tvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), newObjPoints::InputArray = (CxxMat()), flags::Int64 = Int64(0), criteria::TermCriteria = (TermCriteriaOGTermCriteriaggCOUNTGRGTermCriteriaggEPSSGZWSGDBLREPSILONP)) = calibrateCameraRO(objectPoints, imagePoints, imageSize, iFixedPoint, cameraMatrix, distCoeffs, rvecs, tvecs, newObjPoints, flags, criteria)
+calibrateCameraRO(objectPoints::AbstractVector{<:InputArray}, imagePoints::AbstractVector{<:InputArray}, imageSize::Size{Int32}, iFixedPoint::Int64, cameraMatrix::InputArray, distCoeffs::InputArray; rvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), tvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), newObjPoints::InputArray = (CxxMat()), flags::Int64 = Int64(0), criteria::TermCriteria = (TermCriteriaOGTermCriteriaggCOUNTGRGTermCriteriaggEPSSGZWSGDBLREPSILONP)) = calibrateCameraRO(objectPoints, imagePoints, imageSize, iFixedPoint, cameraMatrix, distCoeffs, rvecs, tvecs, newObjPoints, flags, criteria)
 
 function calibrationMatrixValues(cameraMatrix::InputArray, imageSize::Size{Int32}, apertureWidth::Float64, apertureHeight::Float64)
 	return cpp_to_julia(jlopencv_cv_cv_calibrationMatrixValues(julia_to_cpp(cameraMatrix),julia_to_cpp(imageSize),julia_to_cpp(apertureWidth),julia_to_cpp(apertureHeight)))
 end
 
-function stereoCalibrateExtended(objectPoints::Array{InputArray, 1}, imagePoints1::Array{InputArray, 1}, imagePoints2::Array{InputArray, 1}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray, E::InputArray, F::InputArray, rvecs::Array{InputArray, 1}, tvecs::Array{InputArray, 1}, perViewErrors::InputArray, flags::Int64, criteria::TermCriteria)
+function stereoCalibrateExtended(objectPoints::AbstractVector{<:InputArray}, imagePoints1::AbstractVector{<:InputArray}, imagePoints2::AbstractVector{<:InputArray}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray, E::InputArray, F::InputArray, rvecs::AbstractVector{<:InputArray}, tvecs::AbstractVector{<:InputArray}, perViewErrors::InputArray, flags::Int64, criteria::TermCriteria)
 	return cpp_to_julia(jlopencv_cv_cv_stereoCalibrate(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints1),julia_to_cpp(imagePoints2),julia_to_cpp(cameraMatrix1),julia_to_cpp(distCoeffs1),julia_to_cpp(cameraMatrix2),julia_to_cpp(distCoeffs2),julia_to_cpp(imageSize),julia_to_cpp(R),julia_to_cpp(T),julia_to_cpp(E),julia_to_cpp(F),julia_to_cpp(rvecs),julia_to_cpp(tvecs),julia_to_cpp(perViewErrors),julia_to_cpp(flags),julia_to_cpp(criteria)))
 end
-stereoCalibrateExtended(objectPoints::Array{InputArray, 1}, imagePoints1::Array{InputArray, 1}, imagePoints2::Array{InputArray, 1}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray; E::InputArray = (CxxMat()), F::InputArray = (CxxMat()), rvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), tvecs::Array{InputArray, 1} = (Array{InputArray, 1}()), perViewErrors::InputArray = (CxxMat()), flags::Int64 = Int64(cv_CALIB_FIX_INTRINSIC), criteria::TermCriteria = (TermCriteriaOTermCriteriaggCOUNTRTermCriteriaggEPSSGZWSGXeTcP)) = stereoCalibrateExtended(objectPoints, imagePoints1, imagePoints2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, imageSize, R, T, E, F, rvecs, tvecs, perViewErrors, flags, criteria)
+stereoCalibrateExtended(objectPoints::AbstractVector{<:InputArray}, imagePoints1::AbstractVector{<:InputArray}, imagePoints2::AbstractVector{<:InputArray}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray; E::InputArray = (CxxMat()), F::InputArray = (CxxMat()), rvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), tvecs::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), perViewErrors::InputArray = (CxxMat()), flags::Int64 = Int64(cv_CALIB_FIX_INTRINSIC), criteria::TermCriteria = (TermCriteriaOTermCriteriaggCOUNTRTermCriteriaggEPSSGZWSGXeTcP)) = stereoCalibrateExtended(objectPoints, imagePoints1, imagePoints2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, imageSize, R, T, E, F, rvecs, tvecs, perViewErrors, flags, criteria)
 
-function stereoCalibrate(objectPoints::Array{InputArray, 1}, imagePoints1::Array{InputArray, 1}, imagePoints2::Array{InputArray, 1}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray, E::InputArray, F::InputArray, flags::Int64, criteria::TermCriteria)
+function stereoCalibrate(objectPoints::AbstractVector{<:InputArray}, imagePoints1::AbstractVector{<:InputArray}, imagePoints2::AbstractVector{<:InputArray}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray, E::InputArray, F::InputArray, flags::Int64, criteria::TermCriteria)
 	return cpp_to_julia(jlopencv_cv_cv_stereoCalibrate(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints1),julia_to_cpp(imagePoints2),julia_to_cpp(cameraMatrix1),julia_to_cpp(distCoeffs1),julia_to_cpp(cameraMatrix2),julia_to_cpp(distCoeffs2),julia_to_cpp(imageSize),julia_to_cpp(R),julia_to_cpp(T),julia_to_cpp(E),julia_to_cpp(F),julia_to_cpp(flags),julia_to_cpp(criteria)))
 end
-stereoCalibrate(objectPoints::Array{InputArray, 1}, imagePoints1::Array{InputArray, 1}, imagePoints2::Array{InputArray, 1}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}; R::InputArray = (CxxMat()), T::InputArray = (CxxMat()), E::InputArray = (CxxMat()), F::InputArray = (CxxMat()), flags::Int64 = Int64(cv_CALIB_FIX_INTRINSIC), criteria::TermCriteria = (TermCriteriaOTermCriteriaggCOUNTRTermCriteriaggEPSSGZWSGXeTcP)) = stereoCalibrate(objectPoints, imagePoints1, imagePoints2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, imageSize, R, T, E, F, flags, criteria)
+stereoCalibrate(objectPoints::AbstractVector{<:InputArray}, imagePoints1::AbstractVector{<:InputArray}, imagePoints2::AbstractVector{<:InputArray}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}; R::InputArray = (CxxMat()), T::InputArray = (CxxMat()), E::InputArray = (CxxMat()), F::InputArray = (CxxMat()), flags::Int64 = Int64(cv_CALIB_FIX_INTRINSIC), criteria::TermCriteria = (TermCriteriaOTermCriteriaggCOUNTRTermCriteriaggEPSSGZWSGXeTcP)) = stereoCalibrate(objectPoints, imagePoints1, imagePoints2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, imageSize, R, T, E, F, flags, criteria)
 
-function stereoCalibrate(objectPoints::Array{InputArray, 1}, imagePoints1::Array{InputArray, 1}, imagePoints2::Array{InputArray, 1}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray, E::InputArray, F::InputArray, perViewErrors::InputArray, flags::Int64, criteria::TermCriteria)
+function stereoCalibrate(objectPoints::AbstractVector{<:InputArray}, imagePoints1::AbstractVector{<:InputArray}, imagePoints2::AbstractVector{<:InputArray}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray, E::InputArray, F::InputArray, perViewErrors::InputArray, flags::Int64, criteria::TermCriteria)
 	return cpp_to_julia(jlopencv_cv_cv_stereoCalibrate(julia_to_cpp(objectPoints),julia_to_cpp(imagePoints1),julia_to_cpp(imagePoints2),julia_to_cpp(cameraMatrix1),julia_to_cpp(distCoeffs1),julia_to_cpp(cameraMatrix2),julia_to_cpp(distCoeffs2),julia_to_cpp(imageSize),julia_to_cpp(R),julia_to_cpp(T),julia_to_cpp(E),julia_to_cpp(F),julia_to_cpp(perViewErrors),julia_to_cpp(flags),julia_to_cpp(criteria)))
 end
-stereoCalibrate(objectPoints::Array{InputArray, 1}, imagePoints1::Array{InputArray, 1}, imagePoints2::Array{InputArray, 1}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray; E::InputArray = (CxxMat()), F::InputArray = (CxxMat()), perViewErrors::InputArray = (CxxMat()), flags::Int64 = Int64(cv_CALIB_FIX_INTRINSIC), criteria::TermCriteria = (TermCriteriaOTermCriteriaggCOUNTRTermCriteriaggEPSSGZWSGXeTcP)) = stereoCalibrate(objectPoints, imagePoints1, imagePoints2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, imageSize, R, T, E, F, perViewErrors, flags, criteria)
+stereoCalibrate(objectPoints::AbstractVector{<:InputArray}, imagePoints1::AbstractVector{<:InputArray}, imagePoints2::AbstractVector{<:InputArray}, cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray; E::InputArray = (CxxMat()), F::InputArray = (CxxMat()), perViewErrors::InputArray = (CxxMat()), flags::Int64 = Int64(cv_CALIB_FIX_INTRINSIC), criteria::TermCriteria = (TermCriteriaOTermCriteriaggCOUNTRTermCriteriaggEPSSGZWSGXeTcP)) = stereoCalibrate(objectPoints, imagePoints1, imagePoints2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, imageSize, R, T, E, F, perViewErrors, flags, criteria)
 
 function stereoRectify(cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, imageSize::Size{Int32}, R::InputArray, T::InputArray, R1::InputArray, R2::InputArray, P1::InputArray, P2::InputArray, Q::InputArray, flags::Int64, alpha::Float64, newImageSize::Size{Int32})
 	return cpp_to_julia(jlopencv_cv_cv_stereoRectify(julia_to_cpp(cameraMatrix1),julia_to_cpp(distCoeffs1),julia_to_cpp(cameraMatrix2),julia_to_cpp(distCoeffs2),julia_to_cpp(imageSize),julia_to_cpp(R),julia_to_cpp(T),julia_to_cpp(R1),julia_to_cpp(R2),julia_to_cpp(P1),julia_to_cpp(P2),julia_to_cpp(Q),julia_to_cpp(flags),julia_to_cpp(alpha),julia_to_cpp(newImageSize)))
@@ -3301,20 +3303,20 @@ function stereoRectifyUncalibrated(points1::InputArray, points2::InputArray, F::
 end
 stereoRectifyUncalibrated(points1::InputArray, points2::InputArray, F::InputArray, imgSize::Size{Int32}; H1::InputArray = (CxxMat()), H2::InputArray = (CxxMat()), threshold::Float64 = Float64(5)) = stereoRectifyUncalibrated(points1, points2, F, imgSize, H1, H2, threshold)
 
-function rectify3Collinear(cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, cameraMatrix3::InputArray, distCoeffs3::InputArray, imgpt1::Array{InputArray, 1}, imgpt3::Array{InputArray, 1}, imageSize::Size{Int32}, R12::InputArray, T12::InputArray, R13::InputArray, T13::InputArray, alpha::Float64, newImgSize::Size{Int32}, flags::Int64, R1::InputArray, R2::InputArray, R3::InputArray, P1::InputArray, P2::InputArray, P3::InputArray, Q::InputArray)
+function rectify3Collinear(cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, cameraMatrix3::InputArray, distCoeffs3::InputArray, imgpt1::AbstractVector{<:InputArray}, imgpt3::AbstractVector{<:InputArray}, imageSize::Size{Int32}, R12::InputArray, T12::InputArray, R13::InputArray, T13::InputArray, alpha::Float64, newImgSize::Size{Int32}, flags::Int64, R1::InputArray, R2::InputArray, R3::InputArray, P1::InputArray, P2::InputArray, P3::InputArray, Q::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_rectify3Collinear(julia_to_cpp(cameraMatrix1),julia_to_cpp(distCoeffs1),julia_to_cpp(cameraMatrix2),julia_to_cpp(distCoeffs2),julia_to_cpp(cameraMatrix3),julia_to_cpp(distCoeffs3),julia_to_cpp(imgpt1),julia_to_cpp(imgpt3),julia_to_cpp(imageSize),julia_to_cpp(R12),julia_to_cpp(T12),julia_to_cpp(R13),julia_to_cpp(T13),julia_to_cpp(alpha),julia_to_cpp(newImgSize),julia_to_cpp(flags),julia_to_cpp(R1),julia_to_cpp(R2),julia_to_cpp(R3),julia_to_cpp(P1),julia_to_cpp(P2),julia_to_cpp(P3),julia_to_cpp(Q)))
 end
-rectify3Collinear(cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, cameraMatrix3::InputArray, distCoeffs3::InputArray, imgpt1::Array{InputArray, 1}, imgpt3::Array{InputArray, 1}, imageSize::Size{Int32}, R12::InputArray, T12::InputArray, R13::InputArray, T13::InputArray, alpha::Float64, newImgSize::Size{Int32}, flags::Int64; R1::InputArray = (CxxMat()), R2::InputArray = (CxxMat()), R3::InputArray = (CxxMat()), P1::InputArray = (CxxMat()), P2::InputArray = (CxxMat()), P3::InputArray = (CxxMat()), Q::InputArray = (CxxMat())) = rectify3Collinear(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, cameraMatrix3, distCoeffs3, imgpt1, imgpt3, imageSize, R12, T12, R13, T13, alpha, newImgSize, flags, R1, R2, R3, P1, P2, P3, Q)
+rectify3Collinear(cameraMatrix1::InputArray, distCoeffs1::InputArray, cameraMatrix2::InputArray, distCoeffs2::InputArray, cameraMatrix3::InputArray, distCoeffs3::InputArray, imgpt1::AbstractVector{<:InputArray}, imgpt3::AbstractVector{<:InputArray}, imageSize::Size{Int32}, R12::InputArray, T12::InputArray, R13::InputArray, T13::InputArray, alpha::Float64, newImgSize::Size{Int32}, flags::Int64; R1::InputArray = (CxxMat()), R2::InputArray = (CxxMat()), R3::InputArray = (CxxMat()), P1::InputArray = (CxxMat()), P2::InputArray = (CxxMat()), P3::InputArray = (CxxMat()), Q::InputArray = (CxxMat())) = rectify3Collinear(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, cameraMatrix3, distCoeffs3, imgpt1, imgpt3, imageSize, R12, T12, R13, T13, alpha, newImgSize, flags, R1, R2, R3, P1, P2, P3, Q)
 
 function getOptimalNewCameraMatrix(cameraMatrix::InputArray, distCoeffs::InputArray, imageSize::Size{Int32}, alpha::Float64, newImgSize::Size{Int32}, centerPrincipalPoint::Bool)
 	return cpp_to_julia(jlopencv_cv_cv_getOptimalNewCameraMatrix(julia_to_cpp(cameraMatrix),julia_to_cpp(distCoeffs),julia_to_cpp(imageSize),julia_to_cpp(alpha),julia_to_cpp(newImgSize),julia_to_cpp(centerPrincipalPoint)))
 end
 getOptimalNewCameraMatrix(cameraMatrix::InputArray, distCoeffs::InputArray, imageSize::Size{Int32}, alpha::Float64; newImgSize::Size{Int32} = (cpp_to_julia(SizeOP())), centerPrincipalPoint::Bool = (false)) = getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, alpha, newImgSize, centerPrincipalPoint)
 
-function calibrateHandEye(R_gripper2base::Array{InputArray, 1}, t_gripper2base::Array{InputArray, 1}, R_target2cam::Array{InputArray, 1}, t_target2cam::Array{InputArray, 1}, R_cam2gripper::InputArray, t_cam2gripper::InputArray, method::HandEyeCalibrationMethod)
+function calibrateHandEye(R_gripper2base::AbstractVector{<:InputArray}, t_gripper2base::AbstractVector{<:InputArray}, R_target2cam::AbstractVector{<:InputArray}, t_target2cam::AbstractVector{<:InputArray}, R_cam2gripper::InputArray, t_cam2gripper::InputArray, method::HandEyeCalibrationMethod)
 	return cpp_to_julia(jlopencv_cv_cv_calibrateHandEye(julia_to_cpp(R_gripper2base),julia_to_cpp(t_gripper2base),julia_to_cpp(R_target2cam),julia_to_cpp(t_target2cam),julia_to_cpp(R_cam2gripper),julia_to_cpp(t_cam2gripper),julia_to_cpp(method)))
 end
-calibrateHandEye(R_gripper2base::Array{InputArray, 1}, t_gripper2base::Array{InputArray, 1}, R_target2cam::Array{InputArray, 1}, t_target2cam::Array{InputArray, 1}; R_cam2gripper::InputArray = (CxxMat()), t_cam2gripper::InputArray = (CxxMat()), method::HandEyeCalibrationMethod = (cv_CALIB_HAND_EYE_TSAI)) = calibrateHandEye(R_gripper2base, t_gripper2base, R_target2cam, t_target2cam, R_cam2gripper, t_cam2gripper, method)
+calibrateHandEye(R_gripper2base::AbstractVector{<:InputArray}, t_gripper2base::AbstractVector{<:InputArray}, R_target2cam::AbstractVector{<:InputArray}, t_target2cam::AbstractVector{<:InputArray}; R_cam2gripper::InputArray = (CxxMat()), t_cam2gripper::InputArray = (CxxMat()), method::HandEyeCalibrationMethod = (cv_CALIB_HAND_EYE_TSAI)) = calibrateHandEye(R_gripper2base, t_gripper2base, R_target2cam, t_target2cam, R_cam2gripper, t_cam2gripper, method)
 
 function convertPointsToHomogeneous(src::InputArray, dst::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_convertPointsToHomogeneous(julia_to_cpp(src),julia_to_cpp(dst)))
@@ -3453,15 +3455,15 @@ function estimateAffinePartial2D(from::InputArray, to::InputArray, inliers::Inpu
 end
 estimateAffinePartial2D(from::InputArray, to::InputArray; inliers::InputArray = (CxxMat()), method::Int64 = Int64(cv_RANSAC), ransacReprojThreshold::Float64 = Float64(3), maxIters::size_t = (2000), confidence::Float64 = Float64(0.99), refineIters::size_t = (10)) = estimateAffinePartial2D(from, to, inliers, method, ransacReprojThreshold, maxIters, confidence, refineIters)
 
-function decomposeHomographyMat(H::InputArray, K::InputArray, rotations::Array{InputArray, 1}, translations::Array{InputArray, 1}, normals::Array{InputArray, 1})
+function decomposeHomographyMat(H::InputArray, K::InputArray, rotations::AbstractVector{<:InputArray}, translations::AbstractVector{<:InputArray}, normals::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_cv_decomposeHomographyMat(julia_to_cpp(H),julia_to_cpp(K),julia_to_cpp(rotations),julia_to_cpp(translations),julia_to_cpp(normals)))
 end
-decomposeHomographyMat(H::InputArray, K::InputArray; rotations::Array{InputArray, 1} = (Array{InputArray, 1}()), translations::Array{InputArray, 1} = (Array{InputArray, 1}()), normals::Array{InputArray, 1} = (Array{InputArray, 1}())) = decomposeHomographyMat(H, K, rotations, translations, normals)
+decomposeHomographyMat(H::InputArray, K::InputArray; rotations::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), translations::AbstractVector{<:InputArray} = (Array{InputArray, 1}()), normals::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) = decomposeHomographyMat(H, K, rotations, translations, normals)
 
-function filterHomographyDecompByVisibleRefpoints(rotations::Array{InputArray, 1}, normals::Array{InputArray, 1}, beforePoints::InputArray, afterPoints::InputArray, possibleSolutions::InputArray, pointsMask::InputArray)
+function filterHomographyDecompByVisibleRefpoints(rotations::AbstractVector{<:InputArray}, normals::AbstractVector{<:InputArray}, beforePoints::InputArray, afterPoints::InputArray, possibleSolutions::InputArray, pointsMask::InputArray)
 	return cpp_to_julia(jlopencv_cv_cv_filterHomographyDecompByVisibleRefpoints(julia_to_cpp(rotations),julia_to_cpp(normals),julia_to_cpp(beforePoints),julia_to_cpp(afterPoints),julia_to_cpp(possibleSolutions),julia_to_cpp(pointsMask)))
 end
-filterHomographyDecompByVisibleRefpoints(rotations::Array{InputArray, 1}, normals::Array{InputArray, 1}, beforePoints::InputArray, afterPoints::InputArray; possibleSolutions::InputArray = (CxxMat()), pointsMask::InputArray = (CxxMat())) = filterHomographyDecompByVisibleRefpoints(rotations, normals, beforePoints, afterPoints, possibleSolutions, pointsMask)
+filterHomographyDecompByVisibleRefpoints(rotations::AbstractVector{<:InputArray}, normals::AbstractVector{<:InputArray}, beforePoints::InputArray, afterPoints::InputArray; possibleSolutions::InputArray = (CxxMat()), pointsMask::InputArray = (CxxMat())) = filterHomographyDecompByVisibleRefpoints(rotations, normals, beforePoints, afterPoints, possibleSolutions, pointsMask)
 
 function StereoBM_create(numDisparities::Int64, blockSize::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_StereoBM_create(julia_to_cpp(numDisparities),julia_to_cpp(blockSize)))
@@ -3602,6 +3604,63 @@ function displayStatusBar(winname::String, text::String, delayms::Int64)
 	return cpp_to_julia(jlopencv_cv_cv_displayStatusBar(julia_to_cpp(winname),julia_to_cpp(text),julia_to_cpp(delayms)))
 end
 displayStatusBar(winname::String, text::String; delayms::Int64 = Int64(0)) = displayStatusBar(winname, text, delayms)
+
+#
+# Manual Wrapping BEGIN
+#
+# Hand-authored Julia wrappers for functions the header-driven generator cannot
+# emit. This section is the Julia counterpart of the "Manual Wrapping" block in
+# binding_templates_cpp/cv_core.cpp: the C++ side registers the compiled symbols
+# these call, and this side provides the Julia-facing API. It is appended
+# verbatim to the generated cv_cxx_wrap.jl by gen3_julia_cxx.py.
+#
+# Why these are manual:
+#   * the GUI callbacks need their Julia closures GC-protected for the lifetime
+#     of the C++ callback (CxxWrap.gcprotect), which the parser knows nothing of;
+#   * CascadeClassifier::detectMultiScale returns its result through an output
+#     `vector<Rect>` built inside the C++ lambda.
+
+function createButton(bar_name::String, on_change, userdata, type::Int32 = 0, initial_button_state::Bool = false)
+    func =  (x)->on_change(x, userdata)
+    CxxWrap.gcprotect(userdata)
+    CxxWrap.gcprotect(func)
+    CxxWrap.gcprotect(on_change)
+    return jl_cpp_cv2.createButton(bar_name,func, type, initial_button_state)
+end
+
+function setMouseCallback(winname::String, onMouse, userdata)
+    func =  (event, x, y, flags)->onMouse(event, x, y, flags, userdata)
+    CxxWrap.gcprotect(userdata)
+    CxxWrap.gcprotect(func)
+    CxxWrap.gcprotect(onMouse)
+    return jl_cpp_cv2.setMouseCallback(winname,func)
+end
+
+function createTrackbar(trackbarname::String, winname::String, value::Ref{Int32}, count::Int32, onChange, userdata)
+    func =  (x)->onChange(x, userdata)
+    CxxWrap.gcprotect(userdata)
+    CxxWrap.gcprotect(func)
+    CxxWrap.gcprotect(onChange)
+    return jl_cpp_cv2.createTrackbar(trackbarname, winname, value, count, func)
+end
+
+function CascadeClassifier(filename::String)
+	return cpp_to_julia(jlopencv_cv_cv_CascadeClassifier_cv_CascadeClassifier_CascadeClassifier(julia_to_cpp(filename)))
+end
+
+
+function detectMultiScale(cobj::CascadeClassifier, image::InputArray, scaleFactor::Float64, minNeighbors::Int32, flags::Int32, minSize::Size{Int32}, maxSize::Size{Int32})
+	return cpp_to_julia(jlopencv_cv_cv_CascadeClassifier_cv_CascadeClassifier_detectMultiScale(julia_to_cpp(cobj),julia_to_cpp(image),julia_to_cpp(scaleFactor),julia_to_cpp(minNeighbors),julia_to_cpp(flags),julia_to_cpp(minSize),julia_to_cpp(maxSize)))
+end
+detectMultiScale(cobj::CascadeClassifier, image::InputArray; scaleFactor::Float64 = Float64(1.1), minNeighbors::Int32 = Int32(3), flags::Int32 = Int32(0), minSize::Size{Int32} = (Size{Int32}(0,0)), maxSize::Size{Int32} = (Size{Int32}(0,0))) = detectMultiScale(cobj, image, scaleFactor, minNeighbors, flags, minSize, maxSize)
+
+function empty(cobj::CascadeClassifier)
+	return cpp_to_julia(jlopencv_cv_cv_CascadeClassifier_cv_CascadeClassifier_empty(julia_to_cpp(cobj)))
+end
+
+#
+# Manual Wrapping END
+#
 
 
 

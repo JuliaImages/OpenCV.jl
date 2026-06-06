@@ -40,12 +40,14 @@ Contributions are welcome — please open issues and PRs. The codebase has three
 - **Hand-written Julia** in `src/` — the module entry (`OpenCV.jl`), the `Mat`/`Vec`
   array types, the cpp↔julia conversions (`mat_conversion.jl`, `types_conversion.jl`),
   the geometry structs (`typestructs.jl`), `errors.jl`, `show.jl`, `fileio.jl`, and the
-  hand-written overrides under `src/overrides/`. Edit these for the Julia-side API and
-  array interop.
+  `videoio.jl` conveniences. Edit these for the Julia-side API and array interop.
 - **Auto-generated wrappers** in `src/generated/` — produced by the generator under
   `gen/`. **Do not hand-edit these.** Regenerate with `julia gen/regenerate.jl`; see
   [`gen/PROVENANCE.md`](gen/PROVENANCE.md) for the determinism guarantees and the
-  OpenCV-bump checklist.
+  OpenCV-bump checklist. `cv_cxx_wrap.jl` ends with a hand-authored "Manual Wrapping"
+  section (GUI callbacks, `CascadeClassifier`) that the header parser cannot derive;
+  its source is [`gen/binding_templates_jl/manual_cxx.jl`](gen/binding_templates_jl/manual_cxx.jl),
+  paired with the C++ side in `gen/binding_templates_cpp/cv_core.cpp`.
 - **The binding generator** in `gen/` — vendored from `opencv_contrib/modules/julia`
   with JuliaImages patches folded in. Edits here change `src/generated/` on the next
   regeneration.
