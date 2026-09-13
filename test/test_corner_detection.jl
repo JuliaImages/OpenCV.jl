@@ -22,11 +22,15 @@ function parse_corners_file(file)
     end
 end
 
+elements(node) = filter(n -> nodetype(n) == XML.Element, children(node))
+
 function get_list(file)
     doc = read(file, LazyNode)
-    str = filter(≠('"'), simple_value(doc[end][end]))
+    # XML.jl 0.4 keeps whitespace text nodes, so locate <opencv_storage><boards> by node type
+    boards = only(elements(only(elements(doc))))
+    str = filter(≠('"'), simple_value(boards))
     list = Dict{String, String}()
-    for line in split(str, '\n')
+    for line in split(str, '\n'; keepempty=false)
         img_file, data_file = split(line)
         list[img_file] = data_file
     end
