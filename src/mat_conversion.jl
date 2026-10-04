@@ -99,7 +99,10 @@ function julia_to_cpp(img::InputArray)
         push!(ndims_a, Int32(size(img)[3]))
         push!(ndims_a, Int32(size(img)[2]))
         cvtype = CV_MAKE_TYPE(_cv_depth(eltype(img)), size(img)[1])
-        return CxxMat(2, pointer(ndims_a), cvtype, Ptr{Nothing}(pointer(img)), pointer(steps_a))
+        # cv::Mat copies the sizes and steps it is given, but only once the constructor runs: until
+        # then they are raw pointers into these Julia arrays, which a collection triggered by
+        # another thread may free. The pixel data stays borrowed from `img`, as before.
+        return GC.@preserve ndims_a steps_a CxxMat(2, pointer(ndims_a), cvtype, Ptr{Nothing}(pointer(img)), pointer(steps_a))
     else
         # Copy array, invalid config
         return julia_to_cpp(img[:, :, :])

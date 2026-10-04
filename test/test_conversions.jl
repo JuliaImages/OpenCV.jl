@@ -20,3 +20,31 @@ end
     @test OpenCV.cpp_to_julia(OpenCV.julia_to_cpp((1.0, 2.0, 3.0, 4.0))) == (1.0, 2.0, 3.0, 4.0)
 end
 
+
+# `julia_to_cpp` hands cv::Mat raw pointers to Julia-owned size and step arrays. A collection
+# triggered by another thread before the constructor copies them used to free those arrays,
+# so the Mat read garbage dimensions: an `s >= 0` assertion, or a multi-terabyte allocation.
+# The race needs a second thread to collect; on one thread this only checks the round-trip.
+@testset "julia_to_cpp keeps its size arrays alive under concurrent GC" begin
+    a = zeros(UInt8, 1, 640, 480)
+    stop = Threads.Atomic{Bool}(false)
+    collectors = [Threads.@spawn(while !stop[]
+        _ = [Vector{Int32}(undef, 2) for _ in 1:10_000]
+        GC.gc(false)
+    end) for _ in 1:max(1, Threads.nthreads() ÷ 2)]
+    converters = [Threads.@spawn begin
+        bad = 0
+        deadline = time() + 15
+        while time() < deadline
+            bad += size(OpenCV.cpp_to_julia(OpenCV.julia_to_cpp(a))) != size(a)
+        end
+        bad
+    end for _ in 1:max(1, Threads.nthreads() ÷ 2)]
+    results = try
+        fetch.(converters)
+    finally
+        stop[] = true
+        foreach(wait, collectors)
+    end
+    @test sum(results) == 0
+end
