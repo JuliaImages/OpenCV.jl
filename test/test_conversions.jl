@@ -12,6 +12,20 @@
     end
 end
 
+# An input OpenCV cannot borrow (no strides, or strides out of order) is first copied
+# into a dense array. The returned Mat used to borrow that copy's memory, which nothing
+# kept alive: after a collection it read whatever the allocator put there next.
+@testset "julia_to_cpp of a copied input owns its pixels" begin
+    a = rand(UInt8, 3, 20, 10)
+    for input in (view(a, :, collect(1:20), :),                                 # not strided
+                  PermutedDimsArray(permutedims(a, (3, 2, 1)), (3, 2, 1)))     # strides descending
+        m = OpenCV.julia_to_cpp(input)
+        GC.gc()
+        _ = [fill(0xAB, size(a)) for _ in 1:1000]   # reuse whatever the collection freed
+        @test collect(OpenCV.cpp_to_julia(m)) == a
+    end
+end
+
 @testset "Scalar tuple conversions (all arities)" begin
     @test OpenCV.cpp_to_julia(OpenCV.julia_to_cpp(()))                == (0.0, 0.0, 0.0, 0.0)
     @test OpenCV.cpp_to_julia(OpenCV.julia_to_cpp((7.0,)))            == (7.0, 0.0, 0.0, 0.0)
