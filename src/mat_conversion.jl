@@ -83,9 +83,8 @@ function julia_to_cpp(img::InputArray)
     try
         steps = strides(img)
     catch
-        # Copy array since array is not strided
-        img = img[:, :, :]
-        steps = strides(img)
+        # Not strided, so OpenCV cannot borrow it
+        return _owned_cpp_mat(img)
     end
 
     if steps[1] <= steps[2] <= steps[3] && steps[1]==1
@@ -99,11 +98,22 @@ function julia_to_cpp(img::InputArray)
         push!(ndims_a, Int32(size(img)[3]))
         push!(ndims_a, Int32(size(img)[2]))
         cvtype = CV_MAKE_TYPE(_cv_depth(eltype(img)), size(img)[1])
-        return CxxMat(2, pointer(ndims_a), cvtype, Ptr{Nothing}(pointer(img)), pointer(steps_a))
+        # cv::Mat copies the sizes and steps it is given, but only once the constructor runs: until
+        # then they are raw pointers into these Julia arrays, which a collection triggered by
+        # another thread may free. The pixel data stays borrowed from `img`, as before.
+        return GC.@preserve ndims_a steps_a CxxMat(2, pointer(ndims_a), cvtype, Ptr{Nothing}(pointer(img)), pointer(steps_a))
     else
-        # Copy array, invalid config
-        return julia_to_cpp(img[:, :, :])
+        # Strides OpenCV cannot describe, so it cannot borrow it
+        return _owned_cpp_mat(img)
     end
+end
+
+# A cv::Mat holding a copy of `img` in memory OpenCV allocated and refcounts. A Mat that
+# borrowed a temporary Julia copy instead would outlive it: nothing roots the copy once
+# `julia_to_cpp` returns, so a collection frees it while the Mat still points into it.
+function _owned_cpp_mat(img)
+    dense = Array(img)
+    return GC.@preserve dense jlopencv_cv_cv_copyTo(julia_to_cpp(dense), CxxMat(), CxxMat())
 end
 
 function julia_to_cpp(var::Array{T, 1}) where {T <: InputArray}
