@@ -24,27 +24,35 @@ end
 # `julia_to_cpp` hands cv::Mat raw pointers to Julia-owned size and step arrays. A collection
 # triggered by another thread before the constructor copies them used to free those arrays,
 # so the Mat read garbage dimensions: an `s >= 0` assertion, or a multi-terabyte allocation.
-# The race needs a second thread to collect; on one thread this only checks the round-trip.
+# The race needs a second thread to collect, so on one thread this only checks the round-trip.
+# Both loops yield, so tasks that end up sharing a thread still take turns.
 @testset "julia_to_cpp keeps its size arrays alive under concurrent GC" begin
     a = zeros(UInt8, 1, 640, 480)
-    stop = Threads.Atomic{Bool}(false)
-    collectors = [Threads.@spawn(while !stop[]
-        _ = [Vector{Int32}(undef, 2) for _ in 1:10_000]
-        GC.gc(false)
-    end) for _ in 1:max(1, Threads.nthreads() ÷ 2)]
-    converters = [Threads.@spawn begin
-        bad = 0
-        deadline = time() + 15
-        while time() < deadline
-            bad += size(OpenCV.cpp_to_julia(OpenCV.julia_to_cpp(a))) != size(a)
+    roundtrip_ok() = size(OpenCV.cpp_to_julia(OpenCV.julia_to_cpp(a))) == size(a)
+    if Threads.nthreads() == 1
+        @test roundtrip_ok()
+    else
+        stop = Threads.Atomic{Bool}(false)
+        collectors = [Threads.@spawn(while !stop[]
+            _ = [Vector{Int32}(undef, 2) for _ in 1:10_000]
+            GC.gc(false)
+            yield()
+        end) for _ in 1:max(1, Threads.nthreads() ÷ 2)]
+        converters = [Threads.@spawn begin
+            bad = 0
+            deadline = time() + 15
+            while time() < deadline
+                bad += !roundtrip_ok()
+                yield()
+            end
+            bad
+        end for _ in 1:max(1, Threads.nthreads() ÷ 2)]
+        results = try
+            fetch.(converters)
+        finally
+            stop[] = true
+            foreach(wait, collectors)
         end
-        bad
-    end for _ in 1:max(1, Threads.nthreads() ÷ 2)]
-    results = try
-        fetch.(converters)
-    finally
-        stop[] = true
-        foreach(wait, collectors)
+        @test sum(results) == 0
     end
-    @test sum(results) == 0
 end
