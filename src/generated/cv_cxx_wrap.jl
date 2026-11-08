@@ -133,6 +133,8 @@
 
    const ImwritePAMFlags = Int64 
 
+   const ImwriteWEBPLosslessMode = Int64 
+
    const ImwriteHDRCompressionFlags = Int64 
 
    const ImwriteBMPCompressionFlags = Int64 
