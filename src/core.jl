@@ -15,32 +15,7 @@
 #      emitted by the generator; see gen/binding_templates_jl/manual_cxx.jl.
 #   7. videoio.jl — hand-written conveniences layered on the generated wrappers.
 
-using Preferences
-
-# The binary backend is chosen at precompile time, so only one OpenCV build is
-# ever loaded. Both JLLs ship a `libopencv_julia` generated from the same sources,
-# so the wrappers below are identical for either. See `set_backend!`.
-const backend = @load_preference("backend", "cpu")
-backend in ("cpu", "cuda") || error("OpenCV: invalid backend preference \"$backend\"; use \"cpu\" or \"cuda\"")
-@static if backend == "cuda"
-    import OpenCV_CUDA_jll as libopencv_jll
-else
-    import OpenCV_jll as libopencv_jll
-end
-
-"""
-    OpenCV.set_backend!(backend::String)
-
-Select the OpenCV binaries: `"cpu"` (default, `OpenCV_jll`) or `"cuda"`
-(`OpenCV_CUDA_jll`, Linux with an NVIDIA CUDA 13 driver). The choice is stored as a
-preference in the active project and takes effect after restarting Julia.
-"""
-function set_backend!(new_backend::String)
-    new_backend in ("cpu", "cuda") || throw(ArgumentError("backend must be \"cpu\" or \"cuda\""))
-    @set_preferences!("backend" => new_backend)
-    new_backend == backend || @info "OpenCV backend set to \"$new_backend\"; restart Julia for it to take effect."
-    return nothing
-end
+using OpenCV_jll
 
 include("typestructs.jl")
 include("Vec.jl")
@@ -51,14 +26,33 @@ const dtypes = Union{UInt8, Int8, UInt16, Int16, Int32, Float32, Float64}
 # platform's pointer-width unsigned, matching C `size_t`.
 const size_t = Csize_t
 
-using CxxWrap
-@wrapmodule(libopencv_jll.get_libopencv_julia_path, :cv_wrap)
-function __init__()
-    if !libopencv_jll.is_available()
-        error("OpenCV: the \"$backend\" backend has no binaries for this system" *
-              (backend == "cuda" ? " (it needs Linux and an NVIDIA CUDA 13 driver). " *
-                                   "Run `OpenCV.set_backend!(\"cpu\")` and restart Julia." : "."))
+# OpenCV_CUDA_jll is a weak dependency: Pkg would download its CUDA artifacts at
+# install time even if it were never loaded, so users opt in by adding it to their
+# environment. Its `libopencv_julia` registers the same bindings as OpenCV_jll's, so
+# the wrappers precompiled against OpenCV_jll bind to it at `@initcxx`.
+const OpenCV_CUDA_jll_id = Base.PkgId(Base.UUID("af62fff1-f688-5658-924c-c1100684873a"), "OpenCV_CUDA_jll")
+const libopencv_jll = Ref{Module}(OpenCV_jll)
+
+function find_cuda_jll()
+    ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
+    Base.locate_package(OpenCV_CUDA_jll_id) === nothing && return nothing
+    jll = Base.require(OpenCV_CUDA_jll_id)
+    Base.invokelatest(jll.is_available) || return nothing
+    # Builds before 4.14.0+1 share sonames with OpenCV_jll, which is already loaded.
+    if !occursin("_cuda", basename(Base.invokelatest(jll.get_libopencv_core_path)))
+        @warn "OpenCV: ignoring OpenCV_CUDA_jll, whose libraries clash with OpenCV_jll's; update it to 4.14.0+1 or later."
+        return nothing
     end
+    return jll
+end
+
+libopencv_julia_path() = Base.invokelatest(libopencv_jll[].get_libopencv_julia_path)
+
+using CxxWrap
+@wrapmodule(libopencv_julia_path, :cv_wrap)
+function __init__()
+    jll = find_cuda_jll()
+    jll === nothing || (libopencv_jll[] = jll)
     @initcxx
 end
 const Scalar = Union{Tuple{}, Tuple{Number}, Tuple{Number, Number}, Tuple{Number, Number, Number}, NTuple{4, Number}}

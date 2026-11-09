@@ -22,15 +22,16 @@ This installs the package and the precompiled OpenCV binaries; no system OpenCV 
 ### CUDA
 
 On Linux with an NVIDIA GPU and a CUDA 13 driver, OpenCV can use binaries built with CUDA
-and cuDNN (`OpenCV_CUDA_jll`), which enable the `DNN_BACKEND_CUDA` backend for `cv.dnn`:
+and cuDNN, which enable the `DNN_BACKEND_CUDA` backend for `cv.dnn`. Install them next to
+OpenCV and restart Julia:
 
 ```julia
-using OpenCV
-OpenCV.set_backend!("cuda")   # stored in LocalPreferences.toml; restart Julia
+] add OpenCV_CUDA_jll
 ```
 
-`OpenCV.set_backend!("cpu")` switches back. The CUDA binaries and cuDNN are downloaded
-only once the CUDA backend is selected.
+OpenCV then loads the CUDA build whenever it has binaries for the system, and falls back to
+the CPU build otherwise. Remove `OpenCV_CUDA_jll` to go back to the CPU build. It is a separate
+package because installing it downloads the CUDA runtime and cuDNN (about 2 GB).
 
 ## Developing locally
 
