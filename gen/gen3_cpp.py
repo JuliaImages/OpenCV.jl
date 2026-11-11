@@ -85,7 +85,7 @@ class ClassInfo(ClassInfo):
         cpp_code = StringIO()
         for cons in self.constructors:
             cons.__class__ = FuncVariant
-            cpp_code.write(cons.get_cons_code(self.name, self.mapped_name))
+            cpp_code.write(cons.get_cons_code(self.name, self.mapped_name, self.isalgorithm))
         #add get/set
         cpp_code.write('\n')
         cpp_code.write(self.get_setters())
@@ -102,7 +102,7 @@ class ClassInfo(ClassInfo):
     def _prop_is_enum(self, prop_tp):
         # prop.tp can appear bare (e.g. nested enum "GridType") or qualified.
         # Compare against the populated `enums` list, trying common qualifications.
-        if prop_tp in enums:
+        if prop_tp in enums or prop_tp in EXTRA_ENUMS:
             return True
         if ('cv::' + prop_tp) in enums:
             return True
@@ -223,7 +223,7 @@ class FuncVariant(FuncVariant):
             stra = stra + "%s(%s);" % (self.name, argstr)
         return stra
 
-    def get_cons_code(self, name, mapped_name):
+    def get_cons_code(self, name, mapped_name, isalgo=False):
         # if self.get_argument(False) == '':
         #     return ''
         arglist = []
@@ -238,13 +238,57 @@ class FuncVariant(FuncVariant):
                 else:
                     # print("ss")
                     arglist.append("%s_down" %(x.name))
-        return 'mod.method("%s", [](%s) { %s return jlcxx::create<%s>(%s);});' % (self.get_wrapper_name(), self.get_argument(False), self.get_def_outtypes(), name, " ,".join(arglist))
+        # Classes held by cv::Ptr (Algorithms, and classes made by Ptr factories) take
+        # cobj as cv::Ptr<T> in every method, so their constructors must return one too.
+        make = 'cv::makePtr' if isalgo else 'jlcxx::create'
+        return 'mod.method("%s", [](%s) { %s return %s<%s>(%s);});' % (self.get_wrapper_name(), self.get_argument(False), self.get_def_outtypes(), make, name, " ,".join(arglist))
 
     def get_complete_code(self, classname, isalgo=False):
         outstr = '.method("%s",  [](%s) {%s %s %s})' % (self.get_wrapper_name(), self.get_argument(isalgo),self.get_def_outtypes(), self.get_retval(isalgo), self.get_return())
         return outstr
 
 
+
+def split_module_body(code, max_lines=250):
+    """Split the generated module body into functions of at most ~max_lines lines,
+    returned as source texts (one per translation unit) plus the calls to them.
+
+    Registering every binding inside one function made GCC 10 run out of memory
+    ("cc1plus: out of memory allocating 18446744...") once OpenCV 5 roughly doubled the
+    number of bindings. Chunks are cut only between top-level statements, keep their
+    order (types are registered before the methods that use them), and open every
+    namespace the body opens, as the single function did by its end."""
+    lines = code.split('\n')
+    usings = []
+    for l in lines:
+        st = l.strip()
+        if st.startswith('using namespace ') and st not in usings:
+            usings.append(st)
+    chunks, cur, depth = [], [], 0
+    for i, l in enumerate(lines):
+        cur.append(l)
+        depth += l.count('{') - l.count('}')
+        nxt = next((x.strip() for x in lines[i + 1:] if x.strip()), '')
+        if len(cur) >= max_lines and depth == 0 and l.strip().endswith(';') and not nxt.startswith('.'):
+            chunks.append(cur)
+            cur = []
+    if cur:
+        chunks.append(cur)
+    assert depth == 0, "unbalanced braces in generated module body"
+    parts, calls = [], []
+    for n, chunk in enumerate(chunks):
+        parts.append('void cv_wrap_part%02d(jlcxx::Module &mod)\n{\n    %s\n%s\n}\n'
+                     % (n, '\n    '.join(usings), '\n'.join(chunk)))
+        calls.append('cv_wrap_part%02d(mod);' % n)
+    return parts, '\n    '.join(calls)
+
+
+# Enums declared in headers the generator doesn't parse (cv::DataLayout lives in
+# core/mat.hpp in OpenCV 5), passed to Julia as integers like parsed enums.
+EXTRA_ENUMS = {"DataLayout"}
+
+# Types the parser reports that are plain containers, not wrapped classes.
+NOT_WRAPPED_TYPES = {"NativeByteArray", "Range"}  # Range is mirrored (jlcv_types.hpp)
 
 def gen(srcfiles, preprocessor_definitions):
     namespaces, default_values = gen_tree(srcfiles, preprocessor_definitions)
@@ -272,6 +316,38 @@ def gen(srcfiles, preprocessor_definitions):
             enums.append(e2[1])
             enums.append(e2[0].replace("cv::", ""))                             # ORB::ScoreType
             enums.append(e2[0].replace("cv::", "").replace("::", '_'))          # ORB_ScoreType
+
+    # The generated code spells nested and sub-namespace types flattened, the way
+    # hdr_parser normalizes them (cv::TrackerVit::Params -> TrackerVit_Params,
+    # cv::dnn::Net -> dnn_Net). Declare those names.
+    # Nested types are also spelled without their namespace (EdgeDrawing_Params for
+    # cv::ximgproc::EdgeDrawing::Params), relying on `using namespace`; declare both
+    # spellings unless two different types would claim the same name.
+    flat_class_names = set()
+    flat_typedefs = {}
+    clashes = set()
+    def declare(flat, full):
+        if flat in flat_typedefs and flat_typedefs[flat] != full:
+            clashes.add(flat)
+        flat_typedefs[flat] = full
+    for nsname_, ns in nsi:
+        nsparts = nsname_.split('::')[1:]          # cv::ximgproc -> ['ximgproc']
+        for full in list(ns.classes) + [e[0] for e in ns.enums.values()]:
+            rel = full.split('::')[1 + len(nsparts):]   # class path inside the namespace
+            names = []
+            if nsparts:
+                names.append('_'.join(nsparts + rel))   # dnn_Net, ximgproc_EdgeDrawing_Params
+            if len(rel) > 1:
+                names.append('_'.join(rel))             # EdgeDrawing_Params
+            for flat in names:
+                declare(flat, full)
+                if full in ns.classes:
+                    flat_class_names.add(flat)
+    for flat, full in sorted(flat_typedefs.items()):
+        if flat in clashes:
+            print("Generator warning: not declaring %s, it names several types" % flat)
+            continue
+        include_code.write("typedef %s %s;\n" % (full, flat))
 
     for name, ns in nsi:
         cpp_code.write("using namespace %s;\n" % name.replace(".", "::"))
@@ -322,6 +398,8 @@ struct SuperType<%s>
         for tp in ns.register_types:
             if tp in enums:
                 continue   # enum typedefs are passed as int64, not wrapped as types
+            if tp in flat_class_names or tp in NOT_WRAPPED_TYPES:
+                continue   # already wrapped (dnn_Net is cv::dnn::Net) or mapped to a Julia array
             cpp_code.write('   mod.add_type<%s>("%s");\n' %(tp, normalize_class_name(tp)))
 
     # print(enums)
@@ -353,14 +431,23 @@ struct SuperType<%s>
             compat_name = re.sub(r"([a-z])([A-Z])", r"\1_\2", name).upper()
             if name != compat_name:
                 cpp_code.write('    mod.set_const("%s_%s", (force_enum_int<decltype(%s)>::Type)%s);\n'%(nsname, compat_name, mapname, mapname))
-    default_values = sorted(set(default_values))  # sorted(): reproducible default-value method order
-    for val in default_values:
-        # val = handle_cpp_arg(val)
+    for val, nss in default_values:  # already sorted by gen_tree
+        # Evaluate the default in the scope of the namespaces it was declared in, so
+        # names like AKAZE::DESCRIPTOR_MLDB (cv::xfeatures2d) resolve.
+        usings = ''.join('using namespace %s; ' % ns for ns in nss if ns and ns != 'cv')
+        cpp_code.write('    mod.method("%s", [](){%sreturn (force_enum_int<decltype(%s)>::Type)(%s);});\n'%(default_function_name(val), usings, val, val))
 
-        cpp_code.write('    mod.method("%s", [](){return (force_enum_int<decltype(%s)>::Type)%s;});\n'%(get_var(val), val, val))
-
+    # One translation unit per chunk (cv_core_partNN.cpp), each with the template's
+    # preamble; cv_core.cpp declares the parts and calls them in order. A single object
+    # file with every binding exceeded the PE/COFF section limit on i686 Windows.
+    parts, calls = split_module_body(cpp_code.getvalue())
+    preamble = Template(mod_template.template[:mod_template.template.index('JLCXX_MODULE')])
+    decls = ''.join('void cv_wrap_part%02d(jlcxx::Module &mod);\n' % n for n in range(len(parts)))
+    for n, part in enumerate(parts):
+        with open('autogen_cpp/cv_core_part%02d.cpp' % n, 'w') as fd:
+            fd.write(preamble.substitute(include_code = include_code.getvalue() + part))
     with open ('autogen_cpp/cv_core.cpp', 'w') as fd:
-        fd.write(mod_template.substitute(include_code = include_code.getvalue(), cpp_code=cpp_code.getvalue()))
+        fd.write(mod_template.substitute(include_code = include_code.getvalue() + decls, cpp_code=calls))
 
 
 

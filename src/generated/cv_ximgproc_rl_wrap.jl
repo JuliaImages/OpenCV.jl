@@ -1,4 +1,4 @@
-module ogl
+module rl
 import ..OpenCV
 
 

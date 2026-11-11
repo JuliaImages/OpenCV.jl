@@ -1,5 +1,11 @@
 """
-OpenCV.jl wraps the OpenCV computer-vision library for Julia.
+OpenCV.jl wraps the OpenCV 5.1 computer-vision library for Julia.
+
+Main-namespace functions cover OpenCV's core, imgproc, imgcodecs, videoio, highgui,
+calib/geometry/stereo, features, flann, objdetect, xobjdetect (`CascadeClassifier`),
+photo, video, stitching and tracking modules. Namespaced APIs live in submodules,
+e.g. `OpenCV.dnn`, `OpenCV.aruco`, `OpenCV.ml`, `OpenCV.ximgproc`, `OpenCV.xphoto`,
+`OpenCV.xfeatures2d` and `OpenCV.optflow`.
 
 Images and matrices are represented by [`Mat`](@ref), a 3-dimensional `AbstractArray`
 that shares memory with OpenCV's `cv::Mat`. **Mind the axis order:** a `cv::Mat` is
@@ -24,6 +30,10 @@ import Base.size
 # pulls in the static helpers plus generated/cv_cxx_wrap.jl.
 include("core.jl")
 include("generated/cv_wrap.jl")
+# Hand-wrapped dnn methods (manual_cxx.jl) are not in the generated OpenCV.dnn module.
+for f in (:setInputShape, :getFLOPS, :getMemoryConsumption, :getLayerShapes)
+    Core.eval(dnn, :(const $f = $(getfield(OpenCV, Symbol(:dnn_, f)))))
+end
 
 include("fileio.jl")
 include("show.jl")

@@ -21,9 +21,11 @@ end
     include("test_descriptormatcher.jl")
     include("test_imgproc.jl")
     include("test_objdetect.jl")
+    include("test_aruco.jl")
     include("test_dnn.jl")
     include("test_fileio.jl")
     include("test_corner_detection.jl")
     include("test_calibration.jl")
     include("test_video.jl")
+    include("test_modules.jl")
 end

@@ -1,4 +1,4 @@
-@testset "features2d" begin
+@testset "features" begin
     img_gray = OpenCV.imread(joinpath(test_dir, "shared", "pic1.png"), OpenCV.IMREAD_GRAYSCALE)
 
     @testset "_copy_cxx_value(::KeyPoint) preserves fields" begin

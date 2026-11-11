@@ -19,7 +19,11 @@ using OpenCV_jll
 
 include("typestructs.jl")
 include("Vec.jl")
-const dtypes = Union{UInt8, Int8, UInt16, Int16, Int32, Float32, Float64}
+# Julia element types that map to an OpenCV 5 Mat depth (see `_CV_DEPTH` in
+# mat_conversion.jl): CV_8U/8S/16U/16S/32S/32F/64F plus the 5.x additions
+# CV_16F, CV_Bool, CV_32U, CV_64U and CV_64S.
+const dtypes = Union{UInt8, Int8, UInt16, Int16, Int32, Float32, Float64,
+                     Float16, Bool, UInt32, UInt64, Int64}
 
 # `size_t` is referenced verbatim by the generated wrappers (e.g.
 # `maxIters::size_t` in `estimateAffine2D`). `Csize_t` resolves to the
@@ -46,9 +50,9 @@ function find_cuda_jll()
         @warn "OpenCV: ignoring OpenCV_CUDA_jll $v_cuda, which does not match OpenCV_jll $v_cpu."
         return nothing
     end
-    # Builds before 4.14.0+1 share sonames with OpenCV_jll, which is already loaded.
+    # Old builds (before 4.14.0+1) share sonames with OpenCV_jll, which is already loaded.
     if !occursin("_cuda", basename(Base.invokelatest(jll.get_libopencv_core_path)))
-        @warn "OpenCV: ignoring OpenCV_CUDA_jll, whose libraries clash with OpenCV_jll's; update it to 4.14.0+1 or later."
+        @warn "OpenCV: ignoring OpenCV_CUDA_jll, whose libraries clash with OpenCV_jll's; update it to match OpenCV_jll."
         return nothing
     end
     return jll

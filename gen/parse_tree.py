@@ -169,8 +169,32 @@ class ClassInfo(object):
     def get_prop_func_cpp(self, mode, propname):
         return "jlopencv_" + self.mapped_name + "_"+mode+"_"+propname
 
+# (namespace, type) of every cv::Ptr<type> returned by a wrapped function.
+ptr_returned = set()
 argumentst = []
+# (namespace, C++ default expression) pairs. Each distinct expression becomes a
+# C++ function named get_var(expr) returning its value (see gen3_cpp.py), which the
+# Julia wrappers call for the default unless defval.txt maps it.
 default_values = []
+
+def is_literal_default(v):
+    v = v.strip()
+    if v in ('true', 'false', '0', '', 'nullptr', 'NULL'):
+        return True
+    return re.match(r'^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?[fFlLuU]*$', v) is not None
+
+def default_function_name(v):
+    """Name of the C++ function returning default v. Expressions keep the historical
+    mangled name (defval.txt refers to them); bare identifiers get a prefix, since
+    get_var("RANSAC") is "RANSAC" and would clash with the Julia constant RANSAC."""
+    if '(' in v or ':' in v:
+        return get_var(v)
+    return 'jlopencv_default_' + get_var(v)
+
+def needs_default_function(v):
+    # Expressions ("Size(8, 8)", "TermCriteria(...)"), qualified names
+    # ("AKAZE::DESCRIPTOR_MLDB") and bare constants ("ENGINE_AUTO", "DBL_EPSILON").
+    return not is_literal_default(v) and ('"' not in v)
 class ArgInfo(object):
     """
     Helper class to parse and contain information about function arguments
@@ -234,8 +258,8 @@ class FuncVariant(object):
 
         for ainfo in decl[3]:
             a = ArgInfo(ainfo)
-            if a.default_value and ('(' in a.default_value or ':' in a.default_value):
-                default_values.append(a.default_value)
+            if a.default_value and needs_default_function(a.default_value):
+                default_values.append((namespace, a.default_value))
             assert not a.tp in forbidden_arg_types, 'Forbidden type "{}" for argument "{}" in "{}" ("{}")'.format(a.tp, a.name, self.name, self.classname)
             if a.tp in ignored_arg_types:
                 continue
@@ -345,6 +369,12 @@ def add_func(decl):
         #     print("skipping ", name)
         #     return
 
+    if classname:
+        qualify_nested_types(decl, full_classname)
+    m = re.match(r'^(?:cv::)?Ptr<(.+)>$', (decl[4] if len(decl) > 4 else '') or '')
+    if m:
+        ptr_returned.add((namespace, m.group(1).replace('.', '::')))
+
     if classname and full_classname not in namespaces[namespace].classes:
         # print("HH1")
         # print(namespace, classname)
@@ -357,8 +387,10 @@ def add_func(decl):
         func_map = namespaces[namespace].funcs
         if name not in func_map:
             func_map[name] = []
-        if not mapped_name:
-            mapped_name = "_".join(classes + [barename])
+        # Static methods are free functions prefixed with their class (DISK_create);
+        # keep the prefix for CV_WRAP_AS renames too, or DISK::createFromMemory and
+        # XFeat::createFromMemory collide.
+        mapped_name = "_".join(classes + [mapped_name or barename])
         func_map[name].append(FuncVariant("", name, mapped_name, decl, namespace, True))
     else:
         if classname:
@@ -377,6 +409,27 @@ def add_func(decl):
             if not mapped_name:
                 mapped_name = barename
             func_map[name].append(FuncVariant("", name, mapped_name, decl, namespace, False))
+
+
+def qualify_nested_types(decl, full_classname):
+    """Inside a class, C++ names its nested types unqualified (Stitcher::create(Mode)).
+    Rewrite such argument/return types to the parser's flattened form (Stitcher_Mode) so
+    nested enums are passed as integers and nested classes resolve to their typedefs."""
+    ns, cls, bare = split_decl_name(full_classname)
+    cls = cls + [bare]   # split_decl_name returns the class itself as the bare name
+    def qualify(tp):
+        if not tp or not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', tp):
+            return tp
+        for depth in range(len(cls), 0, -1):  # innermost enclosing class first
+            cand = '::'.join(ns + cls[:depth] + [tp])
+            if cand in enums or cand in namespaces['::'.join(ns)].classes:
+                return '_'.join(cls[:depth] + [tp])
+        return tp
+    for a in decl[3]:
+        a[0] = qualify(a[0])
+    decl[1] = qualify(decl[1])
+    if len(decl) > 4:
+        decl[4] = qualify(decl[4])
 
 
 def add_class(stype, name, decl):
@@ -436,9 +489,10 @@ def gen_tree(srcfiles, preprocessor_definitions):
 
     allowed_func_list = []
 
+    # One dotted name per line; blank lines and '#' comments are ignored.
     with open("funclist.csv", "r") as f:
-        allowed_func_list = f.readlines()
-    allowed_func_list = [x[:-1] for x in allowed_func_list]
+        allowed_func_list = [x.strip() for x in f]
+    allowed_func_list = set(x for x in allowed_func_list if x and not x.startswith('#'))
 
 
     count = 0
@@ -479,7 +533,13 @@ def gen_tree(srcfiles, preprocessor_definitions):
     for name, classinfo in classes.items():
         if classinfo.base:
             base = classinfo.base
-            # print(base)
+            # The parser qualifies a base with the derived class's namespace
+            # (cv::xphoto::Tonemap for `class TonemapDurand : public Tonemap`), but
+            # C++ looks it up in the enclosing namespaces too (cv::Tonemap). Do the same.
+            parts = base.split('::')
+            while base not in classes and len(parts) > 2:
+                parts = parts[:-2] + parts[-1:]
+                base = '::'.join(parts)
             if base not in classes:
                 print("Generator error: unable to resolve base %s for %s"
                     % (classinfo.base, classinfo.name))
@@ -489,6 +549,18 @@ def gen_tree(srcfiles, preprocessor_definitions):
             classinfo.isalgorithm |= base_instance.isalgorithm  # wrong processing of 'isalgorithm' flag:
                                                                 # doesn't work for trees(graphs) with depth > 2
             classes[name] = classinfo
+
+    # A class handed out as cv::Ptr<T> by a factory (Stitcher::create, TrackerMIL::create,
+    # ml::TrainData::create) must be held by Ptr in Julia, like an Algorithm: its methods
+    # take cobj as cv::Ptr<T>. Otherwise the factory's result can't be passed to them.
+    for ns_, tp in ptr_returned:
+        for cand in (ns_ + '::' + tp, 'cv::' + tp, tp):
+            if cand in classes:
+                c = classes[cand]
+                while c is not None and not c.isalgorithm:   # bases too: Tracker::init
+                    c.isalgorithm = True
+                    c = classes.get(c.base) if c.base else None
+                break
 
     # tree-based propagation of 'isalgorithm'
     processed = dict()
@@ -528,6 +600,10 @@ def gen_tree(srcfiles, preprocessor_definitions):
         for tp in ns.register_types:
             registered_types.append(get_template_arg(tp))
             ns.registered.append(get_template_arg(tp))
-    default_valuesr = sorted(set(default_values))  # sorted(): reproducible default-value method order
+    # expression -> sorted namespaces it is used in (for `using namespace` in C++).
+    default_valuesr = {}
+    for ns, v in default_values:
+        default_valuesr.setdefault(v, set()).add(ns)
+    default_valuesr = [(v, sorted(nss)) for v, nss in sorted(default_valuesr.items())]  # sorted(): reproducible order
         # registered_types = registered_types + ns.register_types
     return namespaces, default_valuesr

@@ -9,8 +9,9 @@ function Base.getproperty(m::ClassWithKeywordProperties, s::Symbol)
     return Base.getfield(m, s)
 end
 function Base.setproperty!(m::ClassWithKeywordProperties, s::Symbol, v)
-    if s==:except
-        jlopencv_ClassWithKeywordProperties_set_except(m, julia_to_cpp(v))
+    if s==:lambda
+        jlopencv_ClassWithKeywordProperties_set_lambda(m, julia_to_cpp(v))
+        return v
     end
     return Base.setfield!(m, s, v)
 end
@@ -24,6 +25,14 @@ function Base.getproperty(m::FunctionParams, s::Symbol)
     return Base.getfield(m, s)
 end
 function Base.setproperty!(m::FunctionParams, s::Symbol, v)
+    if s==:lambda
+        jlopencv_FunctionParams_set_lambda(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:sigma
+        jlopencv_FunctionParams_set_sigma(m, julia_to_cpp(v))
+        return v
+    end
     return Base.setfield!(m, s, v)
 end
 
@@ -65,14 +74,6 @@ end
 
 function utils_dumpCString(argument::Cstring)
 	return cpp_to_julia(jlopencv_cv_utils_cv_utils_dumpCString(julia_to_cpp(argument)))
-end
-
-function utils_testAsyncArray(argument::InputArray)
-	return cpp_to_julia(jlopencv_cv_utils_cv_utils_testAsyncArray(julia_to_cpp(argument)))
-end
-
-function utils_testAsyncException()
-	return cpp_to_julia(jlopencv_cv_utils_cv_utils_testAsyncException())
 end
 
 

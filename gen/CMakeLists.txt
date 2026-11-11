@@ -61,14 +61,27 @@ ocv_add_module(
     BINDINGS
     OPTIONAL
     opencv_core
+    opencv_flann
     opencv_imgproc
     opencv_imgcodecs
     opencv_highgui
     opencv_videoio
     opencv_dnn
-    opencv_features2d
+    opencv_features
+    opencv_geometry
+    opencv_stereo
+    opencv_calib
     opencv_objdetect
-    opencv_calib3d
+    opencv_video
+    opencv_stitching
+    opencv_photo
+    opencv_xobjdetect
+    opencv_ml
+    opencv_ximgproc
+    opencv_xphoto
+    opencv_tracking
+    opencv_optflow
+    opencv_xfeatures2d
 )
 
 set(HDR_PARSER_PATH ${CMAKE_SOURCE_DIR}/modules/python/src2/hdr_parser.py)
@@ -109,10 +122,20 @@ endif()
 unset(__config_str)
 
 
+# Module roots searched for headers: opencv/modules plus each opencv_contrib path.
+set(__gen_roots "--root=${CMAKE_SOURCE_DIR}/modules")
+foreach(p ${OPENCV_EXTRA_MODULES_PATH})
+  list(APPEND __gen_roots "--root=${p}")
+endforeach()
+
 execute_process(
                 WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/gen"
-                COMMAND ${PYTHON_DEFAULT_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/gen/gen_all.py" ${CMAKE_SOURCE_DIR}/modules "${JSON_CONFIG_FILE_PATH}" ${OPENCV_MODULES_BUILD}
+                COMMAND ${PYTHON_DEFAULT_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/gen/gen_all.py" ${__gen_roots} "${JSON_CONFIG_FILE_PATH}" ${OPENCV_MODULES_BUILD}
+                RESULT_VARIABLE __gen_result
                 )
+if(NOT __gen_result EQUAL 0)
+  message(FATAL_ERROR "Julia binding generator failed (${__gen_result})")
+endif()
 
 file(COPY ${CMAKE_CURRENT_BINARY_DIR}/gen/cpp_files/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp)
 
@@ -120,20 +143,21 @@ ocv_glob_module_sources()
 ocv_module_include_directories()
 ocv_warnings_disable(CMAKE_CXX_FLAGS -Wmissing-prototypes -Wmissing-declarations)
 
-# Compile the generated cv_core.cpp as C++17. On a newer macOS SDK (libc++),
+# Compile the generated sources (cv_core*.cpp) as C++17. On a newer macOS SDK (libc++),
 # building in C++20 makes the standard library eagerly instantiate std::operator<
 # for std::vector<cv::Mat> / std::vector<cv::Point2f> when jlcxx probes a method's
 # return type (julia_return_type). Those OpenCV types have no bool operator<, so
 # the translation unit fails to compile. (libstdc++ on Linux does not instantiate
 # these eagerly, which is why only macOS is affected.) JlCxx requires cxx_std_20,
-# so we cannot lower the target's standard; instead append -std=c++17 to just this
-# one TU — clang uses the last -std on the command line, so it wins.
-set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp/cv_core.cpp"
-                            PROPERTIES COMPILE_OPTIONS "-std=c++17")
+# so we cannot lower the target's standard; instead append -std=c++17 to just the
+# generated TUs — clang uses the last -std on the command line, so it wins.
+# The generator writes cv_core.cpp plus one cv_core_partNN.cpp per chunk of bindings.
+file(GLOB __julia_gen_sources "${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp/cv_core*.cpp")
+set_source_files_properties(${__julia_gen_sources} PROPERTIES COMPILE_OPTIONS "-std=c++17")
 
 ocv_add_library(${the_module} SHARED ${OPENCV_MODULE_${the_module}_HEADERS}
                                      ${OPENCV_MODULE_${the_module}_SOURCES}
-                                     "${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp/cv_core.cpp")
+                                     ${__julia_gen_sources})
 
 if(NOT JULIA_PKG_INSTALL_PATH)
     set(JULIA_PKG_INSTALL_PATH ${CMAKE_BINARY_DIR})

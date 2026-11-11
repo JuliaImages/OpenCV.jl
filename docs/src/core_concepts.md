@@ -25,8 +25,16 @@ becomes `OpenCV.ORB_create` and `cv::TermCriteria::COUNT` becomes
 required — this keeps the thousands of short names (`blur`, `add`, `mean`, …) from
 colliding with `Base` or other packages.
 
+Other C++ namespaces become submodules with the namespace prefix dropped:
+`cv::dnn::readNetFromONNX` is `OpenCV.dnn.readNetFromONNX`, `cv::aruco::ArucoDetector`
+is `OpenCV.aruco.ArucoDetector`, `cv::ml::SVM::create` is `OpenCV.ml.SVM_create`, and
+likewise for `OpenCV.ximgproc`, `OpenCV.xphoto`, `OpenCV.xfeatures2d` and
+`OpenCV.optflow`.
+
 Output arguments work as in C++/Python: functions return their results rather than
-mutating an output buffer you pass in.
+mutating an output buffer you pass in. Public data members of parameter structs
+(`CV_PROP_RW` in the headers) are Julia properties that read and write the C++ field,
+e.g. `params.minMarkerPerimeterRate = 0.01` on an `OpenCV.aruco.DetectorParameters()`.
 
 ## Images are [`Mat`](@ref)s with `(channels, cols, rows)` axes
 
@@ -63,7 +71,11 @@ julia> size(OpenCV.cvtColor(A, OpenCV.COLOR_BGR2GRAY))   # plain arrays work too
 ```
 
 The supported element types are `UInt8`, `Int8`, `UInt16`, `Int16`, `Int32`,
-`Float32`, and `Float64` (OpenCV's `CV_8U … CV_64F`).
+`Float32` and `Float64` (OpenCV's `CV_8U … CV_64F`), plus the OpenCV 5 depths
+`Float16` (`CV_16F`), `Bool` (`CV_Bool`), `UInt32` (`CV_32U`), `UInt64` (`CV_64U`)
+and `Int64` (`CV_64S`). `CV_16BF` (bfloat16) is not mapped. A `Mat` has at most 128
+channels (`CV_CN_MAX`). Not every OpenCV function accepts every depth; most image
+processing still expects `UInt8`, `UInt16` or `Float32`.
 
 ## Scalars, points, and small vectors
 

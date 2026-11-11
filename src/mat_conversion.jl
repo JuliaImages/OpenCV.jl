@@ -1,5 +1,8 @@
-const CV_CN_MAX = 512
-const CV_CN_SHIFT = 3
+# OpenCV 5.x type encoding: the low CV_CN_SHIFT bits of a type flag hold the depth,
+# the remaining bits hold (channels - 1). OpenCV 4.x used CV_CN_SHIFT = 3 (8 depths,
+# up to 512 channels); 5.x widened the depth field to 5 bits for the new depths below.
+const CV_CN_MAX = 128
+const CV_CN_SHIFT = 5
 const CV_DEPTH_MAX = (1 << CV_CN_SHIFT)
 
 const CV_8U = 0
@@ -9,16 +12,24 @@ const CV_16S = 3
 const CV_32S = 4
 const CV_32F = 5
 const CV_64F = 6
+const CV_16F = 7
+const CV_16BF = 8
+const CV_Bool = 9
+const CV_64U = 10
+const CV_64S = 11
+const CV_32U = 12
 
 const CV_MAT_DEPTH_MASK = (CV_DEPTH_MAX - 1)
 CV_MAT_DEPTH(flags) = ((flags) & CV_MAT_DEPTH_MASK)
+CV_MAT_CN(flags) = ((flags) >> CV_CN_SHIFT) + 1
 
 CV_MAKETYPE(depth,cn) = (CV_MAT_DEPTH(depth) + (((cn)-1) << CV_CN_SHIFT))
-CV_MAKE_TYPE = CV_MAKETYPE
+const CV_MAKE_TYPE = CV_MAKETYPE
 
 # Bijective map between Julia element types and OpenCV depth constants. The two
-# conversion directions below both look this up rather than repeating a 7-branch
-# `if`/`elseif` ladder; adding a supported dtype is a single entry here.
+# conversion directions below both look this up; adding a supported dtype is a
+# single entry here (plus the `dtypes` Union in core.jl). CV_16BF has no Julia
+# counterpart in Base and is not mapped.
 const _CV_DEPTH = (
     (UInt8,   CV_8U),
     (Int8,    CV_8S),
@@ -27,6 +38,11 @@ const _CV_DEPTH = (
     (Int32,   CV_32S),
     (Float32, CV_32F),
     (Float64, CV_64F),
+    (Float16, CV_16F),
+    (Bool,    CV_Bool),
+    (UInt64,  CV_64U),
+    (Int64,   CV_64S),
+    (UInt32,  CV_32U),
 )
 
 # OpenCV depth constant for a Julia element type (throws on unsupported types).
@@ -35,7 +51,7 @@ function _cv_depth(::Type{T}) where {T}
         jt === T && return depth
     end
     throw(OpenCVError("unsupported array element type $T for cv::Mat; expected one " *
-                      "of UInt8, Int8, UInt16, Int16, Int32, Float32, Float64"))
+                      "of $(join(first.(_CV_DEPTH), ", "))"))
 end
 
 # Julia element type for an OpenCV type flag + channel count (throws on unknown flag).
@@ -79,6 +95,9 @@ function julia_to_cpp(img::InputArray)
     if typeof(img) <: CxxMat
         return img
     end
+    size(img, 1) <= CV_CN_MAX ||
+        throw(OpenCVError("cv::Mat supports at most $CV_CN_MAX channels; the array has " *
+                          "$(size(img, 1)) along its first (channel) axis"))
     steps = 0
     try
         steps = strides(img)

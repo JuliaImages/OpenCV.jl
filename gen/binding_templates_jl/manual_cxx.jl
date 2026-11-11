@@ -55,3 +55,15 @@ end
 #
 # Manual Wrapping END
 #
+
+# cv::dnn::Net methods taking cv::MatShape, which is a class in OpenCV 5; shapes are
+# integer vectors on the Julia side. Aliased into OpenCV.dnn in src/OpenCV.jl.
+_shapes(v) = [Int32.(collect(x)) for x in v]
+dnn_setInputShape(cobj::Net, inputName::String, shape::AbstractVector{<:Integer}) =
+    jlopencv_dnn_Net_setInputShape(cobj, inputName, Int32.(collect(shape)))
+dnn_getFLOPS(cobj::Net, netInputShapes::AbstractVector, netInputTypes::AbstractVector{<:Integer}) =
+    jlopencv_dnn_Net_getFLOPS(cobj, _shapes(netInputShapes), Int32.(collect(netInputTypes)))
+dnn_getMemoryConsumption(cobj::Net, netInputShapes::AbstractVector, netInputTypes::AbstractVector{<:Integer}) =
+    cpp_to_julia(jlopencv_dnn_Net_getMemoryConsumption(cobj, _shapes(netInputShapes), Int32.(collect(netInputTypes))))
+dnn_getLayerShapes(cobj::Net, netInputShapes::AbstractVector, netInputTypes::AbstractVector{<:Integer}, layerId::Integer) =
+    cpp_to_julia(jlopencv_dnn_Net_getLayerShapes(cobj, _shapes(netInputShapes), Int32.(collect(netInputTypes)), Int64(layerId)))

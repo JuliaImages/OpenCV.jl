@@ -55,7 +55,7 @@ with open("binding_templates_jl/manual_cxx.jl", "r") as f:
 with open("typemap.txt", 'r') as f:
     tmp = f.readlines()
     for ln in tmp:
-        ln = ln.strip('\n').split(':')
+        ln = ln.strip('\n').split(':', 1)
         jl_cpp_argmap[ln[0]] = ln[1]
 with open("defval.txt", 'r') as f:
     tmp = f.readlines()
@@ -72,10 +72,8 @@ def handle_def_arg(inp, tp = '', ns=''):
 
     out = ''
 
-    if tp not in jl_cpp_defmap:
-        # Unknown julia type — caller's try/except handles this for arg lists.
-        # Re-raise so behaviour matches the original generator.
-        raise KeyError(tp)
+    # Types without a defval.txt table fall through to the generic handling below.
+    jl_cpp_defmap.setdefault(tp, {})
 
     candidates = [inp]
     # Try with cv:: prefix stripped (parser may emit fully-qualified defaults).
@@ -89,8 +87,15 @@ def handle_def_arg(inp, tp = '', ns=''):
             out = jl_cpp_defmap[tp][cand]
             return out
 
-    if inp != '':
-        print(inp+" not found")
+    if inp == '':
+        return out
+    if is_literal_default(inp):
+        # 1.0f -> 1.0, 30u -> 30
+        return re.sub(r'[fFlLuU]+$', '', inp) if inp not in ('true', 'false') else inp
+    if needs_default_function(inp):
+        # gen3_cpp.py emits a C++ function returning this default's value.
+        return 'cpp_to_julia(%s())' % default_function_name(inp)
+    print(inp+" not found")
     return out
 
 def handle_jl_arg(inp):
@@ -100,6 +105,14 @@ def handle_jl_arg(inp):
     if inp in jl_cpp_argmap:
         return jl_cpp_argmap[inp]
     inp = inp.replace('cv::', '')
+    # Wrapped classes held by cv::Ptr (Algorithms) arrive in Julia as cv_Ptr{T};
+    # accept pointers to subclasses too (e.g. a Ptr<SIFT> where Ptr<Feature2D> is expected).
+    m = re.match(r'^Ptr<([A-Za-z_][A-Za-z0-9_:]*)>$', inp)
+    if m:
+        return 'cv_Ptr{<:%s}' % m.group(1).split('::')[-1]
+    m = re.match(r'^vector<Ptr<([A-Za-z_][A-Za-z0-9_:]*)>>$', inp)
+    if m:
+        return 'AbstractVector{<:cv_Ptr{<:%s}}' % m.group(1).split('::')[-1]
     return inp
     # return outs
 
@@ -129,10 +142,11 @@ class ClassInfo(ClassInfo):
             stra = "function Base.setproperty!(m::cv_Ptr{%s}, s::Symbol, v)\n" %(self.mapped_name)
 
         for prop in self.props:
-            if not prop.readonly:
+            if prop.readonly:   # CV_PROP: no C++ setter is generated
                 continue
             stra = stra + "    if s==:" + prop.name+"\n"
             stra = stra + "        %s(m, julia_to_cpp(v))\n"%(self.get_prop_func_cpp("set", prop.name))
+            stra = stra + "        return v\n"
             stra = stra + "    end\n"
         stra = stra + "    return Base.setfield!(m, s, v)\nend\n"
         return stra
@@ -188,14 +202,20 @@ class FuncVariant(FuncVariant):
                 self.inlist = [ArgInfo("cobj", classname)] + self.inlist
         map_name = self.mapped_name
         if ns!='cv':
-            map_name = '%s_%s' %(ns.split('::')[-1], map_name)
-        outstr = 'function %s(%s)%s\n\t%s\nend\n' % (map_name, self.get_argument_full(classname, isalgo), self.get_algo_tp(classname, isalgo),self.get_return())
+            map_name = '%s_%s' %('_'.join(ns.split('::')[1:]), map_name)   # full path: cv::ximgproc::segmentation -> ximgproc_segmentation
+        algo_tp = '' if iscons else self.get_algo_tp(classname, isalgo)
+        outstr = 'function %s(%s)%s\n\t%s\nend\n' % (map_name, self.get_argument_full(classname, isalgo), algo_tp, self.get_return())
 
 
         str2 = ", ".join([x.name for x  in self.inlist + self.optlist])
         # outstr = outstr +
+        # A keyword-only constructor X(; ...) named like its type would redefine the
+        # zero-argument constructor CxxWrap already provides (method overwriting fails
+        # precompilation), so leave it out; X() and the positional form remain.
+        if iscons and ns == 'cv' and len(self.inlist) == 0:
+            gen_default = False
         if self.get_argument_opt() != '' and gen_default:
-            outstr = outstr + ('%s(%s; %s)%s = %s(%s)\n' % (map_name, self.get_argument_def(classname, isalgo), self.get_argument_opt(ns), self.get_algo_tp(classname, isalgo), map_name, str2))
+            outstr = outstr + ('%s(%s; %s)%s = %s(%s)\n' % (map_name, self.get_argument_def(classname, isalgo), self.get_argument_opt(ns), algo_tp, map_name, str2))
 
         if iscons and len(self.inlist+self.optlist)==0 and ns=='cv':
             return ''
@@ -206,6 +226,36 @@ class FuncVariant(FuncVariant):
 
 def gen(srcfiles, preprocessor_definitions):
     namespaces, _ = gen_tree(srcfiles, preprocessor_definitions)
+
+    # Enums are declared in Julia as `const <flattened> = Int64` (ccm_ColorSpace for
+    # cv::ccm::ColorSpace), but signatures spell them as the parser saw them: bare
+    # (ColorSpace) or namespace-relative (ccm::ColorSpace). Map those spellings when
+    # they are unambiguous.
+    bare_enums = {}
+    for nsname_, ns in namespaces.items():
+        for e1, e2 in ns.enums.items():
+            flat = e2[0].replace("cv::", "").replace("::", "_")
+            rel = e2[0].replace("cv::", "", 1)
+            if rel != flat:
+                jl_cpp_argmap.setdefault(rel, flat)
+            cls_rel = e2[0][len(nsname_) + 2:].replace("::", "_")   # DAISY_NormalizationType
+            if nsname_ != 'cv' and cls_rel != flat and '_' in cls_rel:
+                jl_cpp_argmap.setdefault(cls_rel, flat)
+            bare_enums.setdefault(e2[0].split('::')[-1], set()).add(flat)
+    class_names = set(cl.mapped_name for ns in namespaces.values() for cl in ns.classes.values())
+    for bare, flats in bare_enums.items():
+        if len(flats) == 1 and bare not in class_names and bare not in flats:
+            jl_cpp_argmap.setdefault(bare, next(iter(flats)))
+
+    # The parser spells sub-namespace classes flattened (dnn_Net for cv::dnn::Net), but
+    # the Julia type is registered under the class's mapped name (Net).
+    for nsname_, ns in namespaces.items():
+        nsparts = nsname_.split('::')[1:]
+        if not nsparts:
+            continue
+        for full, cl in ns.classes.items():
+            rel = full.split('::')[1 + len(nsparts):]
+            jl_cpp_argmap.setdefault('_'.join(nsparts + rel), cl.mapped_name)
 
     added_methods = set()
 

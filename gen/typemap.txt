@@ -50,13 +50,19 @@ vector<MatShape>:Array{Array{Int32, 1}, 1}
 float:Float64
 Ptr<float>:Ptr{Float32}
 vector<Vec6f>:Array{Vec{Float32, 6}, 1}
-Ptr<FeatureDetector>:Ptr{Feature2D}
-Ptr<Feature2D>:Ptr{Feature2D}
+Ptr<FeatureDetector>:cv_Ptr{<:Feature2D}
 Point2d:Point{Float64}
 SolvePnPMethod:SolvePnPMethod
 CirclesGridFinderParameters:CirclesGridFinderParameters
 HandEyeCalibrationMethod:HandEyeCalibrationMethod
 int64_t:Int64
-Ptr<IStreamReader>:Ptr{IStreamReader}
 Rect2f:Rect{Float32}
 Rect2d:Rect{Float64}
+vector<Size>:Array{Size{Int32}, 1}
+Point3f:Point3{Float32}
+vector<Point3f>:Array{Point3{Float32}, 1}
+vector<vector<Point3f>>:Array{Array{Point3{Float32}, 1}, 1}
+vector<vector<int>>:Array{Array{Int32, 1}, 1}
+vector<Dictionary>:Array{Dictionary, 1}
+NativeByteArray:Array{UInt8, 1}
+vector<NativeByteArray>:Array{Array{UInt8, 1}, 1}
