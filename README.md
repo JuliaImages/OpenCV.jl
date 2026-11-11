@@ -33,6 +33,10 @@ OpenCV then loads the CUDA build whenever it has binaries for the system, and fa
 the CPU build otherwise. Remove `OpenCV_CUDA_jll` to go back to the CPU build. It is a separate
 package because installing it downloads the CUDA runtime and cuDNN (about 2 GB).
 
+OpenCV finds `OpenCV_CUDA_jll` in any environment on the load path, so installing it in the
+default environment (`@v1.x`) enables the CUDA build for every project. OpenCV ignores it, with a
+warning, if its OpenCV version differs from that of OpenCV_jll.
+
 ## Developing locally
 
 To hack on OpenCV.jl, check out the repository and `dev` it from Julia:

@@ -38,6 +38,14 @@ function find_cuda_jll()
     Base.locate_package(OpenCV_CUDA_jll_id) === nothing && return nothing
     jll = Base.require(OpenCV_CUDA_jll_id)
     Base.invokelatest(jll.is_available) || return nothing
+    # The wrappers bind only to a build of the same OpenCV release. `[compat]` can't
+    # enforce this when OpenCV_CUDA_jll comes from another environment in the load
+    # path, such as the default `@v1.x` environment.
+    v_cuda, v_cpu = pkgversion(jll), pkgversion(OpenCV_jll)
+    if (v_cuda.major, v_cuda.minor, v_cuda.patch) != (v_cpu.major, v_cpu.minor, v_cpu.patch)
+        @warn "OpenCV: ignoring OpenCV_CUDA_jll $v_cuda, which does not match OpenCV_jll $v_cpu."
+        return nothing
+    end
     # Builds before 4.14.0+1 share sonames with OpenCV_jll, which is already loaded.
     if !occursin("_cuda", basename(Base.invokelatest(jll.get_libopencv_core_path)))
         @warn "OpenCV: ignoring OpenCV_CUDA_jll, whose libraries clash with OpenCV_jll's; update it to 4.14.0+1 or later."
