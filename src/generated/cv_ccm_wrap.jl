@@ -1,0 +1,94 @@
+module ccm
+import ..OpenCV
+
+
+const setColorSpace = OpenCV.ccm_setColorSpace
+const setCcmType = OpenCV.ccm_setCcmType
+const setDistance = OpenCV.ccm_setDistance
+const setLinearization = OpenCV.ccm_setLinearization
+const setLinearizationGamma = OpenCV.ccm_setLinearizationGamma
+const setLinearizationDegree = OpenCV.ccm_setLinearizationDegree
+const setSaturatedThreshold = OpenCV.ccm_setSaturatedThreshold
+const setWeightsList = OpenCV.ccm_setWeightsList
+const setWeightCoeff = OpenCV.ccm_setWeightCoeff
+const setInitialMethod = OpenCV.ccm_setInitialMethod
+const setMaxCount = OpenCV.ccm_setMaxCount
+const setEpsilon = OpenCV.ccm_setEpsilon
+const setRGB = OpenCV.ccm_setRGB
+const compute = OpenCV.ccm_compute
+const getColorCorrectionMatrix = OpenCV.ccm_getColorCorrectionMatrix
+const getLoss = OpenCV.ccm_getLoss
+const getSrcLinearRGB = OpenCV.ccm_getSrcLinearRGB
+const getRefLinearRGB = OpenCV.ccm_getRefLinearRGB
+const getMask = OpenCV.ccm_getMask
+const getWeights = OpenCV.ccm_getWeights
+const correctImage = OpenCV.ccm_correctImage
+const write = OpenCV.ccm_write
+const read = OpenCV.ccm_read
+const ColorCorrectionModel = OpenCV.ccm_ColorCorrectionModel
+const gammaCorrection = OpenCV.ccm_gammaCorrection
+    const CCM_AFFINE = OpenCV.cv_ccm_CCM_AFFINE
+    const CCM_LINEAR = OpenCV.cv_ccm_CCM_LINEAR
+    const COLORCHECKER_DIGITAL_SG = OpenCV.cv_ccm_COLORCHECKER_DIGITAL_SG
+    const COLORCHECKER_MACBETH = OpenCV.cv_ccm_COLORCHECKER_MACBETH
+    const COLORCHECKER_VINYL = OpenCV.cv_ccm_COLORCHECKER_VINYL
+    const COLOR_SPACE_ADOBE_RGB = OpenCV.cv_ccm_COLOR_SPACE_ADOBE_RGB
+    const COLOR_SPACE_ADOBE_RGBL = OpenCV.cv_ccm_COLOR_SPACE_ADOBE_RGBL
+    const COLOR_SPACE_APPLE_RGB = OpenCV.cv_ccm_COLOR_SPACE_APPLE_RGB
+    const COLOR_SPACE_APPLE_RGBL = OpenCV.cv_ccm_COLOR_SPACE_APPLE_RGBL
+    const COLOR_SPACE_DCI_P3_RGB = OpenCV.cv_ccm_COLOR_SPACE_DCI_P3_RGB
+    const COLOR_SPACE_DCI_P3_RGBL = OpenCV.cv_ccm_COLOR_SPACE_DCI_P3_RGBL
+    const COLOR_SPACE_LAB_A_10 = OpenCV.cv_ccm_COLOR_SPACE_LAB_A_10
+    const COLOR_SPACE_LAB_A_2 = OpenCV.cv_ccm_COLOR_SPACE_LAB_A_2
+    const COLOR_SPACE_LAB_D50_10 = OpenCV.cv_ccm_COLOR_SPACE_LAB_D50_10
+    const COLOR_SPACE_LAB_D50_2 = OpenCV.cv_ccm_COLOR_SPACE_LAB_D50_2
+    const COLOR_SPACE_LAB_D55_10 = OpenCV.cv_ccm_COLOR_SPACE_LAB_D55_10
+    const COLOR_SPACE_LAB_D55_2 = OpenCV.cv_ccm_COLOR_SPACE_LAB_D55_2
+    const COLOR_SPACE_LAB_D65_10 = OpenCV.cv_ccm_COLOR_SPACE_LAB_D65_10
+    const COLOR_SPACE_LAB_D65_2 = OpenCV.cv_ccm_COLOR_SPACE_LAB_D65_2
+    const COLOR_SPACE_LAB_D75_10 = OpenCV.cv_ccm_COLOR_SPACE_LAB_D75_10
+    const COLOR_SPACE_LAB_D75_2 = OpenCV.cv_ccm_COLOR_SPACE_LAB_D75_2
+    const COLOR_SPACE_LAB_E_10 = OpenCV.cv_ccm_COLOR_SPACE_LAB_E_10
+    const COLOR_SPACE_LAB_E_2 = OpenCV.cv_ccm_COLOR_SPACE_LAB_E_2
+    const COLOR_SPACE_PRO_PHOTO_RGB = OpenCV.cv_ccm_COLOR_SPACE_PRO_PHOTO_RGB
+    const COLOR_SPACE_PRO_PHOTO_RGBL = OpenCV.cv_ccm_COLOR_SPACE_PRO_PHOTO_RGBL
+    const COLOR_SPACE_REC_2020_RGB = OpenCV.cv_ccm_COLOR_SPACE_REC_2020_RGB
+    const COLOR_SPACE_REC_2020_RGBL = OpenCV.cv_ccm_COLOR_SPACE_REC_2020_RGBL
+    const COLOR_SPACE_REC_709_RGB = OpenCV.cv_ccm_COLOR_SPACE_REC_709_RGB
+    const COLOR_SPACE_REC_709_RGBL = OpenCV.cv_ccm_COLOR_SPACE_REC_709_RGBL
+    const COLOR_SPACE_SRGB = OpenCV.cv_ccm_COLOR_SPACE_SRGB
+    const COLOR_SPACE_SRGBL = OpenCV.cv_ccm_COLOR_SPACE_SRGBL
+    const COLOR_SPACE_WIDE_GAMUT_RGB = OpenCV.cv_ccm_COLOR_SPACE_WIDE_GAMUT_RGB
+    const COLOR_SPACE_WIDE_GAMUT_RGBL = OpenCV.cv_ccm_COLOR_SPACE_WIDE_GAMUT_RGBL
+    const COLOR_SPACE_XYZ_A_10 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_A_10
+    const COLOR_SPACE_XYZ_A_2 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_A_2
+    const COLOR_SPACE_XYZ_D50_10 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_D50_10
+    const COLOR_SPACE_XYZ_D50_2 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_D50_2
+    const COLOR_SPACE_XYZ_D55_10 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_D55_10
+    const COLOR_SPACE_XYZ_D55_2 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_D55_2
+    const COLOR_SPACE_XYZ_D65_10 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_D65_10
+    const COLOR_SPACE_XYZ_D65_2 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_D65_2
+    const COLOR_SPACE_XYZ_D75_10 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_D75_10
+    const COLOR_SPACE_XYZ_D75_2 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_D75_2
+    const COLOR_SPACE_XYZ_E_10 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_E_10
+    const COLOR_SPACE_XYZ_E_2 = OpenCV.cv_ccm_COLOR_SPACE_XYZ_E_2
+    const DISTANCE_CIE2000 = OpenCV.cv_ccm_DISTANCE_CIE2000
+    const DISTANCE_CIE76 = OpenCV.cv_ccm_DISTANCE_CIE76
+    const DISTANCE_CIE94_GRAPHIC_ARTS = OpenCV.cv_ccm_DISTANCE_CIE94_GRAPHIC_ARTS
+    const DISTANCE_CIE94_TEXTILES = OpenCV.cv_ccm_DISTANCE_CIE94_TEXTILES
+    const DISTANCE_CMC_1TO1 = OpenCV.cv_ccm_DISTANCE_CMC_1TO1
+    const DISTANCE_CMC_2TO1 = OpenCV.cv_ccm_DISTANCE_CMC_2TO1
+    const DISTANCE_RGB = OpenCV.cv_ccm_DISTANCE_RGB
+    const DISTANCE_RGBL = OpenCV.cv_ccm_DISTANCE_RGBL
+    const INITIAL_METHOD_LEAST_SQUARE = OpenCV.cv_ccm_INITIAL_METHOD_LEAST_SQUARE
+    const INITIAL_METHOD_WHITE_BALANCE = OpenCV.cv_ccm_INITIAL_METHOD_WHITE_BALANCE
+    const LINEARIZATION_COLORLOGPOLYFIT = OpenCV.cv_ccm_LINEARIZATION_COLORLOGPOLYFIT
+    const LINEARIZATION_COLORPOLYFIT = OpenCV.cv_ccm_LINEARIZATION_COLORPOLYFIT
+    const LINEARIZATION_GAMMA = OpenCV.cv_ccm_LINEARIZATION_GAMMA
+    const LINEARIZATION_GRAYLOGPOLYFIT = OpenCV.cv_ccm_LINEARIZATION_GRAYLOGPOLYFIT
+    const LINEARIZATION_GRAYPOLYFIT = OpenCV.cv_ccm_LINEARIZATION_GRAYPOLYFIT
+    const LINEARIZATION_IDENTITY = OpenCV.cv_ccm_LINEARIZATION_IDENTITY
+
+
+
+end

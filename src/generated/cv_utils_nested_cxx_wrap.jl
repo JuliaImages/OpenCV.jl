@@ -15,6 +15,14 @@ function Base.getproperty(m::OriginalClassName_Params, s::Symbol)
     return Base.getfield(m, s)
 end
 function Base.setproperty!(m::OriginalClassName_Params, s::Symbol, v)
+    if s==:int_value
+        jlopencv_OriginalClassName_Params_set_int_value(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:float_value
+        jlopencv_OriginalClassName_Params_set_float_value(m, julia_to_cpp(v))
+        return v
+    end
     return Base.setfield!(m, s, v)
 end
 

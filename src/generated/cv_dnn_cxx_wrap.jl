@@ -4,36 +4,49 @@
 
    const dnn_Target = Int64 
 
-   const dnn_DataLayout = Int64 
+   const dnn_TracingMode = Int64 
+
+   const dnn_ProfilingMode = Int64 
+
+   const dnn_ModelFormat = Int64 
+
+   const dnn_ArgKind = Int64 
+
+   const dnn_EngineType = Int64 
 
    const dnn_ImagePaddingMode = Int64 
 
    const dnn_SoftNMSMethod = Int64 
-function Base.getproperty(m::cv_Ptr{Layer}, s::Symbol)
+function Base.getproperty(m::LayerInfo, s::Symbol)
     if s==:blobs
-        return cpp_to_julia(jlopencv_Layer_get_blobs(m))
+        return cpp_to_julia(jlopencv_LayerInfo_get_blobs(m))
     end
     if s==:name
-        return cpp_to_julia(jlopencv_Layer_get_name(m))
+        return cpp_to_julia(jlopencv_LayerInfo_get_name(m))
     end
     if s==:type
-        return cpp_to_julia(jlopencv_Layer_get_type(m))
+        return cpp_to_julia(jlopencv_LayerInfo_get_type(m))
     end
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::LayerInfo, s::Symbol, v)
+    if s==:blobs
+        jlopencv_LayerInfo_set_blobs(m, julia_to_cpp(v))
+        return v
+    end
+    return Base.setfield!(m, s, v)
+end
+
+function dnn_outputNameToIndex(cobj::LayerInfo, outputName::String)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_LayerInfo_cv_dnn_LayerInfo_outputNameToIndex(julia_to_cpp(cobj),julia_to_cpp(outputName)))
+end
+function Base.getproperty(m::Layer, s::Symbol)
     if s==:preferableTarget
         return cpp_to_julia(jlopencv_Layer_get_preferableTarget(m))
     end
     return Base.getfield(m, s)
 end
-function Base.setproperty!(m::cv_Ptr{Layer}, s::Symbol, v)
-    if s==:name
-        jlopencv_Layer_set_name(m, julia_to_cpp(v))
-    end
-    if s==:type
-        jlopencv_Layer_set_type(m, julia_to_cpp(v))
-    end
-    if s==:preferableTarget
-        jlopencv_Layer_set_preferableTarget(m, julia_to_cpp(v))
-    end
+function Base.setproperty!(m::Layer, s::Symbol, v)
     return Base.setfield!(m, s, v)
 end
 function Base.getproperty(m::Net, s::Symbol)
@@ -55,10 +68,6 @@ function dnn_dumpToFile(cobj::Net, path::String)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_dumpToFile(julia_to_cpp(cobj),julia_to_cpp(path)))
 end
 
-function dnn_setInputShape(cobj::Net, inputName::String, shape::Array{Int32, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_setInputShape(julia_to_cpp(cobj),julia_to_cpp(inputName),julia_to_cpp(shape)))
-end
-
 function dnn_forward(cobj::Net, outputName::String)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_forward(julia_to_cpp(cobj),julia_to_cpp(outputName)))
 end
@@ -73,17 +82,36 @@ function dnn_forward(cobj::Net, outBlobNames::Array{String, 1}, outputBlobs::Abs
 end
 dnn_forward(cobj::Net, outBlobNames::Array{String, 1}; outputBlobs::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) = dnn_forward(cobj, outBlobNames, outputBlobs)
 
-function dnn_forwardAsync(cobj::Net, outputName::String)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_forwardAsync(julia_to_cpp(cobj),julia_to_cpp(outputName)))
-end
-dnn_forwardAsync(cobj::Net; outputName::String = ("")) = dnn_forwardAsync(cobj, outputName)
-
 function dnn_setPreferableBackend(cobj::Net, backendId::Int64)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_setPreferableBackend(julia_to_cpp(cobj),julia_to_cpp(backendId)))
 end
 
 function dnn_setPreferableTarget(cobj::Net, targetId::Int64)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_setPreferableTarget(julia_to_cpp(cobj),julia_to_cpp(targetId)))
+end
+
+function dnn_finalizeNet(cobj::Net)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_finalizeNet(julia_to_cpp(cobj)))
+end
+
+function dnn_setTracingMode(cobj::Net, tracingMode::dnn_TracingMode)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_setTracingMode(julia_to_cpp(cobj),julia_to_cpp(tracingMode)))
+end
+
+function dnn_getTracingMode(cobj::Net)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getTracingMode(julia_to_cpp(cobj)))
+end
+
+function dnn_setProfilingMode(cobj::Net, profilingMode::dnn_ProfilingMode)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_setProfilingMode(julia_to_cpp(cobj),julia_to_cpp(profilingMode)))
+end
+
+function dnn_getProfilingMode(cobj::Net)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getProfilingMode(julia_to_cpp(cobj)))
+end
+
+function dnn_getModelFormat(cobj::Net)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getModelFormat(julia_to_cpp(cobj)))
 end
 
 function dnn_setInput(cobj::Net, blob::InputArray, name::String, scalefactor::Float64, mean::Scalar)
@@ -109,40 +137,36 @@ function dnn_getParam(cobj::Net, layerName::String, numParam::Int64)
 end
 dnn_getParam(cobj::Net, layerName::String; numParam::Int64 = Int64(0)) = dnn_getParam(cobj, layerName, numParam)
 
-function dnn_getFLOPS(cobj::Net, netInputShapes::Array{Array{Int32, 1}, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getFLOPS(julia_to_cpp(cobj),julia_to_cpp(netInputShapes)))
-end
-
-function dnn_getFLOPS(cobj::Net, netInputShape::Array{Int32, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getFLOPS(julia_to_cpp(cobj),julia_to_cpp(netInputShape)))
-end
-
-function dnn_getFLOPS(cobj::Net, layerId::Int64, netInputShapes::Array{Array{Int32, 1}, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getFLOPS(julia_to_cpp(cobj),julia_to_cpp(layerId),julia_to_cpp(netInputShapes)))
-end
-
-function dnn_getFLOPS(cobj::Net, layerId::Int64, netInputShape::Array{Int32, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getFLOPS(julia_to_cpp(cobj),julia_to_cpp(layerId),julia_to_cpp(netInputShape)))
-end
-
-function dnn_getMemoryConsumption(cobj::Net, netInputShape::Array{Int32, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getMemoryConsumption(julia_to_cpp(cobj),julia_to_cpp(netInputShape)))
-end
-
-function dnn_getMemoryConsumption(cobj::Net, layerId::Int64, netInputShapes::Array{Array{Int32, 1}, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getMemoryConsumption(julia_to_cpp(cobj),julia_to_cpp(layerId),julia_to_cpp(netInputShapes)))
-end
-
-function dnn_getMemoryConsumption(cobj::Net, layerId::Int64, netInputShape::Array{Int32, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getMemoryConsumption(julia_to_cpp(cobj),julia_to_cpp(layerId),julia_to_cpp(netInputShape)))
-end
-
 function dnn_enableFusion(cobj::Net, fusion::Bool)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_enableFusion(julia_to_cpp(cobj),julia_to_cpp(fusion)))
 end
 
+function dnn_enableTF32(cobj::Net, useTF32::Bool)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_enableTF32(julia_to_cpp(cobj),julia_to_cpp(useTF32)))
+end
+
 function dnn_getPerfProfile(cobj::Net)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_getPerfProfile(julia_to_cpp(cobj)))
+end
+
+function dnn_enableKVCache(cobj::Net)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_enableKVCache(julia_to_cpp(cobj)))
+end
+
+function dnn_disableKVCache(cobj::Net)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_disableKVCache(julia_to_cpp(cobj)))
+end
+
+function dnn_resetKVCache(cobj::Net)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_resetKVCache(julia_to_cpp(cobj)))
+end
+
+function dnn_reserveKVCache(cobj::Net, maxSequenceLength::Int64)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_reserveKVCache(julia_to_cpp(cobj),julia_to_cpp(maxSequenceLength)))
+end
+
+function dnn_printPerfProfile(cobj::Net)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_cv_dnn_Net_printPerfProfile(julia_to_cpp(cobj)))
 end
 
 function dnn_Net()
@@ -173,9 +197,48 @@ function Base.getproperty(m::Image2BlobParams, s::Symbol)
     if s==:borderValue
         return cpp_to_julia(jlopencv_Image2BlobParams_get_borderValue(m))
     end
+    if s==:interpolation
+        return cpp_to_julia(jlopencv_Image2BlobParams_get_interpolation(m))
+    end
     return Base.getfield(m, s)
 end
 function Base.setproperty!(m::Image2BlobParams, s::Symbol, v)
+    if s==:scalefactor
+        jlopencv_Image2BlobParams_set_scalefactor(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:size
+        jlopencv_Image2BlobParams_set_size(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:mean
+        jlopencv_Image2BlobParams_set_mean(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:swapRB
+        jlopencv_Image2BlobParams_set_swapRB(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:ddepth
+        jlopencv_Image2BlobParams_set_ddepth(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:datalayout
+        jlopencv_Image2BlobParams_set_datalayout(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:paddingmode
+        jlopencv_Image2BlobParams_set_paddingmode(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:borderValue
+        jlopencv_Image2BlobParams_set_borderValue(m, julia_to_cpp(v))
+        return v
+    end
+    if s==:interpolation
+        jlopencv_Image2BlobParams_set_interpolation(m, julia_to_cpp(v))
+        return v
+    end
     return Base.setfield!(m, s, v)
 end
 function Base.getproperty(m::Model, s::Symbol)
@@ -221,6 +284,10 @@ dnn_predict(cobj::Model, frame::InputArray; outs::AbstractVector{<:InputArray} =
 
 function dnn_setPreferableTarget(cobj::Model, targetId::dnn_Target)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Model_cv_dnn_Model_setPreferableTarget(julia_to_cpp(cobj),julia_to_cpp(targetId)))
+end
+
+function dnn_enableTF32(cobj::Model, useTF32::Bool)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Model_cv_dnn_Model_enableTF32(julia_to_cpp(cobj),julia_to_cpp(useTF32)))
 end
 
 function dnn_Model(model::String, config::String)
@@ -334,6 +401,24 @@ end
 function Base.setproperty!(m::TextDetectionModel_DB, s::Symbol, v)
     return Base.setfield!(m, s, v)
 end
+function Base.getproperty(m::Tokenizer, s::Symbol)
+    return Base.getfield(m, s)
+end
+function Base.setproperty!(m::Tokenizer, s::Symbol, v)
+    return Base.setfield!(m, s, v)
+end
+
+function dnn_encode(cobj::Tokenizer, text::String)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Tokenizer_cv_dnn_Tokenizer_encode(julia_to_cpp(cobj),julia_to_cpp(text)))
+end
+
+function dnn_encode(cobj::Tokenizer, textChunks::Array{String, 1})
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Tokenizer_cv_dnn_Tokenizer_encode(julia_to_cpp(cobj),julia_to_cpp(textChunks)))
+end
+
+function dnn_decode(cobj::Tokenizer, tokens::Array{Int32, 1})
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Tokenizer_cv_dnn_Tokenizer_decode(julia_to_cpp(cobj),julia_to_cpp(tokens)))
+end
 
 function dnn_Net_readFromModelOptimizer(xml::String, bin::String)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_readFromModelOptimizer(julia_to_cpp(xml),julia_to_cpp(bin)))
@@ -343,55 +428,15 @@ function dnn_Net_readFromModelOptimizer(bufferModelConfig::Array{UInt8, 1}, buff
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Net_readFromModelOptimizer(julia_to_cpp(bufferModelConfig),julia_to_cpp(bufferWeights)))
 end
 
-function dnn_readNetFromDarknet(cfgFile::String, darknetModel::String)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromDarknet(julia_to_cpp(cfgFile),julia_to_cpp(darknetModel)))
+function dnn_readNet(model::String, config::String, framework::String, engine::Int64)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNet(julia_to_cpp(model),julia_to_cpp(config),julia_to_cpp(framework),julia_to_cpp(engine)))
 end
-dnn_readNetFromDarknet(cfgFile::String; darknetModel::String = ("")) = dnn_readNetFromDarknet(cfgFile, darknetModel)
+dnn_readNet(model::String; config::String = (""), framework::String = (""), engine::Int64 = Int64(cpp_to_julia(jlopencv_default_ENGINERAUTO()))) = dnn_readNet(model, config, framework, engine)
 
-function dnn_readNetFromDarknet(bufferCfg::Array{UInt8, 1}, bufferModel::Array{UInt8, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromDarknet(julia_to_cpp(bufferCfg),julia_to_cpp(bufferModel)))
+function dnn_readNet(framework::String, bufferModel::Array{UInt8, 1}, bufferConfig::Array{UInt8, 1}, engine::Int64)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNet(julia_to_cpp(framework),julia_to_cpp(bufferModel),julia_to_cpp(bufferConfig),julia_to_cpp(engine)))
 end
-dnn_readNetFromDarknet(bufferCfg::Array{UInt8, 1}; bufferModel::Array{UInt8, 1} = (cpp_to_julia(stdggvectoriucharkOP()))) = dnn_readNetFromDarknet(bufferCfg, bufferModel)
-
-function dnn_readNetFromCaffe(prototxt::String, caffeModel::String)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromCaffe(julia_to_cpp(prototxt),julia_to_cpp(caffeModel)))
-end
-dnn_readNetFromCaffe(prototxt::String; caffeModel::String = ("")) = dnn_readNetFromCaffe(prototxt, caffeModel)
-
-function dnn_readNetFromCaffe(bufferProto::Array{UInt8, 1}, bufferModel::Array{UInt8, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromCaffe(julia_to_cpp(bufferProto),julia_to_cpp(bufferModel)))
-end
-dnn_readNetFromCaffe(bufferProto::Array{UInt8, 1}; bufferModel::Array{UInt8, 1} = (cpp_to_julia(stdggvectoriucharkOP()))) = dnn_readNetFromCaffe(bufferProto, bufferModel)
-
-function dnn_readNetFromTensorflow(model::String, config::String)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromTensorflow(julia_to_cpp(model),julia_to_cpp(config)))
-end
-dnn_readNetFromTensorflow(model::String; config::String = ("")) = dnn_readNetFromTensorflow(model, config)
-
-function dnn_readNetFromTensorflow(bufferModel::Array{UInt8, 1}, bufferConfig::Array{UInt8, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromTensorflow(julia_to_cpp(bufferModel),julia_to_cpp(bufferConfig)))
-end
-dnn_readNetFromTensorflow(bufferModel::Array{UInt8, 1}; bufferConfig::Array{UInt8, 1} = (cpp_to_julia(stdggvectoriucharkOP()))) = dnn_readNetFromTensorflow(bufferModel, bufferConfig)
-
-function dnn_readNetFromTorch(model::String, isBinary::Bool, evaluate::Bool)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromTorch(julia_to_cpp(model),julia_to_cpp(isBinary),julia_to_cpp(evaluate)))
-end
-dnn_readNetFromTorch(model::String; isBinary::Bool = (true), evaluate::Bool = (true)) = dnn_readNetFromTorch(model, isBinary, evaluate)
-
-function dnn_readNet(model::String, config::String, framework::String)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNet(julia_to_cpp(model),julia_to_cpp(config),julia_to_cpp(framework)))
-end
-dnn_readNet(model::String; config::String = (""), framework::String = ("")) = dnn_readNet(model, config, framework)
-
-function dnn_readNet(framework::String, bufferModel::Array{UInt8, 1}, bufferConfig::Array{UInt8, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNet(julia_to_cpp(framework),julia_to_cpp(bufferModel),julia_to_cpp(bufferConfig)))
-end
-dnn_readNet(framework::String, bufferModel::Array{UInt8, 1}; bufferConfig::Array{UInt8, 1} = (cpp_to_julia(stdggvectoriucharkOP()))) = dnn_readNet(framework, bufferModel, bufferConfig)
-
-function dnn_readTorchBlob(filename::String, isBinary::Bool)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readTorchBlob(julia_to_cpp(filename),julia_to_cpp(isBinary)))
-end
-dnn_readTorchBlob(filename::String; isBinary::Bool = (true)) = dnn_readTorchBlob(filename, isBinary)
+dnn_readNet(framework::String, bufferModel::Array{UInt8, 1}; bufferConfig::Array{UInt8, 1} = (cpp_to_julia(stdggvectoriucharkOP())), engine::Int64 = Int64(cpp_to_julia(jlopencv_default_ENGINERAUTO()))) = dnn_readNet(framework, bufferModel, bufferConfig, engine)
 
 function dnn_readNetFromModelOptimizer(xml::String, bin::String)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromModelOptimizer(julia_to_cpp(xml),julia_to_cpp(bin)))
@@ -402,41 +447,38 @@ function dnn_readNetFromModelOptimizer(bufferModelConfig::Array{UInt8, 1}, buffe
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromModelOptimizer(julia_to_cpp(bufferModelConfig),julia_to_cpp(bufferWeights)))
 end
 
-function dnn_readNetFromONNX(onnxFile::String)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromONNX(julia_to_cpp(onnxFile)))
+function dnn_readNetFromONNX(onnxFile::String, engine::Int64)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromONNX(julia_to_cpp(onnxFile),julia_to_cpp(engine)))
+end
+dnn_readNetFromONNX(onnxFile::String; engine::Int64 = Int64(cpp_to_julia(jlopencv_default_ENGINERAUTO()))) = dnn_readNetFromONNX(onnxFile, engine)
+
+function dnn_readNetFromONNX(onnxFile::String, engine::Int64, mapExternalData::Bool)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromONNX(julia_to_cpp(onnxFile),julia_to_cpp(engine),julia_to_cpp(mapExternalData)))
 end
 
-function dnn_readNetFromONNX(buffer::Array{UInt8, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromONNX(julia_to_cpp(buffer)))
+function dnn_readNetFromONNX(buffer::Array{UInt8, 1}, engine::Int64)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readNetFromONNX(julia_to_cpp(buffer),julia_to_cpp(engine)))
 end
+dnn_readNetFromONNX(buffer::Array{UInt8, 1}; engine::Int64 = Int64(cpp_to_julia(jlopencv_default_ENGINERAUTO()))) = dnn_readNetFromONNX(buffer, engine)
 
 function dnn_readTensorFromONNX(path::String)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_readTensorFromONNX(julia_to_cpp(path)))
 end
 
-function dnn_blobFromImage(image::InputArray, scalefactor::Float64, size::Size{Int32}, mean::Scalar, swapRB::Bool, crop::Bool, ddepth::Int64)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_blobFromImage(julia_to_cpp(image),julia_to_cpp(scalefactor),julia_to_cpp(size),julia_to_cpp(mean),julia_to_cpp(swapRB),julia_to_cpp(crop),julia_to_cpp(ddepth)))
+function dnn_blobFromImage(image::InputArray, scalefactor::Float64, size::Size{Int32}, mean::Scalar, swapRB::Bool, crop::Bool, ddepth::Int64, interpolation::Int64)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_blobFromImage(julia_to_cpp(image),julia_to_cpp(scalefactor),julia_to_cpp(size),julia_to_cpp(mean),julia_to_cpp(swapRB),julia_to_cpp(crop),julia_to_cpp(ddepth),julia_to_cpp(interpolation)))
 end
-dnn_blobFromImage(image::InputArray; scalefactor::Float64 = Float64(1.0), size::Size{Int32} = (cpp_to_julia(SizeOP())), mean::Scalar = (cpp_to_julia(ScalarOP())), swapRB::Bool = (false), crop::Bool = (false), ddepth::Int64 = Int64(CV_32F)) = dnn_blobFromImage(image, scalefactor, size, mean, swapRB, crop, ddepth)
+dnn_blobFromImage(image::InputArray; scalefactor::Float64 = Float64(1.0), size::Size{Int32} = (cpp_to_julia(SizeOP())), mean::Scalar = (cpp_to_julia(ScalarOP())), swapRB::Bool = (false), crop::Bool = (false), ddepth::Int64 = Int64(CV_32F), interpolation::Int64 = Int64(cv_INTER_LINEAR)) = dnn_blobFromImage(image, scalefactor, size, mean, swapRB, crop, ddepth, interpolation)
 
-function dnn_blobFromImages(images::AbstractVector{<:InputArray}, scalefactor::Float64, size::Size{Int32}, mean::Scalar, swapRB::Bool, crop::Bool, ddepth::Int64)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_blobFromImages(julia_to_cpp(images),julia_to_cpp(scalefactor),julia_to_cpp(size),julia_to_cpp(mean),julia_to_cpp(swapRB),julia_to_cpp(crop),julia_to_cpp(ddepth)))
+function dnn_blobFromImages(images::AbstractVector{<:InputArray}, scalefactor::Float64, size::Size{Int32}, mean::Scalar, swapRB::Bool, crop::Bool, ddepth::Int64, interpolation::Int64)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_blobFromImages(julia_to_cpp(images),julia_to_cpp(scalefactor),julia_to_cpp(size),julia_to_cpp(mean),julia_to_cpp(swapRB),julia_to_cpp(crop),julia_to_cpp(ddepth),julia_to_cpp(interpolation)))
 end
-dnn_blobFromImages(images::AbstractVector{<:InputArray}; scalefactor::Float64 = Float64(1.0), size::Size{Int32} = (cpp_to_julia(SizeOP())), mean::Scalar = (cpp_to_julia(ScalarOP())), swapRB::Bool = (false), crop::Bool = (false), ddepth::Int64 = Int64(CV_32F)) = dnn_blobFromImages(images, scalefactor, size, mean, swapRB, crop, ddepth)
+dnn_blobFromImages(images::AbstractVector{<:InputArray}; scalefactor::Float64 = Float64(1.0), size::Size{Int32} = (cpp_to_julia(SizeOP())), mean::Scalar = (cpp_to_julia(ScalarOP())), swapRB::Bool = (false), crop::Bool = (false), ddepth::Int64 = Int64(CV_32F), interpolation::Int64 = Int64(cv_INTER_LINEAR)) = dnn_blobFromImages(images, scalefactor, size, mean, swapRB, crop, ddepth, interpolation)
 
 function dnn_imagesFromBlob(blob_::InputArray, images_::AbstractVector{<:InputArray})
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_imagesFromBlob(julia_to_cpp(blob_),julia_to_cpp(images_)))
 end
 dnn_imagesFromBlob(blob_::InputArray; images_::AbstractVector{<:InputArray} = (Array{InputArray, 1}())) = dnn_imagesFromBlob(blob_, images_)
-
-function dnn_shrinkCaffeModel(src::String, dst::String, layersTypes::Array{String, 1})
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_shrinkCaffeModel(julia_to_cpp(src),julia_to_cpp(dst),julia_to_cpp(layersTypes)))
-end
-dnn_shrinkCaffeModel(src::String, dst::String; layersTypes::Array{String, 1} = (cpp_to_julia(stdggvectoriStringkOP()))) = dnn_shrinkCaffeModel(src, dst, layersTypes)
-
-function dnn_writeTextGraph(model::String, output::String)
-	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_writeTextGraph(julia_to_cpp(model),julia_to_cpp(output)))
-end
 
 function dnn_NMSBoxes(bboxes::Array{Rect{Float64}, 1}, scores::Array{Float32, 1}, score_threshold::Float64, nms_threshold::Float64, eta::Float64, top_k::Int64)
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_NMSBoxes(julia_to_cpp(bboxes),julia_to_cpp(scores),julia_to_cpp(score_threshold),julia_to_cpp(nms_threshold),julia_to_cpp(eta),julia_to_cpp(top_k)))
@@ -447,6 +489,10 @@ function dnn_NMSBoxesRotated(bboxes::Array{RotatedRect, 1}, scores::Array{Float3
 	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_NMSBoxes(julia_to_cpp(bboxes),julia_to_cpp(scores),julia_to_cpp(score_threshold),julia_to_cpp(nms_threshold),julia_to_cpp(eta),julia_to_cpp(top_k)))
 end
 dnn_NMSBoxesRotated(bboxes::Array{RotatedRect, 1}, scores::Array{Float32, 1}, score_threshold::Float64, nms_threshold::Float64; eta::Float64 = Float64(1), top_k::Int64 = Int64(0)) = dnn_NMSBoxesRotated(bboxes, scores, score_threshold, nms_threshold, eta, top_k)
+
+function dnn_Tokenizer_load(model_config::String)
+	return cpp_to_julia(jlopencv_cv_dnn_cv_dnn_Tokenizer_load(julia_to_cpp(model_config)))
+end
 
 
 

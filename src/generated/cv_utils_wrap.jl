@@ -12,8 +12,6 @@ const dumpSizeT = OpenCV.utils_dumpSizeT
 const dumpFloat = OpenCV.utils_dumpFloat
 const dumpDouble = OpenCV.utils_dumpDouble
 const dumpCString = OpenCV.utils_dumpCString
-const testAsyncArray = OpenCV.utils_testAsyncArray
-const testAsyncException = OpenCV.utils_testAsyncException
 
 
 

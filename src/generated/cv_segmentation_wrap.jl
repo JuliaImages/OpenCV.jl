@@ -1,0 +1,17 @@
+module segmentation
+import ..OpenCV
+
+
+const setWeights = OpenCV.segmentation_setWeights
+const setGradientMagnitudeMaxLimit = OpenCV.segmentation_setGradientMagnitudeMaxLimit
+const setEdgeFeatureZeroCrossingParameters = OpenCV.segmentation_setEdgeFeatureZeroCrossingParameters
+const setEdgeFeatureCannyParameters = OpenCV.segmentation_setEdgeFeatureCannyParameters
+const applyImage = OpenCV.segmentation_applyImage
+const applyImageFeatures = OpenCV.segmentation_applyImageFeatures
+const buildMap = OpenCV.segmentation_buildMap
+const getContour = OpenCV.segmentation_getContour
+const IntelligentScissorsMB = OpenCV.segmentation_IntelligentScissorsMB
+
+
+
+end

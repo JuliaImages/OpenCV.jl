@@ -2,14 +2,14 @@ module fisheye
 import ..OpenCV
 
 
+const initUndistortRectifyMap = OpenCV.fisheye_initUndistortRectifyMap
+const undistortImage = OpenCV.fisheye_undistortImage
 const projectPoints = OpenCV.fisheye_projectPoints
 const distortPoints = OpenCV.fisheye_distortPoints
 const undistortPoints = OpenCV.fisheye_undistortPoints
-const initUndistortRectifyMap = OpenCV.fisheye_initUndistortRectifyMap
-const undistortImage = OpenCV.fisheye_undistortImage
 const estimateNewCameraMatrixForUndistortRectify = OpenCV.fisheye_estimateNewCameraMatrixForUndistortRectify
-const calibrate = OpenCV.fisheye_calibrate
 const stereoRectify = OpenCV.fisheye_stereoRectify
+const calibrate = OpenCV.fisheye_calibrate
 const stereoCalibrate = OpenCV.fisheye_stereoCalibrate
     const CALIB_CHECK_COND = OpenCV.cv_fisheye_CALIB_CHECK_COND
     const CALIB_FIX_FOCAL_LENGTH = OpenCV.cv_fisheye_CALIB_FIX_FOCAL_LENGTH
