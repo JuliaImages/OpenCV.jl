@@ -143,20 +143,21 @@ ocv_glob_module_sources()
 ocv_module_include_directories()
 ocv_warnings_disable(CMAKE_CXX_FLAGS -Wmissing-prototypes -Wmissing-declarations)
 
-# Compile the generated cv_core.cpp as C++17. On a newer macOS SDK (libc++),
+# Compile the generated sources (cv_core*.cpp) as C++17. On a newer macOS SDK (libc++),
 # building in C++20 makes the standard library eagerly instantiate std::operator<
 # for std::vector<cv::Mat> / std::vector<cv::Point2f> when jlcxx probes a method's
 # return type (julia_return_type). Those OpenCV types have no bool operator<, so
 # the translation unit fails to compile. (libstdc++ on Linux does not instantiate
 # these eagerly, which is why only macOS is affected.) JlCxx requires cxx_std_20,
-# so we cannot lower the target's standard; instead append -std=c++17 to just this
-# one TU — clang uses the last -std on the command line, so it wins.
-set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp/cv_core.cpp"
-                            PROPERTIES COMPILE_OPTIONS "-std=c++17")
+# so we cannot lower the target's standard; instead append -std=c++17 to just the
+# generated TUs — clang uses the last -std on the command line, so it wins.
+# The generator writes cv_core.cpp plus one cv_core_partNN.cpp per chunk of bindings.
+file(GLOB __julia_gen_sources "${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp/cv_core*.cpp")
+set_source_files_properties(${__julia_gen_sources} PROPERTIES COMPILE_OPTIONS "-std=c++17")
 
 ocv_add_library(${the_module} SHARED ${OPENCV_MODULE_${the_module}_HEADERS}
                                      ${OPENCV_MODULE_${the_module}_SOURCES}
-                                     "${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp/cv_core.cpp")
+                                     ${__julia_gen_sources})
 
 if(NOT JULIA_PKG_INSTALL_PATH)
     set(JULIA_PKG_INSTALL_PATH ${CMAKE_BINARY_DIR})

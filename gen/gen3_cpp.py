@@ -250,7 +250,8 @@ class FuncVariant(FuncVariant):
 
 
 def split_module_body(code, max_lines=250):
-    """Split the generated module body into functions of at most ~max_lines lines.
+    """Split the generated module body into functions of at most ~max_lines lines,
+    returned as source texts (one per translation unit) plus the calls to them.
 
     Registering every binding inside one function made GCC 10 run out of memory
     ("cc1plus: out of memory allocating 18446744...") once OpenCV 5 roughly doubled the
@@ -274,12 +275,12 @@ def split_module_body(code, max_lines=250):
     if cur:
         chunks.append(cur)
     assert depth == 0, "unbalanced braces in generated module body"
-    body, calls = [], []
+    parts, calls = [], []
     for n, chunk in enumerate(chunks):
-        body.append('static void cv_wrap_part%d(jlcxx::Module &mod)\n{\n    %s\n%s\n}\n'
-                    % (n, '\n    '.join(usings), '\n'.join(chunk)))
-        calls.append('cv_wrap_part%d(mod);' % n)
-    return '\n'.join(body), '\n    '.join(calls)
+        parts.append('void cv_wrap_part%02d(jlcxx::Module &mod)\n{\n    %s\n%s\n}\n'
+                     % (n, '\n    '.join(usings), '\n'.join(chunk)))
+        calls.append('cv_wrap_part%02d(mod);' % n)
+    return parts, '\n    '.join(calls)
 
 
 # Enums declared in headers the generator doesn't parse (cv::DataLayout lives in
@@ -436,9 +437,17 @@ struct SuperType<%s>
         usings = ''.join('using namespace %s; ' % ns for ns in nss if ns and ns != 'cv')
         cpp_code.write('    mod.method("%s", [](){%sreturn (force_enum_int<decltype(%s)>::Type)(%s);});\n'%(default_function_name(val), usings, val, val))
 
-    body, calls = split_module_body(cpp_code.getvalue())
+    # One translation unit per chunk (cv_core_partNN.cpp), each with the template's
+    # preamble; cv_core.cpp declares the parts and calls them in order. A single object
+    # file with every binding exceeded the PE/COFF section limit on i686 Windows.
+    parts, calls = split_module_body(cpp_code.getvalue())
+    preamble = Template(mod_template.template[:mod_template.template.index('JLCXX_MODULE')])
+    decls = ''.join('void cv_wrap_part%02d(jlcxx::Module &mod);\n' % n for n in range(len(parts)))
+    for n, part in enumerate(parts):
+        with open('autogen_cpp/cv_core_part%02d.cpp' % n, 'w') as fd:
+            fd.write(preamble.substitute(include_code = include_code.getvalue() + part))
     with open ('autogen_cpp/cv_core.cpp', 'w') as fd:
-        fd.write(mod_template.substitute(include_code = include_code.getvalue() + body, cpp_code=calls))
+        fd.write(mod_template.substitute(include_code = include_code.getvalue() + decls, cpp_code=calls))
 
 
 
