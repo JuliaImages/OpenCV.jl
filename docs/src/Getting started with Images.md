@@ -110,5 +110,5 @@ Preview from Pluto.jl
 `Makie.jl` To-do
 
 ## Notes
-[^imreadflags]: https://docs.opencv.org/4.x/d8/d6a/group__imgcodecs__flags.html#ga61d9b0126a3e57d9277ac48327799c80
-[^imwriteflags]: https://docs.opencv.org/4.x/d8/d6a/group__imgcodecs__flags.html#ga292d81be8d76901bff7988d18d2b42ac
+[^imreadflags]: https://docs.opencv.org/5.x/d8/d6a/group__imgcodecs__flags.html#ga61d9b0126a3e57d9277ac48327799c80
+[^imwriteflags]: https://docs.opencv.org/5.x/d8/d6a/group__imgcodecs__flags.html#ga292d81be8d76901bff7988d18d2b42ac

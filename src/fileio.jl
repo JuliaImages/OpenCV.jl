@@ -85,6 +85,6 @@ into the 3D `InputArray` the generated `imdecode` expects; without `flags` it us
 same default as `imread` (`IMREAD_COLOR_BGR`). See issue #58.
 """
 imdecode(buf::AbstractVector{UInt8}, flags::Integer) =
-    imdecode(reshape(buf, 1, 1, :), Int64(flags))
+    imdecode(Base.reshape(buf, 1, 1, :), Int64(flags))
 imdecode(buf::AbstractVector{UInt8}) =
     imdecode(buf, Int64(cv_IMREAD_COLOR_BGR))

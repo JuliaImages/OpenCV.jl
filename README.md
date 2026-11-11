@@ -6,6 +6,7 @@
 **OpenCV.jl** is a Julia interface to the [OpenCV](https://opencv.org) computer-vision
 library — image and video processing, object detection, feature extraction,
 calibration, and more — backed by the precompiled library through `OpenCV_jll`.
+OpenCV.jl 5.x wraps **OpenCV 5.1**.
 
 📖 **[Documentation](https://juliaimages.org/OpenCV.jl/dev/)** — a quick-start example,
 the `Mat` image type and its `(channels, cols, rows)` layout, the `cv::` → `OpenCV.`
@@ -36,6 +37,35 @@ package because installing it downloads the CUDA runtime and cuDNN (about 2 GB).
 OpenCV finds `OpenCV_CUDA_jll` in any environment on the load path, so installing it in the
 default environment (`@v1.x`) enables the CUDA build for every project. OpenCV ignores it, with a
 warning, if its OpenCV version differs from that of OpenCV_jll.
+
+## What is wrapped
+
+- **`OpenCV.`** — core, imgproc, imgcodecs, videoio, highgui, calib, geometry, stereo,
+  features, flann, objdetect (QR/barcode codes, `FaceDetectorYN`), photo, video (optical
+  flow, trackers), stitching, tracking, and `CascadeClassifier` (xobjdetect).
+- **Submodules** for namespaced APIs: `OpenCV.dnn`, `OpenCV.aruco`, `OpenCV.ml`,
+  `OpenCV.ximgproc`, `OpenCV.xphoto`, `OpenCV.xfeatures2d` (AKAZE, KAZE, BRISK, …),
+  `OpenCV.optflow`, `OpenCV.mcc`, `OpenCV.ccm`.
+
+```julia
+using OpenCV
+const aruco = OpenCV.aruco
+
+dict   = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
+marker = aruco.generateImageMarker(dict, 7, 200)       # 200×200 marker, size (1, 200, 200)
+
+params = aruco.DetectorParameters()
+params.minMarkerPerimeterRate = 0.01                   # writable fields are properties
+detector = aruco.ArucoDetector(dict, params, aruco.RefineParameters())
+corners, ids, rejected = aruco.detectMarkers(detector, img)   # img: grayscale or BGR image
+```
+
+The DNN module reads ONNX and TFLite models (OpenCV 5 dropped the Caffe, TensorFlow,
+Darknet and Torch importers) and adds `OpenCV.dnn.Tokenizer_load` (Hugging Face
+`tokenizer.json` BPE tokenizers, with `OpenCV.dnn.encode`/`decode`) and a KV cache for
+LLM decoding (`OpenCV.dnn.enableKVCache`, `resetKVCache`, …). OpenCV 5 also brings learned
+features (`XFeat_create`, `DISK_create`, `ALIKED_create`, `LightGlueMatcher_create`) and
+new `Mat` element types (`Float16`, `Bool`, `UInt32`, `UInt64`, `Int64`).
 
 ## Developing locally
 

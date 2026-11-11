@@ -176,3 +176,31 @@ end
         OpenCV._gc_external_threshold[] = old_threshold
     end
 end
+
+@testset "split/merge across channel counts" begin
+    # cv::split / cv::merge read the channel count from the Mat type flag, so a
+    # wrong CV_CN_SHIFT shows up here as the wrong number of planes.
+    for T in (UInt8, Int16, Float32, Float64), nch in (1, 3, 4)
+        a = T.(reshape(collect(1:nch*6*5) .% 97, nch, 6, 5))
+        planes = OpenCV.split(a)
+        @test length(planes) == nch
+        for c in 1:nch
+            @test size(planes[c]) == (1, 6, 5)
+            @test planes[c][1, :, :] == a[c, :, :]
+        end
+        merged = OpenCV.merge(planes)
+        @test eltype(merged) == T
+        @test Array(merged) == a
+    end
+end
+
+@testset "Mat with OpenCV 5 element types" begin
+    for (T, v) in ((Float16, Float16(1.5)), (Bool, true), (UInt32, typemax(UInt32)),
+                   (UInt64, typemax(UInt64)), (Int64, typemin(Int64)))
+        a = fill(v, 3, 4, 2)
+        m = OpenCV.cpp_to_julia(OpenCV.julia_to_cpp(a))
+        @test m isa OpenCV.Mat{T}
+        @test all(==(v), m)
+        @test size(m) == (3, 4, 2)
+    end
+end

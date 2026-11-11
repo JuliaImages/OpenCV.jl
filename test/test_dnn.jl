@@ -14,28 +14,74 @@ end
 
 const cv = OpenCV
 
-# The opencv_extra artifact occasionally extracts incompletely on Windows
-# (the testdata/dnn folder ends up missing on some runners). Skip the
-# DNN integration test in that case rather than failing the suite.
-const face_detector_pbtxt = normpath(joinpath(test_dir, "..", "dnn", "opencv_face_detector.pbtxt"))
-if !isfile(face_detector_pbtxt)
-    @info "Skipping test_dnn: $(face_detector_pbtxt) not found in artifact"
-else
-    net = cv.dnn.DetectionModel(face_detector_pbtxt, Downloads.download("https://github.com/opencv/opencv_3rdparty/raw/dnn_samples_face_detector_20180220_uint8/opencv_face_detector_uint8.pb"))
-    size0 = 300
+# Download `url` into `dir`, returning the local path, or `nothing` when offline.
+function try_download(url, dir)
+    path = joinpath(dir, basename(url))
+    try
+        Downloads.download(url, path)
+        return path
+    catch err
+        @warn "Download failed; skipping the test that needs it" url exception = err
+        return nothing
+    end
+end
 
-    # cv.dnn.setPreferableTarget(net, cv.dnn.DNN_TARGET_CPU)
-    cv.dnn.setInputMean(net, (104, 177, 123))
-    cv.dnn.setInputScale(net, (1.,))
-    cv.dnn.setInputSize(net, size0, size0)
+const dnn_tmp = mktempdir()
 
+@testset "dnn" begin
+    @testset "FaceDetectorYN (YuNet ONNX)" begin
+        # OpenCV 5 dropped the TensorFlow/Caffe/Darknet importers; YuNet is ONNX.
+        model = try_download("https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx", dnn_tmp)
+        if model === nothing
+            @test_skip false
+        else
+            img = OpenCV.imread(joinpath(test_dir, "cascadeandhog", "images", "mona-lisa.png"))
+            W, H = size(img, 2), size(img, 3)
+            fd = cv.FaceDetectorYN_create(model, "", cv.Size{Int32}(W, H))
+            nfaces, faces = cv.detect(fd, img)
+            # `faces` is N rows × 15 cols of Float32: x, y, w, h, 5 landmarks, score.
+            @test size(faces, 2) == 15
+            @test size(faces, 3) >= 1
+            x, y, w, h = faces[1, 1:4, 1]
+            @test faces[1, 15, 1] > 0.9
+            box = (x, y, x + w, y + h)
+            expected_rect = (185, 101, 129 + 185, 169 + 101)
+            @test IOU(box, expected_rect) > 0.6
+        end
+    end
 
-    img = OpenCV.imread(joinpath(test_dir, "cascadeandhog", "images", "mona-lisa.png"))
+    @testset "Tokenizer (GPT-2 BPE)" begin
+        # Stock Hugging Face config.json + tokenizer.json (~1.4 MB) in one directory.
+        tokdir = mkpath(joinpath(dnn_tmp, "gpt2"))
+        base = "https://huggingface.co/openai-community/gpt2/resolve/main/"
+        files = [try_download(base * f, tokdir) for f in ("config.json", "tokenizer.json")]
+        if any(isnothing, files)
+            @test_skip false
+        else
+            tok = cv.dnn.Tokenizer_load(joinpath(tokdir, "config.json"))
+            ids = cv.dnn.encode(tok, "hello world")
+            @test ids == Int32[31373, 995]
+            @test cv.dnn.decode(tok, ids) == "hello world"
+            # load() also accepts the model directory.
+            @test cv.dnn.encode(cv.dnn.Tokenizer_load(tokdir), "hello world") == ids
+        end
+    end
 
-    classIds, confidences, boxes = cv.dnn.detect(net, img, confThreshold=0.5)
+    @testset "Net KV-cache API" begin
+        # Exercising the cache needs an exported decoder-only LLM (hundreds of MB),
+        # so only check that the 5.1 methods are wrapped.
+        for f in (cv.dnn.enableKVCache, cv.dnn.disableKVCache,
+                  cv.dnn.resetKVCache, cv.dnn.reserveKVCache)
+            @test !isempty(methods(f))
+        end
+        @test_skip false   # KV-cache inference with a real model
+    end
 
-    box = (boxes[1].x, boxes[1].y, boxes[1].x+boxes[1].width, boxes[1].y+boxes[1].height)
-    expected_rect = (185,101,129+185,169+101)
-
-    @test IOU(box, expected_rect) > 0.8
+    @testset "learned features (XFeat/DISK/ALIKED/LightGlue)" begin
+        # These load ONNX models of several MB each; only check they are wrapped.
+        for f in (cv.XFeat_create, cv.DISK_create, cv.ALIKED_create, cv.LightGlueMatcher_create)
+            @test !isempty(methods(f))
+        end
+        @test_skip false   # detect/match with downloaded models
+    end
 end

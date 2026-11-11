@@ -2,14 +2,44 @@
 # types_conversion.jl): every supported dtype, Scalar tuples of each arity, and
 # Vec / Array-of-Scalar / Array-of-Vec conversions.
 
+# Every element type with a cv::Mat depth, including the OpenCV 5 additions
+# (CV_16F, CV_Bool, CV_32U, CV_64U, CV_64S).
+const ALL_ELTYPES = (UInt8, Int8, UInt16, Int16, Int32, Float32, Float64,
+                     Float16, Bool, UInt32, UInt64, Int64)
+
+test_array(T, dims...) = T === Bool ? Array(isodd.(reshape(collect(1:prod(dims)), dims...))) :
+                                      T.(reshape(collect(1:prod(dims)), dims...))
+
 @testset "Mat <-> cv::Mat round-trip, all dtypes" begin
-    for T in (UInt8, Int8, UInt16, Int16, Int32, Float32, Float64)
-        a = T.(reshape(collect(1:24), 2, 3, 4))   # dense Array{T,3} (channels,cols,rows)
+    for T in ALL_ELTYPES, nch in (1, 2, 3, 4)
+        a = test_array(T, nch, 3, 4)               # dense Array{T,3} (channels,cols,rows)
         back = OpenCV.cpp_to_julia(OpenCV.julia_to_cpp(a))
         @test eltype(back) == T
         @test size(back) == size(a)
         @test Array(back) == a
     end
+end
+
+# The type flag Julia builds must decode to the same depth/channels in C++. With a
+# stale CV_CN_SHIFT (OpenCV 4 used 3, OpenCV 5 uses 5) OpenCV reads back the wrong
+# channel count, which `cv::flip` then exposes by moving the wrong number of bytes
+# per pixel.
+@testset "type flag encoding matches OpenCV 5" begin
+    @test OpenCV.CV_CN_SHIFT == 5
+    @test OpenCV.CV_MAKETYPE(OpenCV.CV_8U, 3) == 64          # CV_8UC3
+    @test OpenCV.CV_MAKETYPE(OpenCV.CV_32F, 2) == 37         # CV_32FC2
+    @test OpenCV.CV_MAT_DEPTH(OpenCV.CV_MAKETYPE(OpenCV.CV_64S, 4)) == OpenCV.CV_64S
+    @test OpenCV.CV_MAT_CN(OpenCV.CV_MAKETYPE(OpenCV.CV_16F, 4)) == 4
+    for T in ALL_ELTYPES, nch in (1, 3, 4)
+        a = test_array(T, nch, 5, 2)
+        rets = OpenCV.jlopencv_core_Mat_mutable_data(OpenCV.julia_to_cpp(a))
+        @test rets[2] == OpenCV.CV_MAKETYPE(OpenCV._cv_depth(T), nch)   # type()
+        @test rets[3] == nch                                            # channels()
+        @test (rets[4], rets[5]) == (5, 2)                              # cols, rows
+        # flip around the vertical axis reverses whole pixels along the column axis.
+        @test Array(OpenCV.flip(a, 1)) == a[:, end:-1:1, :]
+    end
+    @test_throws OpenCV.OpenCVError OpenCV.julia_to_cpp(zeros(UInt8, OpenCV.CV_CN_MAX + 1, 2, 2))
 end
 
 # An input OpenCV cannot borrow (no strides, or strides out of order) is first copied

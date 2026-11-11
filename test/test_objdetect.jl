@@ -27,3 +27,22 @@ rect = detect(img, cascade)
 expected_rect = (164,119,306,261)
 
 @test IOU(rect, expected_rect) > 0.95
+
+@testset "QRCodeEncoder / QRCodeDetector round-trip" begin
+    msg = "OpenCV.jl on OpenCV 5"
+    encoder = OpenCV.QRCodeEncoder_create(OpenCV.QRCodeEncoder_Params())
+    qr = OpenCV.encode(encoder, msg)         # one pixel per module, 2-module quiet zone
+    @test size(qr, 1) == 1 && size(qr, 2) == size(qr, 3)
+    n = size(qr, 2)
+    scale = 8
+    big = OpenCV.resize(qr, OpenCV.Size{Int32}(n * scale, n * scale);
+                        interpolation = OpenCV.INTER_NEAREST)
+    pad = 40
+    img = fill(0xff, 1, n * scale + 2pad, n * scale + 2pad)
+    img[1, pad+1:pad+n*scale, pad+1:pad+n*scale] .= big[1, :, :]
+
+    detector = OpenCV.QRCodeDetector()
+    decoded, points, _ = OpenCV.detectAndDecode(detector, img)
+    @test decoded == msg
+    @test length(points) == 8                 # 4 corners × (x, y)
+end
