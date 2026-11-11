@@ -2,6 +2,6 @@
 # Keep these in lockstep with O/OpenCV/build_tarballs.jl in Yggdrasil: the JLL's
 # compiled libopencv_julia and these committed .jl wrappers must come from the
 # same OpenCV tag, or @wrapmodule will fail on mismatched symbols.
-version = 4.14.0
-opencv_commit = 0654a42e19215ef25b1d367d822f3c630447e7c7
-opencv_contrib_commit = a8e9acd62cabd30419dba83007f2ac0d07de5e2c
+version = 5.1.0
+opencv_commit = e4f78fbcf1a773fbed69e14500e8b734963eb585
+opencv_contrib_commit = b67a855188a3d683813731010f6d39ac614733a4

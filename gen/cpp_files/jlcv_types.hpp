@@ -77,7 +77,7 @@ namespace jlcxx
   {
     static inline jl_datatype_t* julia_type()
     {
-      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("Point"), jl_svec1(julia_base_type<T>()));
+      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("Point"), jl_svec1((jl_value_t*)julia_base_type<T>()));
     }
   };
 
@@ -109,7 +109,7 @@ namespace jlcxx
   {
     static inline jl_datatype_t* julia_type()
     {
-      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("Size"), jl_svec1(julia_base_type<T>()));
+      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("Size"), jl_svec1((jl_value_t*)julia_base_type<T>()));
     }
   };
 
@@ -142,7 +142,7 @@ namespace jlcxx
   {
     static inline jl_datatype_t* julia_type()
     {
-      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("Point3"), jl_svec1(julia_base_type<T>()));
+      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("Point3"), jl_svec1((jl_value_t*)julia_base_type<T>()));
     }
   };
 
@@ -172,7 +172,7 @@ namespace jlcxx
   {
     static inline jl_datatype_t* julia_type()
     {
-      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("Rect"), jl_svec1(julia_base_type<T>()));
+      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("Rect"), jl_svec1((jl_value_t*)julia_base_type<T>()));
     }
   };
 
@@ -203,7 +203,7 @@ namespace jlcxx
   {
     static inline jl_datatype_t* julia_type()
     {
-      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("cvComplex"), jl_svec1(julia_base_type<T>()));
+      return (jl_datatype_t*)apply_type((jl_value_t*)jlcxx::julia_type("cvComplex"), jl_svec1((jl_value_t*)julia_base_type<T>()));
     }
   };
 

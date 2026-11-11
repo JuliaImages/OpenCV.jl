@@ -61,14 +61,27 @@ ocv_add_module(
     BINDINGS
     OPTIONAL
     opencv_core
+    opencv_flann
     opencv_imgproc
     opencv_imgcodecs
     opencv_highgui
     opencv_videoio
     opencv_dnn
-    opencv_features2d
+    opencv_features
+    opencv_geometry
+    opencv_stereo
+    opencv_calib
     opencv_objdetect
-    opencv_calib3d
+    opencv_video
+    opencv_stitching
+    opencv_photo
+    opencv_xobjdetect
+    opencv_ml
+    opencv_ximgproc
+    opencv_xphoto
+    opencv_tracking
+    opencv_optflow
+    opencv_xfeatures2d
 )
 
 set(HDR_PARSER_PATH ${CMAKE_SOURCE_DIR}/modules/python/src2/hdr_parser.py)
@@ -109,10 +122,20 @@ endif()
 unset(__config_str)
 
 
+# Module roots searched for headers: opencv/modules plus each opencv_contrib path.
+set(__gen_roots "--root=${CMAKE_SOURCE_DIR}/modules")
+foreach(p ${OPENCV_EXTRA_MODULES_PATH})
+  list(APPEND __gen_roots "--root=${p}")
+endforeach()
+
 execute_process(
                 WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/gen"
-                COMMAND ${PYTHON_DEFAULT_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/gen/gen_all.py" ${CMAKE_SOURCE_DIR}/modules "${JSON_CONFIG_FILE_PATH}" ${OPENCV_MODULES_BUILD}
+                COMMAND ${PYTHON_DEFAULT_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/gen/gen_all.py" ${__gen_roots} "${JSON_CONFIG_FILE_PATH}" ${OPENCV_MODULES_BUILD}
+                RESULT_VARIABLE __gen_result
                 )
+if(NOT __gen_result EQUAL 0)
+  message(FATAL_ERROR "Julia binding generator failed (${__gen_result})")
+endif()
 
 file(COPY ${CMAKE_CURRENT_BINARY_DIR}/gen/cpp_files/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/gen/autogen_cpp)
 

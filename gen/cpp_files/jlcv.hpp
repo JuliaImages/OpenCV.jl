@@ -40,24 +40,23 @@ using namespace jlcxx;
 #include <opencv2/videoio.hpp>
 #endif
 
-#ifdef HAVE_OPENCV_FEATURES2D
-#include <opencv2/features2d.hpp>
+#ifdef HAVE_OPENCV_FEATURES
+#include <opencv2/features.hpp>
 typedef SimpleBlobDetector::Params SimpleBlobDetector_Params;
-typedef AKAZE::DescriptorType AKAZE_DescriptorType;
-typedef AgastFeatureDetector::DetectorType AgastFeatureDetector_DetectorType;
 typedef FastFeatureDetector::DetectorType FastFeatureDetector_DetectorType;
 typedef DescriptorMatcher::MatcherType DescriptorMatcher_MatcherType;
-typedef KAZE::DiffusivityType KAZE_DiffusivityType;
 typedef ORB::ScoreType ORB_ScoreType;
 #endif
 
 #ifdef HAVE_OPENCV_OBJDETECT
-
 #include <opencv2/objdetect.hpp>
+#endif
 
+#ifdef HAVE_OPENCV_XOBJDETECT
+// CascadeClassifier and HOGDescriptor moved here from objdetect in OpenCV 5.
+#include <opencv2/xobjdetect.hpp>
 typedef HOGDescriptor::HistogramNormType HOGDescriptor_HistogramNormType;
 typedef HOGDescriptor::DescriptorStorageFormat HOGDescriptor_DescriptorStorageFormat;
-
 #endif
 
 #ifdef HAVE_OPENCV_FLANN
@@ -72,15 +71,48 @@ typedef flann::SearchParams flann_SearchParams;
 
 #include <opencv2/dnn.hpp>
 typedef cv::dnn::Backend dnn_Backend;
-typedef cv::dnn::DataLayout dnn_DataLayout;
 typedef cv::dnn::DictValue LayerId;
 typedef cv::dnn::ImagePaddingMode dnn_ImagePaddingMode;
 typedef cv::dnn::Target dnn_Target;
 #endif
 
-#ifdef HAVE_OPENCV_CALIB3D
-
-#include <opencv2/calib3d.hpp>
+#ifdef HAVE_OPENCV_GEOMETRY
+#include <opencv2/geometry.hpp>
+#endif
+#ifdef HAVE_OPENCV_STEREO
+#include <opencv2/stereo.hpp>
+#endif
+#ifdef HAVE_OPENCV_CALIB
+#include <opencv2/calib.hpp>
+#endif
+#ifdef HAVE_OPENCV_VIDEO
+#include <opencv2/video.hpp>
+#endif
+#ifdef HAVE_OPENCV_STITCHING
+#include <opencv2/stitching.hpp>
+#endif
+#ifdef HAVE_OPENCV_PHOTO
+#include <opencv2/photo.hpp>
+#include <opencv2/photo/ccm.hpp>
+#include <opencv2/photo/segmentation.hpp>
+#endif
+#ifdef HAVE_OPENCV_ML
+#include <opencv2/ml.hpp>
+#endif
+#ifdef HAVE_OPENCV_XIMGPROC
+#include <opencv2/ximgproc.hpp>
+#endif
+#ifdef HAVE_OPENCV_XPHOTO
+#include <opencv2/xphoto.hpp>
+#endif
+#ifdef HAVE_OPENCV_TRACKING
+#include <opencv2/tracking.hpp>
+#endif
+#ifdef HAVE_OPENCV_OPTFLOW
+#include <opencv2/optflow.hpp>
+#endif
+#ifdef HAVE_OPENCV_XFEATURES2D
+#include <opencv2/xfeatures2d.hpp>
 #endif
 
 template <typename C>

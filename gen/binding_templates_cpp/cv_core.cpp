@@ -50,7 +50,14 @@ JLCXX_MODULE cv_wrap(jlcxx::Module &mod)
     mod.method("jlopencv_core_get_sizet", [](){return sizeof(size_t);});
     jlcxx::add_smart_pointer<cv::Ptr>(mod, "cv_Ptr");
     mod.method("jlopencv_core_Mat_mutable_data", [](Mat m) {
-        return make_tuple(m.data, m.type(), m.channels(), m.size[1], m.size[0], m.step[1], m.step[0]);
+        // OpenCV 5 has 0-D and 1-D Mats; present them as rows x 1 (the shape 4.x gave
+        // vectors) instead of indexing size[1]/step[1], which assert for dims < 2.
+        const int d = m.dims;
+        const int rows = d >= 1 ? m.size[0] : (m.empty() ? 0 : 1);
+        const int cols = d >= 2 ? m.size[1] : (rows > 0 ? 1 : 0);
+        const size_t col_step = d >= 2 ? m.step[1] : m.elemSize();
+        const size_t row_step = d >= 2 ? m.step[0] : m.elemSize();
+        return make_tuple(m.data, m.type(), m.channels(), cols, rows, col_step, row_step);
     });
 
 
@@ -106,5 +113,42 @@ JLCXX_MODULE cv_wrap(jlcxx::Module &mod)
 //
 
     ${cpp_code}
+
+//
+// Manual Wrapping (after the generated types are registered)
+//
+
+#ifdef HAVE_OPENCV_DNN
+    // cv::MatShape is a class in OpenCV 5 (a typedef of std::vector<int> in 4.x); pass
+    // shapes to and from Julia as integer vectors.
+    {
+        auto to_shapes = [](const vector<vector<int>>& v) {
+            vector<MatShape> s;
+            for (const auto& x : v) s.emplace_back(x);
+            return s;
+        };
+        auto from_shapes = [](const vector<MatShape>& s) {
+            vector<vector<int>> v;
+            for (const auto& x : s) v.emplace_back(x.begin(), x.end());
+            return v;
+        };
+        mod.method("jlopencv_dnn_Net_setInputShape", [](cv::dnn::Net& net, string& name, vector<int>& shape) {
+            net.setInputShape(name, MatShape(shape));
+        });
+        mod.method("jlopencv_dnn_Net_getFLOPS", [to_shapes](cv::dnn::Net& net, vector<vector<int>>& shapes, vector<int>& types) {
+            return (int64_t)net.getFLOPS(to_shapes(shapes), types);
+        });
+        mod.method("jlopencv_dnn_Net_getMemoryConsumption", [to_shapes](cv::dnn::Net& net, vector<vector<int>>& shapes, vector<int>& types) {
+            size_t weights = 0, blobs = 0;
+            net.getMemoryConsumption(to_shapes(shapes), types, weights, blobs);
+            return make_tuple((int64_t)weights, (int64_t)blobs);
+        });
+        mod.method("jlopencv_dnn_Net_getLayerShapes", [to_shapes, from_shapes](cv::dnn::Net& net, vector<vector<int>>& shapes, vector<int>& types, int64_t layerId) {
+            vector<MatShape> in, out;
+            net.getLayerShapes(to_shapes(shapes), types, (int)layerId, in, out);
+            return make_tuple(from_shapes(in), from_shapes(out));
+        });
+    }
+#endif
 
 }

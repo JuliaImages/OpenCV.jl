@@ -34,19 +34,32 @@ end
 read_list(path) = [strip(l) for l in eachline(path)
                     if !isempty(strip(l)) && !startswith(strip(l), "#")]
 
+function fetch_or_use(name, local_src, commit, work, version)
+    if !isempty(local_src)
+        head = readchomp(`git -C $local_src rev-parse HEAD`)
+        head == commit || error("$name checkout at $local_src is at $head, expected $commit")
+        return local_src
+    end
+    dir = joinpath(work, name)
+    @info "Fetching $name" version commit
+    run(`git init -q $dir`)
+    run(`git -C $dir fetch -q --depth 1 https://github.com/opencv/$name.git $commit`)
+    run(`git -C $dir checkout -q FETCH_HEAD`)
+    return dir
+end
+
 function main()
     pins = read_kv(joinpath(GEN, "OPENCV_VERSION"))
     modules = read_list(joinpath(GEN, "MODULE_LIST"))
-    commit = pins["opencv_commit"]
     version = get(pins, "version", "?")
 
     work = mktempdir()
     try
-        opencv = joinpath(work, "opencv")
-        @info "Fetching opencv" version commit
-        run(`git init -q $opencv`)
-        run(`git -C $opencv fetch -q --depth 1 https://github.com/opencv/opencv.git $commit`)
-        run(`git -C $opencv checkout -q FETCH_HEAD`)
+        # OPENCV_SRC / OPENCV_CONTRIB_SRC point at existing checkouts of the pinned
+        # commits (handy when iterating offline); otherwise both are fetched.
+        opencv = fetch_or_use("opencv", get(ENV, "OPENCV_SRC", ""), pins["opencv_commit"], work, version)
+        contrib = fetch_or_use("opencv_contrib", get(ENV, "OPENCV_CONTRIB_SRC", ""),
+                               pins["opencv_contrib_commit"], work, version)
 
         # Run in an isolated copy so we never mutate the committed toolkit. Use the
         # pinned opencv's hdr_parser so the parser always matches the headers.
@@ -56,8 +69,8 @@ function main()
            joinpath(rundir, "hdr_parser.py"); force=true)
 
         cfg = joinpath(rundir, "gen_python_config.json")
-        modpath = joinpath(opencv, "modules")
-        cmd = `python3 gen_all.py $modpath $cfg $modules`
+        roots = ["--root=" * joinpath(opencv, "modules"), "--root=" * joinpath(contrib, "modules")]
+        cmd = `python3 gen_all.py $roots $cfg $modules`
         @info "Generating wrappers" cmd
         run(setenv(addenv(cmd, "PYTHONHASHSEED" => "0"); dir=rundir))
 
@@ -71,6 +84,17 @@ function main()
             n += 1
         end
         @info "Wrote $n wrapper files to src/generated/"
+        # GEN_KEEP_CPP=<dir> also keeps the generated C++ (normally compiled by the
+        # OpenCV_jll build), for compiling libopencv_julia locally.
+        keep = get(ENV, "GEN_KEEP_CPP", "")
+        if !isempty(keep)
+            rm(keep; recursive=true, force=true)
+            cp(joinpath(rundir, "autogen_cpp"), keep)
+            for f in readdir(joinpath(rundir, "cpp_files"))
+                cp(joinpath(rundir, "cpp_files", f), joinpath(keep, f); force=true)
+            end
+            @info "Kept generated C++ in $keep"
+        end
     finally
         rm(work; recursive=true, force=true)
     end
